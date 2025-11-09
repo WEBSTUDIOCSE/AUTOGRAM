@@ -12,6 +12,11 @@ export function PageHeader() {
     const segments = path.split('/').filter(Boolean);
     if (segments.length === 0) return 'Home';
     
+    // Check if path includes 'generator'
+    if (segments.includes('generator')) {
+      return 'Random Image Generator';
+    }
+    
     return segments
       .map(segment => 
         segment

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, LogOut, Home, KeyRound, User } from 'lucide-react';
+import { LayoutDashboard, LogOut, Home, KeyRound, User, Sparkles } from 'lucide-react';
 
 import {
   Sidebar,
@@ -33,9 +33,9 @@ import type { ServerUser } from '@/lib/auth/server';
 // Navigation items
 const navItems = [
   {
-    title: 'Dashboard',
-    url: '/dashboard',
-    icon: LayoutDashboard,
+    title: 'AI Generator',
+    url: '/dashboard/generator',
+    icon: Sparkles,
   },
 ];
 
@@ -74,8 +74,8 @@ export function AppSidebar({ user }: AppSidebarProps) {
                   <Home className="size-4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold">My App</span>
-                  <span className="text-xs text-muted-foreground">Dashboard</span>
+                  <span className="font-semibold">InstaAI</span>
+                  <span className="text-xs text-muted-foreground">Generator</span>
                 </div>
               </Link>
             </SidebarMenuButton>

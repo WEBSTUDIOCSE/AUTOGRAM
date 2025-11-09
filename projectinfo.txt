@@ -1,0 +1,160 @@
+🎯 Project Overview
+InstaAI Generator is an AI-powered Instagram automation platform that enables users to generate unique images using text prompts and automatically post them to Instagram. The application uses Google's Gemini AI for image generation and integrates with Instagram Graph API for seamless content publishing.
+
+💡 Core Concept
+Transform text descriptions into Instagram-ready images with a single click. Users describe what they want, AI generates it, and the system posts it directly to Instagram - all within one streamlined workflow.
+
+🎨 Key Features
+Module 1: Random Image Generator
+Pure prompt-based generation - Users write complete descriptions
+
+No restrictions - Any style, format, or content
+
+Manual posting control - User decides when to post
+
+Multiple Instagram accounts - Switch between accounts easily
+
+Firebase Storage - Primary storage with Google Drive backup
+
+Caption & hashtag support - Full Instagram formatting
+
+Module 2: Character Model Generator (Future)
+Consistent AI character - Same person, different scenarios
+
+Dropdown-based inputs - Outfit, location, pose selectors
+
+Fashion & lifestyle focus - Build recognizable brand identity
+
+Maintain character consistency - Same face across all generations
+
+🔄 Complete User Workflow
+text
+1. User enters text prompt
+   ↓
+2. AI generates image (Gemini API)
+   ↓
+3. Image saved to Firebase Storage
+   ↓
+4. User reviews image (regenerate/download/keep)
+   ↓
+5. User selects Instagram account
+   ↓
+6. User writes caption & hashtags
+   ↓
+7. User posts to Instagram
+   ↓
+8. Optional: Backup to Google Drive
+🛠️ Technology Stack
+Frontend:
+Next.js 14+ - React framework with App Router
+
+React - UI component library
+
+Tailwind CSS - Utility-first styling
+
+shadcn/ui - Modern component system
+
+TypeScript - Type-safe development
+
+Backend/APIs:
+Gemini API (Nano Banana) - AI image generation
+
+Instagram Graph API - Social media posting
+
+Firebase Storage - Image storage and hosting
+
+Firestore - Metadata and tracking
+
+Google Drive API - Optional backup storage
+
+Hosting:
+Vercel - Application hosting
+
+Firebase - Cloud storage and database
+
+🎨 Design System
+Color Palette:
+Instagram Brand Colors:
+
+Yellow: #FFD600
+
+Orange: #FF7A00
+
+Pink: #FF0069
+
+Purple: #D300C5
+
+Blue: #7638FA
+
+Neutral Colors:
+
+Background: #FAFAFA (light gray)
+
+Surface: #FFFFFF (white)
+
+Text Primary: #262626 (dark gray)
+
+Text Secondary: #8E8E8E (medium gray)
+
+Border: #DBDBDB (light border)
+
+Visual Style:
+Modern SaaS dashboard aesthetic
+
+Instagram-inspired gradient accents
+
+Clean, professional interface
+
+Mobile-responsive design
+
+Smooth micro-interactions
+
+📐 Application Structure
+Layout:
+Left Sidebar (250px) - Module navigation, neutral design
+
+Main Content Area - Workflow sections, Instagram gradients
+
+Responsive - Mobile, tablet, desktop optimized
+
+Key Screens:
+Module 1 Dashboard - Complete generation workflow
+
+Preview Modal - Review before posting
+
+Settings - Account management, preferences
+
+Post History - Track generated content (future)
+
+🔐 Data & Storage Architecture
+Firebase Storage Structure:
+text
+/InstaAI/
+  ├─ Module1/
+  │   └─ Image_001_2025-11-09_17-30-45.png
+  └─ Module2/
+      └─ Image_001_2025-11-09_18-15-20.png
+Firestore Database:
+javascript
+Collection: "module1_images"
+{
+  imageId: "001",
+  imageName: "Image_001_2025-11-09_17-30.png",
+  firebaseUrl: "https://...",
+  prompt: "Mountain sunset...",
+  caption: "Beautiful vibes ✨",
+  hashtags: "#nature #sunset",
+  selectedInstagramId: "1",
+  postedToInstagram: true,
+  instagramPostId: "67890",
+  backedUpToDrive: false,
+  createdAt: timestamp,
+  postedAt: timestamp
+}
+Google Drive Backup:
+text
+/InstaAI_Backup/
+  ├─ Module1/
+  └─ Module2/
+
+  
