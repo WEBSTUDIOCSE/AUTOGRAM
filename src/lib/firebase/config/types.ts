@@ -18,9 +18,18 @@ export interface FirebaseConfig {
 export type Environment = 'UAT' | 'PROD';
 
 /**
+ * Gemini AI configuration interface
+ */
+export interface GeminiConfig {
+  apiKey: string;
+  model: string;
+}
+
+/**
  * Environment configuration
  */
 export interface EnvironmentConfig {
   name: Environment;
   config: FirebaseConfig;
+  gemini: GeminiConfig;
 } 

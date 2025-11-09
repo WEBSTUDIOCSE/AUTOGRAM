@@ -1,4 +1,4 @@
-import type { FirebaseConfig, EnvironmentConfig } from './types';
+import type { FirebaseConfig, EnvironmentConfig, GeminiConfig } from './types';
 
 /**
  * UAT Environment Configuration
@@ -12,6 +12,14 @@ const UAT_CONFIG: FirebaseConfig = {
     appId: "1:614576728087:web:6337d07f43cb3674001452",
     measurementId: "G-RMHPEET5ZY",
     vapidKey: "BPdx9XtofjSoMHlUewHoxrV2IcWwz3jsJY7Rl0byzte4EDYOnMfxtJogdOXlCKRAL5tYSsHc-7iuWkxWjnwo1TA"
+};
+
+/**
+ * UAT Gemini Configuration
+ */
+const UAT_GEMINI: GeminiConfig = {
+    apiKey:  "AIzaSyAOcGqPpVVborGiFPLz02DORVFVdgmgpw4",
+    model: "gemini-2.5-flash-image"
 };
 
 /**
@@ -29,16 +37,26 @@ const PROD_CONFIG: FirebaseConfig = {
 };
 
 /**
+ * PROD Gemini Configuration
+ */
+const PROD_GEMINI: GeminiConfig = {
+    apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY_PROD || "",
+    model: "gemini-2.5-flash-image"
+};
+
+/**
  * Environment configurations map
  */
 export const ENVIRONMENTS: Record<'UAT' | 'PROD', EnvironmentConfig> = {
   UAT: {
     name: 'UAT',
-    config: UAT_CONFIG
+    config: UAT_CONFIG,
+    gemini: UAT_GEMINI
   },
   PROD: {
     name: 'PROD',
-    config: PROD_CONFIG
+    config: PROD_CONFIG,
+    gemini: PROD_GEMINI
   }
 };
 
@@ -60,6 +78,13 @@ export const getCurrentEnvironment = (): EnvironmentConfig => {
  */
 export const getCurrentFirebaseConfig = (): FirebaseConfig => {
   return getCurrentEnvironment().config;
+};
+
+/**
+ * Get current Gemini AI config
+ */
+export const getGeminiConfig = (): GeminiConfig => {
+  return getCurrentEnvironment().gemini;
 };
 
 

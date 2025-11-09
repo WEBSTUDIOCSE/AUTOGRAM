@@ -12,6 +12,7 @@ import { RecentPrompts } from '@/components/module1/RecentPrompts';
 import { PromptInput } from '@/components/module1/PromptInput';
 import { InstagramAccountSelector } from '@/components/module1/InstagramAccountSelector';
 import { mockGeneratedImage, mockHashtagSuggestions } from '@/lib/mock-data/module1';
+import { APIBook } from '@/lib/firebase/services';
 
 export default function GeneratorPage() {
   const [prompt, setPrompt] = React.useState('');
@@ -21,22 +22,56 @@ export default function GeneratorPage() {
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [hasGeneratedImage, setHasGeneratedImage] = React.useState(false);
   const [selectedHashtags, setSelectedHashtags] = React.useState<string[]>([]);
+  const [generatedImageUrl, setGeneratedImageUrl] = React.useState('');
+  const [aiError, setAiError] = React.useState('');
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!prompt.trim()) return;
     setIsGenerating(true);
+    setAiError('');
+    setGeneratedImageUrl('');
     
-    // Simulate AI generation
-    setTimeout(() => {
+    try {
+      // Call Gemini AI
+      const response = await APIBook.ai.generateImage(prompt);
+      
+      if (response.success && response.data) {
+        setHasGeneratedImage(true);
+        // Convert base64 to data URL for display
+        const imageUrl = `data:image/png;base64,${response.data.imageBase64}`;
+        setGeneratedImageUrl(imageUrl);
+        // Auto-fill caption with prompt
+        setCaption(`${prompt} ✨ #AIGenerated #Autogram`);
+      } else {
+        setAiError(response.error || 'Failed to generate image');
+        setHasGeneratedImage(false);
+      }
+    } catch (error) {
+      setAiError(error instanceof Error ? error.message : 'An error occurred');
+      setHasGeneratedImage(false);
+    } finally {
       setIsGenerating(false);
-      setHasGeneratedImage(true);
-      // Auto-fill caption with prompt
-      setCaption(`${prompt} ✨ AI-generated image #art #creativity`);
-    }, 2000);
+    }
   };
 
   const handleSelectPrompt = (selectedPrompt: string) => {
     setPrompt(selectedPrompt);
+  };
+
+  const handleDownloadImage = () => {
+    if (!generatedImageUrl) return;
+    
+    // Create download link
+    const link = document.createElement('a');
+    link.href = generatedImageUrl;
+    link.download = `autogram-${Date.now()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleRegenerateImage = () => {
+    handleGenerate();
   };
 
   const handleAddHashtag = (tag: string) => {
@@ -124,12 +159,24 @@ export default function GeneratorPage() {
 
           {hasGeneratedImage && !isGenerating && (
             <>
+              {/* Error Display */}
+              {aiError && (
+                <Card className="p-4 bg-destructive/10 border-destructive/50">
+                  <h4 className="text-sm font-semibold mb-2 text-destructive">
+                    ❌ Generation Failed
+                  </h4>
+                  <p className="text-xs text-destructive">
+                    {aiError}
+                  </p>
+                </Card>
+              )}
+
               {/* Generated Image Preview with Padding */}
               <Card className="overflow-hidden">
                 <div className="px-3  md:px-4">
                   <div className=" relative max-h-[350px] md:max-h-[400px] overflow-hidden rounded-lg">
                     <img
-                      src={mockGeneratedImage.url}
+                      src={generatedImageUrl || mockGeneratedImage.url}
                       alt="Generated AI Image"
                     
                       className="object-cover w-full h-full"
@@ -148,12 +195,23 @@ export default function GeneratorPage() {
                     </p>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="flex-1 text-xs md:text-sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1 text-xs md:text-sm"
+                      onClick={handleRegenerateImage}
+                      disabled={isGenerating}
+                    >
                       <RefreshCw className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
                       <span className="hidden sm:inline">Regenerate</span>
                       <span className="sm:hidden">Regen</span>
                     </Button>
-                    <Button variant="outline" size="sm" className="flex-1 text-xs md:text-sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1 text-xs md:text-sm"
+                      onClick={handleDownloadImage}
+                    >
                       <Download className="mr-1 md:mr-2 h-3 w-3 md:h-4 md:w-4" />
                       <span className="hidden sm:inline">Download</span>
                       <span className="sm:hidden">Save</span>
