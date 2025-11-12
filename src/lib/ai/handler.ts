@@ -18,15 +18,15 @@ export async function aiHandler<T>(
       code: 'SUCCESS',
       timestamp: Date.now()
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Log error in development
     if (process.env.NODE_ENV === 'development') {
       console.error(`[AI Error${context ? ` - ${context}` : ''}]:`, error);
     }
     
     // Handle Gemini-specific errors
-    const errorMessage = error?.message || 'AI generation failed';
-    const errorCode = error?.code || 'AI_ERROR';
+    const errorMessage = error instanceof Error ? error.message : 'AI generation failed';
+    const errorCode = (error as { code?: string })?.code || 'AI_ERROR';
     
     return {
       success: false,

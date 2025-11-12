@@ -12,7 +12,7 @@ export default function DashboardPage() {
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Welcome back!</h2>
         <p className="text-muted-foreground">
-          Here's your dashboard overview.
+          Here&apos;s your dashboard overview.
         </p>
       </div>
 

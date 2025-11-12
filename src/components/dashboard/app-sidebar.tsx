@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, LogOut, Home, KeyRound, User, Sparkles } from 'lucide-react';
+import { LogOut, Home, KeyRound, User, Sparkles } from 'lucide-react';
 
 import {
   Sidebar,

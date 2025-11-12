@@ -37,7 +37,7 @@ export const AIService = {
       const response = await genAI.models.generateContent({
         model: modelName,
         contents: enhancedPrompt,
-      }) as any;
+      }) as { candidates?: Array<{ content?: { parts?: Array<{ inlineData?: { data: string } }> } }> };
 
       // Extract image from response structure: candidates[0].content.parts[]
       let imageBase64 = '';

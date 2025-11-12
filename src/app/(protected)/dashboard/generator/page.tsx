@@ -1,19 +1,17 @@
 'use client';
 
 import * as React from 'react';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Download, RefreshCw, Save, ImageIcon, Send, CheckCircle2 } from 'lucide-react';
 import { RecentPrompts } from '@/components/module1/RecentPrompts';
 import { PromptInput } from '@/components/module1/PromptInput';
 import { InstagramAccountSelector } from '@/components/module1/InstagramAccountSelector';
-import { mockGeneratedImage, mockHashtagSuggestions } from '@/lib/mock-data/module1';
 import { APIBook } from '@/lib/firebase/services';
-import { PostHistoryService } from '@/lib/services/post-history.service';
+import { InstagramPostService } from '@/lib/services/post-history.service';
+import { ImageService } from '@/lib/services/image.service';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function GeneratorPage() {
@@ -24,37 +22,48 @@ export default function GeneratorPage() {
   const [selectedAccount, setSelectedAccount] = React.useState('1');
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [hasGeneratedImage, setHasGeneratedImage] = React.useState(false);
-  const [selectedHashtags, setSelectedHashtags] = React.useState<string[]>([]);
   const [generatedImageUrl, setGeneratedImageUrl] = React.useState('');
-  const [generatedImageBase64, setGeneratedImageBase64] = React.useState('');
+  const [generatedImageId, setGeneratedImageId] = React.useState(''); // Firestore doc ID
   const [aiError, setAiError] = React.useState('');
   const [isPosting, setIsPosting] = React.useState(false);
   const [postSuccess, setPostSuccess] = React.useState(false);
   const [postError, setPostError] = React.useState('');
-  const [uploadedImageUrl, setUploadedImageUrl] = React.useState('');
-  const [isUploading, setIsUploading] = React.useState(false);
+  const [isSaving, setIsSaving] = React.useState(false);
 
   const handleGenerate = async () => {
-    if (!prompt.trim()) return;
+    if (!prompt.trim() || !user?.uid) return;
     setIsGenerating(true);
+    setIsSaving(false);
     setAiError('');
     setGeneratedImageUrl('');
-    setGeneratedImageBase64('');
+    setGeneratedImageId('');
     setPostSuccess(false);
     setPostError('');
-    setUploadedImageUrl('');
     
     try {
-      // Call Gemini AI
+      // Step 1: Generate image with Gemini AI
+      console.log('🎨 Generating image with Gemini...');
       const response = await APIBook.ai.generateImage(prompt);
       
       if (response.success && response.data) {
-        setHasGeneratedImage(true);
-        // Store base64 separately
-        setGeneratedImageBase64(response.data.imageBase64);
-        // Convert base64 to data URL for display
+        // Store base64 for display
         const imageUrl = `data:image/png;base64,${response.data.imageBase64}`;
         setGeneratedImageUrl(imageUrl);
+        setHasGeneratedImage(true);
+        
+        // Step 2: Save to Firestore + Firebase Storage
+        setIsSaving(true);
+        console.log('💾 Saving image to Firebase...');
+        const imageId = await ImageService.saveImage({
+          userId: user.uid,
+          prompt: prompt,
+          imageBase64: response.data.imageBase64,
+          model: response.data.model
+        });
+        
+        setGeneratedImageId(imageId);
+        console.log('✅ Image saved with ID:', imageId);
+        
         // Auto-fill caption with prompt
         setCaption(`${prompt} ✨ #AIGenerated #Autogram`);
       } else {
@@ -66,47 +75,12 @@ export default function GeneratorPage() {
       setHasGeneratedImage(false);
     } finally {
       setIsGenerating(false);
-    }
-  };
-
-  const uploadToFirebaseStorage = async (base64Image: string): Promise<string> => {
-    setIsUploading(true);
-    try {
-      // Convert base64 to blob
-      const byteString = atob(base64Image);
-      const ab = new ArrayBuffer(byteString.length);
-      const ia = new Uint8Array(ab);
-      for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-      }
-      const blob = new Blob([ab], { type: 'image/png' });
-
-      // Create form data
-      const formData = new FormData();
-      formData.append('file', blob, `autogram-${Date.now()}.png`);
-
-      // Upload to your backend API route (we'll create this)
-      const uploadResponse = await fetch('/api/upload-image', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error('Failed to upload image');
-      }
-
-      const { url } = await uploadResponse.json();
-      return url;
-    } catch (error) {
-      console.error('Upload error:', error);
-      throw error;
-    } finally {
-      setIsUploading(false);
+      setIsSaving(false);
     }
   };
 
   const handlePostToInstagram = async () => {
-    if (!generatedImageBase64 || !caption.trim()) {
+    if (!generatedImageId || !caption.trim() || !user?.uid) {
       setPostError('Image and caption are required');
       return;
     }
@@ -116,12 +90,16 @@ export default function GeneratorPage() {
     setPostSuccess(false);
 
     try {
-      // Step 1: Upload image to Firebase Storage to get public URL
-      console.log('📤 Uploading image to storage...');
-      const publicImageUrl = await uploadToFirebaseStorage(generatedImageBase64);
-      setUploadedImageUrl(publicImageUrl);
+      // Step 1: Get saved image data from Firestore
+      console.log('� Fetching saved image...');
+      const savedImage = await ImageService.getImage(generatedImageId);
       
-      console.log('✅ Image uploaded:', publicImageUrl);
+      if (!savedImage || !savedImage.imageUrl) {
+        throw new Error('Image not found in storage');
+      }
+
+      const publicImageUrl = savedImage.imageUrl;
+      console.log('✅ Image URL:', publicImageUrl);
 
       // Step 2: Combine caption and hashtags
       const fullCaption = hashtags.trim() 
@@ -130,44 +108,61 @@ export default function GeneratorPage() {
 
       // Step 3: Post to Instagram
       console.log('📸 Posting to Instagram...');
-      const postId = await APIBook.instagram.postImage(publicImageUrl, fullCaption);
+      const instagramPostId = await APIBook.instagram.postImage(publicImageUrl, fullCaption);
       
-      console.log('✅ Posted successfully:', postId);
-      setPostSuccess(true);
+      console.log('✅ Posted successfully:', instagramPostId);
 
-      // Step 4: Save to post history
-      if (user?.uid) {
-        try {
-          await PostHistoryService.savePost({
-            userId: user.uid,
-            prompt: prompt,
-            caption: caption,
-            hashtags: hashtags,
-            imageUrl: publicImageUrl,
-            instagramPostId: postId,
-            instagramAccountId: selectedAccount,
-            model: 'gemini-2.5-flash-image'
-          });
-          console.log('✅ Saved to post history');
-        } catch (historyError) {
-          console.error('⚠️ Failed to save history (non-critical):', historyError);
-        }
-      }
+      // Step 4: Save to Instagram post history
+      await InstagramPostService.savePost({
+        userId: user.uid,
+        imageId: generatedImageId,
+        prompt: prompt,
+        caption: caption,
+        hashtags: hashtags,
+        imageUrl: publicImageUrl,
+        instagramPostId: instagramPostId,
+        instagramAccountId: selectedAccount,
+        model: savedImage.model
+      });
+      console.log('✅ Saved to Instagram post history');
+
+      // Step 5: Update image status to "posted"
+      await ImageService.updateStatus(generatedImageId, 'posted');
+      console.log('✅ Image status updated to posted');
+
+      setPostSuccess(true);
 
       // Reset after 3 seconds
       setTimeout(() => {
         setPostSuccess(false);
-        // Optionally reset the form
-        // setHasGeneratedImage(false);
-        // setPrompt('');
-        // setCaption('');
-        // setHashtags('');
       }, 3000);
 
     } catch (error) {
       console.error('❌ Post error:', error);
       const errorMsg = error instanceof Error ? error.message : 'Failed to post to Instagram';
       setPostError(errorMsg);
+      
+      // Save failed post
+      if (user?.uid && generatedImageId) {
+        try {
+          const savedImage = await ImageService.getImage(generatedImageId);
+          if (savedImage) {
+            await InstagramPostService.saveFailedPost({
+              userId: user.uid,
+              imageId: generatedImageId,
+              prompt: prompt,
+              caption: caption,
+              hashtags: hashtags,
+              imageUrl: savedImage.imageUrl,
+              instagramAccountId: selectedAccount,
+              model: savedImage.model,
+              error: errorMsg
+            });
+          }
+        } catch (saveError) {
+          console.error('⚠️ Failed to save failed post:', saveError);
+        }
+      }
     } finally {
       setIsPosting(false);
     }
@@ -190,21 +185,7 @@ export default function GeneratorPage() {
   };
 
   const handleRegenerateImage = () => {
-    handleGenerate();
-  };
-
-  const handleAddHashtag = (tag: string) => {
-    if (!selectedHashtags.includes(tag) && selectedHashtags.length < 30) {
-      const newTags = [...selectedHashtags, tag];
-      setSelectedHashtags(newTags);
-      setHashtags(newTags.map(t => `#${t}`).join(' '));
-    }
-  };
-
-  const handleRemoveHashtag = (tag: string) => {
-    const newTags = selectedHashtags.filter(t => t !== tag);
-    setSelectedHashtags(newTags);
-    setHashtags(newTags.map(t => `#${t}`).join(' '));
+    setPrompt(prompt);
   };
 
   return (
@@ -255,7 +236,7 @@ export default function GeneratorPage() {
                 <div className="space-y-2">
                   <h3 className="text-base md:text-lg font-medium">Ready to Create?</h3>
                   <p className="text-xs md:text-sm text-muted-foreground max-w-sm">
-                    Enter a detailed prompt on the left and click "Generate Image" to create your first AI-powered image
+                    Enter a detailed prompt on the left and click &quot;Generate Image&quot; to create your first AI-powered image
                   </p>
                 </div>
               </div>
@@ -295,7 +276,7 @@ export default function GeneratorPage() {
                 <div className="px-3  md:px-4">
                   <div className=" relative max-h-[350px] md:max-h-[400px] overflow-hidden rounded-lg">
                     <img
-                      src={generatedImageUrl || mockGeneratedImage.url}
+                      src={generatedImageUrl}
                       alt="Generated AI Image"
                     
                       className="object-cover w-full h-full"
@@ -307,10 +288,7 @@ export default function GeneratorPage() {
                 <div className="px-3 md:px-4 pt-2 pb-2 md:pt-3 md:pb-3 space-y-3">
                   <div className="space-y-1">
                     <p className="text-xs md:text-sm text-muted-foreground">
-                      Saved as: <span className="font-mono text-xs">{mockGeneratedImage.fileName}</span>
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {mockGeneratedImage.fileSize} • {mockGeneratedImage.dimensions}
+                      Image generated successfully
                     </p>
                   </div>
                   <div className="flex gap-2">
@@ -413,12 +391,12 @@ export default function GeneratorPage() {
                 size="lg" 
                 className="w-full"
                 onClick={handlePostToInstagram}
-                disabled={isPosting || isUploading || !caption.trim()}
+                disabled={isPosting || isSaving || !caption.trim()}
               >
-                {isUploading ? (
+                {isSaving ? (
                   <>
                     <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                    Uploading Image...
+                    Saving Image...
                   </>
                 ) : isPosting ? (
                   <>

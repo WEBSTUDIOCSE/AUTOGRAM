@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { APIBook } from '@/lib/firebase/services';
+import type { InstagramAccount } from '@/lib/services/instagram.service';
 
 export function InstagramConnectionTest() {
   const [loading, setLoading] = useState(false);
-  const [accountInfo, setAccountInfo] = useState<any>(null);
+  const [accountInfo, setAccountInfo] = useState<InstagramAccount | null>(null);
   const [error, setError] = useState('');
 
   const testConnection = async () => {

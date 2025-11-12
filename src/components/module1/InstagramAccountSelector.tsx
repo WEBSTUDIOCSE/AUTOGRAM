@@ -6,6 +6,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { APIBook } from '@/lib/firebase/services';
 import { Loader2 } from 'lucide-react';
+import type { InstagramAccount } from '@/lib/services/instagram.service';
 
 interface InstagramAccountSelectorProps {
   selectedAccountId: string;
@@ -16,7 +17,7 @@ export function InstagramAccountSelector({
   selectedAccountId,
   onSelectAccount,
 }: InstagramAccountSelectorProps) {
-  const [account, setAccount] = React.useState<any>(null);
+  const [account, setAccount] = React.useState<InstagramAccount | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState('');
 
