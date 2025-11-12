@@ -1,4 +1,4 @@
-import type { FirebaseConfig, EnvironmentConfig, GeminiConfig } from './types';
+import type { FirebaseConfig, EnvironmentConfig, GeminiConfig, InstagramConfig } from './types';
 
 /**
  * UAT Environment Configuration
@@ -20,6 +20,16 @@ const UAT_CONFIG: FirebaseConfig = {
 const UAT_GEMINI: GeminiConfig = {
     apiKey:  "AIzaSyAOcGqPpVVborGiFPLz02DORVFVdgmgpw4",
     model: "gemini-2.5-flash-image"
+};
+
+/**
+ * UAT Instagram Configuration
+ */
+const UAT_INSTAGRAM: InstagramConfig = {
+    appId: "1408513954025673",
+    appSecret: "1beb014e5c9b74c73f1bb38ba1a1e325",
+    accessToken: "EAAUBCTXkEMkBP4SaPeh5op1SCfZApZBNvj7ybjJZB8AV9qsa3qzSLkpF786isLxmrZBwxfzweSORGP2XZCuGdO34SxgEVY5C9BhmONK4LO5r19j8vfYogeE1kpe8ITKk9Cj5t76C3nnHpbQC8HCSVVEGr2PGrvLlFq2QZBiFWddFptVLHfXfw5ZBFvNP0pc",
+    accountId: "17841478413044591"
 };
 
 /**
@@ -45,18 +55,30 @@ const PROD_GEMINI: GeminiConfig = {
 };
 
 /**
+ * PROD Instagram Configuration
+ */
+const PROD_INSTAGRAM: InstagramConfig = {
+    appId: process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID_PROD || "",
+    appSecret: process.env.INSTAGRAM_APP_SECRET_PROD || "",
+    accessToken: process.env.INSTAGRAM_ACCESS_TOKEN_PROD || "",
+    accountId: process.env.INSTAGRAM_ACCOUNT_ID_PROD || ""
+};
+
+/**
  * Environment configurations map
  */
 export const ENVIRONMENTS: Record<'UAT' | 'PROD', EnvironmentConfig> = {
   UAT: {
     name: 'UAT',
     config: UAT_CONFIG,
-    gemini: UAT_GEMINI
+    gemini: UAT_GEMINI,
+    instagram: UAT_INSTAGRAM
   },
   PROD: {
     name: 'PROD',
     config: PROD_CONFIG,
-    gemini: PROD_GEMINI
+    gemini: PROD_GEMINI,
+    instagram: PROD_INSTAGRAM
   }
 };
 
@@ -85,6 +107,13 @@ export const getCurrentFirebaseConfig = (): FirebaseConfig => {
  */
 export const getGeminiConfig = (): GeminiConfig => {
   return getCurrentEnvironment().gemini;
+};
+
+/**
+ * Get current Instagram config
+ */
+export const getInstagramConfig = (): InstagramConfig => {
+  return getCurrentEnvironment().instagram;
 };
 
 

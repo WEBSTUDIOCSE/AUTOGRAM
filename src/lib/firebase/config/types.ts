@@ -26,10 +26,21 @@ export interface GeminiConfig {
 }
 
 /**
+ * Instagram Graph API configuration interface
+ */
+export interface InstagramConfig {
+  appId: string;
+  appSecret: string;
+  accessToken: string;
+  accountId: string;
+}
+
+/**
  * Environment configuration
  */
 export interface EnvironmentConfig {
   name: Environment;
   config: FirebaseConfig;
   gemini: GeminiConfig;
+  instagram: InstagramConfig;
 } 

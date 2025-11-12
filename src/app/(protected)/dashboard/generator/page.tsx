@@ -7,14 +7,17 @@ import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Download, RefreshCw, Save, ImageIcon } from 'lucide-react';
+import { Download, RefreshCw, Save, ImageIcon, Send, CheckCircle2 } from 'lucide-react';
 import { RecentPrompts } from '@/components/module1/RecentPrompts';
 import { PromptInput } from '@/components/module1/PromptInput';
 import { InstagramAccountSelector } from '@/components/module1/InstagramAccountSelector';
 import { mockGeneratedImage, mockHashtagSuggestions } from '@/lib/mock-data/module1';
 import { APIBook } from '@/lib/firebase/services';
+import { PostHistoryService } from '@/lib/services/post-history.service';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function GeneratorPage() {
+  const { user } = useAuth();
   const [prompt, setPrompt] = React.useState('');
   const [caption, setCaption] = React.useState('');
   const [hashtags, setHashtags] = React.useState('');
@@ -23,13 +26,23 @@ export default function GeneratorPage() {
   const [hasGeneratedImage, setHasGeneratedImage] = React.useState(false);
   const [selectedHashtags, setSelectedHashtags] = React.useState<string[]>([]);
   const [generatedImageUrl, setGeneratedImageUrl] = React.useState('');
+  const [generatedImageBase64, setGeneratedImageBase64] = React.useState('');
   const [aiError, setAiError] = React.useState('');
+  const [isPosting, setIsPosting] = React.useState(false);
+  const [postSuccess, setPostSuccess] = React.useState(false);
+  const [postError, setPostError] = React.useState('');
+  const [uploadedImageUrl, setUploadedImageUrl] = React.useState('');
+  const [isUploading, setIsUploading] = React.useState(false);
 
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
     setIsGenerating(true);
     setAiError('');
     setGeneratedImageUrl('');
+    setGeneratedImageBase64('');
+    setPostSuccess(false);
+    setPostError('');
+    setUploadedImageUrl('');
     
     try {
       // Call Gemini AI
@@ -37,6 +50,8 @@ export default function GeneratorPage() {
       
       if (response.success && response.data) {
         setHasGeneratedImage(true);
+        // Store base64 separately
+        setGeneratedImageBase64(response.data.imageBase64);
         // Convert base64 to data URL for display
         const imageUrl = `data:image/png;base64,${response.data.imageBase64}`;
         setGeneratedImageUrl(imageUrl);
@@ -51,6 +66,110 @@ export default function GeneratorPage() {
       setHasGeneratedImage(false);
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const uploadToFirebaseStorage = async (base64Image: string): Promise<string> => {
+    setIsUploading(true);
+    try {
+      // Convert base64 to blob
+      const byteString = atob(base64Image);
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      const blob = new Blob([ab], { type: 'image/png' });
+
+      // Create form data
+      const formData = new FormData();
+      formData.append('file', blob, `autogram-${Date.now()}.png`);
+
+      // Upload to your backend API route (we'll create this)
+      const uploadResponse = await fetch('/api/upload-image', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload image');
+      }
+
+      const { url } = await uploadResponse.json();
+      return url;
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw error;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handlePostToInstagram = async () => {
+    if (!generatedImageBase64 || !caption.trim()) {
+      setPostError('Image and caption are required');
+      return;
+    }
+
+    setIsPosting(true);
+    setPostError('');
+    setPostSuccess(false);
+
+    try {
+      // Step 1: Upload image to Firebase Storage to get public URL
+      console.log('📤 Uploading image to storage...');
+      const publicImageUrl = await uploadToFirebaseStorage(generatedImageBase64);
+      setUploadedImageUrl(publicImageUrl);
+      
+      console.log('✅ Image uploaded:', publicImageUrl);
+
+      // Step 2: Combine caption and hashtags
+      const fullCaption = hashtags.trim() 
+        ? `${caption}\n\n${hashtags}` 
+        : caption;
+
+      // Step 3: Post to Instagram
+      console.log('📸 Posting to Instagram...');
+      const postId = await APIBook.instagram.postImage(publicImageUrl, fullCaption);
+      
+      console.log('✅ Posted successfully:', postId);
+      setPostSuccess(true);
+
+      // Step 4: Save to post history
+      if (user?.uid) {
+        try {
+          await PostHistoryService.savePost({
+            userId: user.uid,
+            prompt: prompt,
+            caption: caption,
+            hashtags: hashtags,
+            imageUrl: publicImageUrl,
+            instagramPostId: postId,
+            instagramAccountId: selectedAccount,
+            model: 'gemini-2.5-flash-image'
+          });
+          console.log('✅ Saved to post history');
+        } catch (historyError) {
+          console.error('⚠️ Failed to save history (non-critical):', historyError);
+        }
+      }
+
+      // Reset after 3 seconds
+      setTimeout(() => {
+        setPostSuccess(false);
+        // Optionally reset the form
+        // setHasGeneratedImage(false);
+        // setPrompt('');
+        // setCaption('');
+        // setHashtags('');
+      }, 3000);
+
+    } catch (error) {
+      console.error('❌ Post error:', error);
+      const errorMsg = error instanceof Error ? error.message : 'Failed to post to Instagram';
+      setPostError(errorMsg);
+    } finally {
+      setIsPosting(false);
     }
   };
 
@@ -270,9 +389,48 @@ export default function GeneratorPage() {
                 />
               </Card>
 
+              {/* Success/Error Messages */}
+              {postSuccess && (
+                <Card className="p-4 bg-green-50 border-green-200">
+                  <div className="flex items-center gap-2 text-green-700">
+                    <CheckCircle2 className="h-5 w-5" />
+                    <p className="text-sm font-medium">✅ Posted to Instagram successfully!</p>
+                  </div>
+                </Card>
+              )}
+
+              {postError && (
+                <Card className="p-4 bg-red-50 border-red-200">
+                  <div className="text-red-700">
+                    <p className="text-sm font-semibold mb-1">❌ Failed to post</p>
+                    <p className="text-xs">{postError}</p>
+                  </div>
+                </Card>
+              )}
+
               {/* Post Button */}
-              <Button size="lg" className="w-full">
-                Continue to Preview →
+              <Button 
+                size="lg" 
+                className="w-full"
+                onClick={handlePostToInstagram}
+                disabled={isPosting || isUploading || !caption.trim()}
+              >
+                {isUploading ? (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    Uploading Image...
+                  </>
+                ) : isPosting ? (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    Posting to Instagram...
+                  </>
+                ) : (
+                  <>
+                    <Send className="mr-2 h-4 w-4" />
+                    Post to Instagram
+                  </>
+                )}
               </Button>
             </>
           )}

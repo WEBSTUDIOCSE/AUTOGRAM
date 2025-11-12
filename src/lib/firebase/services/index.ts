@@ -12,16 +12,21 @@ export { PaymentService } from './payment.service';
 // Import AI service
 export { AIService } from '@/lib/services/ai.service';
 
+// Import Instagram service
+export { InstagramService } from '@/lib/services/instagram.service';
+
 // Import types
 export type { AppUser } from './auth.service';
 export type { PaymentRecord } from './payment.service';
 export type { GeneratedImage } from '@/lib/services/ai.service';
+export type { InstagramAccount, InstagramPostResponse } from '@/lib/services/instagram.service';
 export type { ApiResponse } from '../handler';
 
 // Re-export for convenience
 import { AuthService } from './auth.service';
 import { PaymentService } from './payment.service';
 import { AIService } from '@/lib/services/ai.service';
+import { InstagramService } from '@/lib/services/instagram.service';
 
 /**
  * Centralized APIBook for Firebase services
@@ -31,11 +36,13 @@ import { AIService } from '@/lib/services/ai.service';
  * const result = await APIBook.auth.loginWithEmail(email, password);
  * const payment = await APIBook.payment.createPayment(paymentData);
  * const image = await APIBook.ai.generateImage(prompt);
+ * const post = await APIBook.instagram.postImage(imageUrl, caption);
  */
 export const APIBook = {
   auth: AuthService,
   payment: PaymentService,
   ai: AIService,
+  instagram: InstagramService,
 } as const;
 
 /**
