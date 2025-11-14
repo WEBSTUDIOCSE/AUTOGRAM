@@ -16,6 +16,20 @@ import { app } from '@/lib/firebase/firebase';
 const db = getFirestore(app);
 
 /**
+ * Helper function to format time ago
+ */
+function getTimeAgo(date: Date): string {
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  if (seconds < 60) return 'Just now';
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+  return date.toLocaleDateString();
+}
+
+/**
  * Instagram Post Record
  */
 export interface InstagramPost {
@@ -151,12 +165,35 @@ export const InstagramPostService = {
   },
 
   /**
-   * Get recent prompts (for the RecentPrompts dropdown)
+   * Get recent prompts used (for dropdown suggestions)
    */
-  async getRecentPrompts(userId: string, limitCount: number = 5): Promise<string[]> {
+  async getRecentPrompts(userId: string, limitCount: number = 5): Promise<{ prompt: string; timestamp: string }[]> {
     try {
       const posts = await this.getUserPosts(userId, limitCount);
-      return posts.map(post => post.prompt).filter((v, i, a) => a.indexOf(v) === i); // Unique prompts
+      
+      // Get unique prompts with timestamps
+      const seenPrompts = new Set<string>();
+      const uniquePrompts: { prompt: string; timestamp: string }[] = [];
+      
+      for (const post of posts) {
+        if (!seenPrompts.has(post.prompt)) {
+          seenPrompts.add(post.prompt);
+          
+          // Format timestamp
+          const date = post.createdAt instanceof Timestamp 
+            ? post.createdAt.toDate() 
+            : new Date(post.createdAt);
+          
+          const timeAgo = getTimeAgo(date);
+          
+          uniquePrompts.push({
+            prompt: post.prompt,
+            timestamp: timeAgo
+          });
+        }
+      }
+      
+      return uniquePrompts;
     } catch (error) {
       console.error('❌ Failed to fetch recent prompts:', error);
       return [];

@@ -26,7 +26,7 @@ export function PromptInput({ value, onChange, maxLength = 1000 }: PromptInputPr
             value={value}
             onChange={(e) => onChange(e.target.value)}
             placeholder="Describe the image you want to create... (e.g., 'A serene beach at sunset with palm trees, golden hour lighting, professional photography style, square 1:1 aspect ratio, warm orange and purple colors, highly detailed, sharp focus, professional composition, soft bokeh reflection, finely detailed foliage.')"
-            className="min-h-[100px] md:min-h-[120px] resize-none text-sm"
+            className="min-h-[100px] md:min-h-[120px] resize-none text-sm break-words whitespace-pre-wrap"
             maxLength={maxLength}
           />
           <div className="absolute bottom-2 md:bottom-3 right-2 md:right-3 text-xs text-muted-foreground">

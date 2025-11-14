@@ -64,8 +64,13 @@ export default function GeneratorPage() {
         setGeneratedImageId(imageId);
         console.log('✅ Image saved with ID:', imageId);
         
-        // Auto-fill caption with prompt
-        setCaption(`${prompt} ✨ #AIGenerated #Autogram`);
+        // Auto-fill caption and hashtags from AI response
+        if (response.data.caption) {
+          setCaption(response.data.caption);
+        }
+        if (response.data.hashtags) {
+          setHashtags(response.data.hashtags);
+        }
       } else {
         setAiError(response.error || 'Failed to generate image');
         setHasGeneratedImage(false);
@@ -189,12 +194,12 @@ export default function GeneratorPage() {
   };
 
   return (
-    <div className="flex-1 space-y-4 p-3 md:p-6">
+    <div className="flex-1 space-y-4 p-3 md:p-6 overflow-hidden">
 
       {/* Two Column Layout - Left panel wider */}
-      <div className="grid gap-4 md:gap-6 lg:grid-cols-[1fr_500px]">
+      <div className="grid gap-4 md:gap-6 lg:grid-cols-[1fr_500px] max-w-full">
         {/* Left Panel - Input Section (No Cards) */}
-        <div className="space-y-4 md:space-y-6">
+        <div className="space-y-4 md:space-y-6 min-w-0">
           {/* Recent Prompts */}
           <div className="space-y-3">
             <RecentPrompts onSelectPrompt={handleSelectPrompt} />

@@ -10,6 +10,8 @@ export interface GeneratedImage {
   prompt: string;
   model: string;
   timestamp: number;
+  caption?: string;
+  hashtags?: string;
 }
 
 /**
@@ -19,8 +21,9 @@ export interface GeneratedImage {
 export const AIService = {
   /**
    * Generate image from text prompt using Gemini AI
+   * Also generates caption and hashtags using AI
    * @param prompt - Text description for image generation
-   * @returns ApiResponse with generated image data
+   * @returns ApiResponse with generated image data, caption, and hashtags
    */
   generateImage: async (prompt: string): Promise<ApiResponse<GeneratedImage>> => {
     return aiHandler(async () => {
@@ -59,11 +62,63 @@ export const AIService = {
         throw new Error('No image generated in response. The model may have returned text instead.');
       }
       
+      // Generate caption and hashtags using AI
+      let caption = '';
+      let hashtags = '';
+      
+      try {
+        console.log('🎨 Generating caption and hashtags with AI...');
+        
+        const textModel = 'gemini-2.0-flash-exp';
+        const captionPrompt = `You are an Instagram caption expert. Based on this image description: "${prompt}"
+
+Create an engaging Instagram post with:
+1. A captivating caption (2-3 sentences) that describes what's in the image
+2. Add appropriate emojis naturally within the caption
+3. Generate 10-15 relevant hashtags based on the image content
+4. Always include these base hashtags: #AIArt #AIGenerated #Autogram
+
+Format your response EXACTLY as:
+CAPTION: [Your engaging caption with emojis]
+HASHTAGS: #hashtag1 #hashtag2 #hashtag3 ...`;
+
+        const captionResponse = await genAI.models.generateContent({
+          model: textModel,
+          contents: captionPrompt,
+        }) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
+
+        if (captionResponse.candidates?.[0]?.content?.parts?.[0]?.text) {
+          const aiText = captionResponse.candidates[0].content.parts[0].text;
+          console.log('📝 AI Response:', aiText);
+          
+          // Parse caption
+          const captionMatch = aiText.match(/CAPTION:\s*(.+?)(?=\nHASHTAGS:|$)/i);
+          if (captionMatch && captionMatch[1]) {
+            caption = captionMatch[1].trim();
+          }
+          
+          // Parse hashtags
+          const hashtagsMatch = aiText.match(/HASHTAGS:\s*(.+)/i);
+          if (hashtagsMatch && hashtagsMatch[1]) {
+            hashtags = hashtagsMatch[1].trim();
+          }
+        }
+        
+        console.log('✅ Caption generated:', caption);
+        console.log('✅ Hashtags generated:', hashtags);
+        
+      } catch (error) {
+        console.error('❌ Failed to generate caption/hashtags with AI:', error);
+        // No fallback - leave empty so user can fill manually
+      }
+      
       return {
         imageBase64,
         prompt,
         model: modelName,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        caption: caption || '',
+        hashtags: hashtags || ''
       };
     }, 'ai/generate-image');
   },
