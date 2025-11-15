@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore';
 import { app } from '@/lib/firebase/firebase';
 import { StorageService } from './storage.service';
+import { ModuleType } from '@/lib/firebase/config/types';
 
 const db = getFirestore(app);
 
@@ -24,6 +25,7 @@ const db = getFirestore(app);
 export interface GeneratedImage {
   id?: string;
   userId: string;
+  moduleType: ModuleType;
   prompt: string;
   imageUrl: string;
   model: string;
@@ -40,7 +42,7 @@ export interface GeneratedImage {
 
 /**
  * Image Service
- * Manages generated images in Firestore
+ * Manages generated images in Firestore with module-based organization
  */
 export const ImageService = {
   /**
@@ -51,10 +53,18 @@ export const ImageService = {
     prompt: string;
     imageBase64: string;
     model: string;
+    moduleType?: ModuleType;
   }): Promise<string> {
     try {
-      // Upload to Firebase Storage
-      const imageUrl = await StorageService.uploadImage(data.imageBase64, data.userId);
+      const moduleType = data.moduleType || 'module1';
+      
+      // Upload to Firebase Storage with module organization
+      const imageUrl = await StorageService.uploadImage(
+        data.imageBase64, 
+        data.userId, 
+        moduleType,
+        'generated'
+      );
       
       // Get file size
       const fileSize = StorageService.getBase64Size(data.imageBase64);
@@ -62,6 +72,7 @@ export const ImageService = {
       // Save to Firestore
       const docRef = await addDoc(collection(db, 'generated_images'), {
         userId: data.userId,
+        moduleType: moduleType,
         prompt: data.prompt,
         imageUrl,
         model: data.model,
@@ -76,7 +87,7 @@ export const ImageService = {
         updatedAt: Timestamp.now()
       });
 
-      console.log('✅ Image saved to Firestore:', docRef.id);
+      console.log(`✅ Image saved to Firestore (${moduleType}):`, docRef.id);
       return docRef.id;
     } catch (error) {
       console.error('❌ Failed to save image:', error);
@@ -107,18 +118,38 @@ export const ImageService = {
   },
 
   /**
-   * Get user's images
+   * Get user's images with optional module filter
    */
-  async getUserImages(userId: string, limitCount: number = 50): Promise<GeneratedImage[]> {
+  async getUserImages(
+    userId: string, 
+    limitCount: number = 50,
+    moduleType?: ModuleType
+  ): Promise<GeneratedImage[]> {
     try {
-      const q = query(
-        collection(db, 'generated_images'),
-        where('userId', '==', userId),
-        where('status', '!=', 'deleted'),
-        orderBy('status'),
-        orderBy('createdAt', 'desc'),
-        limit(limitCount)
-      );
+      let q;
+      
+      if (moduleType) {
+        // Filter by module type
+        q = query(
+          collection(db, 'generated_images'),
+          where('userId', '==', userId),
+          where('moduleType', '==', moduleType),
+          where('status', '!=', 'deleted'),
+          orderBy('status'),
+          orderBy('createdAt', 'desc'),
+          limit(limitCount)
+        );
+      } else {
+        // Get all modules
+        q = query(
+          collection(db, 'generated_images'),
+          where('userId', '==', userId),
+          where('status', '!=', 'deleted'),
+          orderBy('status'),
+          orderBy('createdAt', 'desc'),
+          limit(limitCount)
+        );
+      }
 
       const querySnapshot = await getDocs(q);
       const images: GeneratedImage[] = [];

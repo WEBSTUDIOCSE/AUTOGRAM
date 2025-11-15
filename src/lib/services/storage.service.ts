@@ -1,20 +1,28 @@
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { app } from '@/lib/firebase/firebase';
+import { ModuleType } from '@/lib/firebase/config/types';
 
 const storage = getStorage(app);
 
 /**
  * Storage Service
- * Handles Firebase Storage operations for images
+ * Handles Firebase Storage operations for images with module-based organization
  */
 export const StorageService = {
   /**
-   * Upload base64 image to Firebase Storage
+   * Upload base64 image to Firebase Storage with module organization
    * @param base64Image - Base64 encoded image string
    * @param userId - User ID for organizing files
+   * @param moduleType - Module type (module1 or module2)
+   * @param subfolder - Optional subfolder (e.g., 'generated', 'characters', 'thumbnails')
    * @returns Public download URL
    */
-  async uploadImage(base64Image: string, userId: string): Promise<string> {
+  async uploadImage(
+    base64Image: string, 
+    userId: string, 
+    moduleType: ModuleType = 'module1',
+    subfolder?: string
+  ): Promise<string> {
     try {
       // Convert base64 to blob
       const byteString = atob(base64Image);
@@ -25,28 +33,85 @@ export const StorageService = {
       }
       const blob = new Blob([ab], { type: 'image/png' });
 
-      // Create reference with timestamp
+      // Create module-based path structure
+      // Structure: users/{userId}/{moduleType}/{subfolder}/{filename}
       const timestamp = Date.now();
       const filename = `${timestamp}-${Math.random().toString(36).substring(7)}.png`;
-      const storageRef = ref(storage, `users/${userId}/generated-images/${filename}`);
+      
+      let storagePath: string;
+      if (subfolder) {
+        storagePath = `users/${userId}/${moduleType}/${subfolder}/${filename}`;
+      } else {
+        storagePath = `users/${userId}/${moduleType}/${filename}`;
+      }
+      
+      const storageRef = ref(storage, storagePath);
 
-      // Upload
+      // Upload with metadata
       await uploadBytes(storageRef, blob, {
         contentType: 'image/png',
         customMetadata: {
-          uploadedAt: new Date().toISOString()
+          uploadedAt: new Date().toISOString(),
+          moduleType: moduleType,
+          userId: userId
         }
       });
 
       // Get download URL
       const downloadURL = await getDownloadURL(storageRef);
       
-      console.log('✅ Image uploaded to Firebase Storage:', downloadURL);
+      console.log(`✅ Image uploaded to ${moduleType}:`, downloadURL);
       return downloadURL;
 
     } catch (error) {
       console.error('❌ Storage upload error:', error);
       throw new Error('Failed to upload image to storage');
+    }
+  },
+
+  /**
+   * Upload character image with specific organization
+   * @param base64Image - Base64 encoded image
+   * @param userId - User ID
+   * @param characterId - Character ID
+   * @param type - 'original' or 'thumbnail'
+   * @returns Download URL
+   */
+  async uploadCharacterImage(
+    base64Image: string,
+    userId: string,
+    characterId: string,
+    type: 'original' | 'thumbnail'
+  ): Promise<string> {
+    try {
+      const byteString = atob(base64Image);
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      const blob = new Blob([ab], { type: 'image/jpeg' });
+
+      // Structure: users/{userId}/module2/characters/{characterId}/{type}.jpg
+      const storagePath = `users/${userId}/module2/characters/${characterId}/${type}.jpg`;
+      const storageRef = ref(storage, storagePath);
+
+      await uploadBytes(storageRef, blob, {
+        contentType: 'image/jpeg',
+        customMetadata: {
+          uploadedAt: new Date().toISOString(),
+          moduleType: 'module2',
+          characterId: characterId,
+          imageType: type
+        }
+      });
+
+      const downloadURL = await getDownloadURL(storageRef);
+      console.log(`✅ Character ${type} uploaded:`, downloadURL);
+      return downloadURL;
+    } catch (error) {
+      console.error('❌ Character image upload error:', error);
+      throw new Error(`Failed to upload character ${type}`);
     }
   },
 

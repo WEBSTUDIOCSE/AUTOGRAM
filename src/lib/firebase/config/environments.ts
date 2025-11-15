@@ -29,8 +29,25 @@ const UAT_GEMINI: GeminiConfig = {
 const UAT_INSTAGRAM: InstagramConfig = {
     appId: "1408513954025673",
     appSecret: "1beb014e5c9b74c73f1bb38ba1a1e325",
-    accessToken: "EAAUBCTXkEMkBP4SaPeh5op1SCfZApZBNvj7ybjJZB8AV9qsa3qzSLkpF786isLxmrZBwxfzweSORGP2XZCuGdO34SxgEVY5C9BhmONK4LO5r19j8vfYogeE1kpe8ITKk9Cj5t76C3nnHpbQC8HCSVVEGr2PGrvLlFq2QZBiFWddFptVLHfXfw5ZBFvNP0pc",
-    accountId: "17841478413044591"
+    accounts: [
+        {
+            id: "account1",
+            name: "Main Account",
+            username: "main_account",
+            accessToken: "EAAUBCTXkEMkBP4SaPeh5op1SCfZApZBNvj7ybjJZB8AV9qsa3qzSLkpF786isLxmrZBwxfzweSORGP2XZCuGdO34SxgEVY5C9BhmONK4LO5r19j8vfYogeE1kpe8ITKk9Cj5t76C3nnHpbQC8HCSVVEGr2PGrvLlFq2QZBiFWddFptVLHfXfw5ZBFvNP0pc",
+            accountId: "17841478413044591",
+            isActive: true
+        }
+        // Add more Instagram accounts here:
+        // {
+        //     id: "account2",
+        //     name: "Secondary Account",
+        //     username: "secondary_account",
+        //     accessToken: "YOUR_ACCESS_TOKEN_2",
+        //     accountId: "YOUR_ACCOUNT_ID_2",
+        //     isActive: true
+        // }
+    ]
 };
 
 /**
@@ -62,8 +79,17 @@ const PROD_GEMINI: GeminiConfig = {
 const PROD_INSTAGRAM: InstagramConfig = {
     appId: process.env.NEXT_PUBLIC_INSTAGRAM_APP_ID_PROD || "",
     appSecret: process.env.INSTAGRAM_APP_SECRET_PROD || "",
-    accessToken: process.env.INSTAGRAM_ACCESS_TOKEN_PROD || "",
-    accountId: process.env.INSTAGRAM_ACCOUNT_ID_PROD || ""
+    accounts: [
+        {
+            id: "account1",
+            name: "Production Account 1",
+            username: process.env.INSTAGRAM_USERNAME_1_PROD || "",
+            accessToken: process.env.INSTAGRAM_ACCESS_TOKEN_1_PROD || "",
+            accountId: process.env.INSTAGRAM_ACCOUNT_ID_1_PROD || "",
+            isActive: true
+        }
+        // Add more production accounts via environment variables
+    ]
 };
 
 /**

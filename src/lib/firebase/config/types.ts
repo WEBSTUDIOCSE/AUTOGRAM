@@ -27,13 +27,25 @@ export interface GeminiConfig {
 }
 
 /**
+ * Single Instagram Account
+ */
+export interface InstagramAccount {
+  id: string;
+  name: string;
+  username: string;
+  accessToken: string;
+  accountId: string;
+  profilePictureUrl?: string;
+  isActive: boolean;
+}
+
+/**
  * Instagram Graph API configuration interface
  */
 export interface InstagramConfig {
   appId: string;
   appSecret: string;
-  accessToken: string;
-  accountId: string;
+  accounts: InstagramAccount[];
 }
 
 /**
@@ -62,11 +74,17 @@ export interface Character {
 }
 
 /**
+ * Module types for organizing images and posts
+ */
+export type ModuleType = 'module1' | 'module2';
+
+/**
  * Character post data for Module 2
  */
 export interface CharacterPost {
   id: string;
   userId: string;
+  moduleType: ModuleType;
   characterId: string;
   characterName: string;
   prompt: string;

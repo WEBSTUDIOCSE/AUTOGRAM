@@ -19,7 +19,7 @@ export default function GeneratorPage() {
   const [prompt, setPrompt] = React.useState('');
   const [caption, setCaption] = React.useState('');
   const [hashtags, setHashtags] = React.useState('');
-  const [selectedAccount, setSelectedAccount] = React.useState('1');
+  const [selectedAccount, setSelectedAccount] = React.useState('account1');
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [hasGeneratedImage, setHasGeneratedImage] = React.useState(false);
   const [generatedImageUrl, setGeneratedImageUrl] = React.useState('');
@@ -79,7 +79,8 @@ export default function GeneratorPage() {
           userId: user.uid,
           prompt: prompt,
           imageBase64: response.data.imageBase64,
-          model: response.data.model
+          model: response.data.model,
+          moduleType: 'module1'
         });
         
         setGeneratedImageId(imageId);
@@ -134,9 +135,16 @@ export default function GeneratorPage() {
 
       // Step 3: Post to Instagram
       console.log('📸 Posting to Instagram...');
-      const instagramPostId = await APIBook.instagram.postImage(publicImageUrl, fullCaption);
+      const instagramPostId = await APIBook.instagram.postImage(
+        publicImageUrl, 
+        fullCaption, 
+        selectedAccount
+      );
       
       console.log('✅ Posted successfully:', instagramPostId);
+
+      // Get account info for display
+      const account = APIBook.instagram.getAccountById(selectedAccount);
 
       // Step 4: Save to Instagram post history
       await InstagramPostService.savePost({
@@ -148,7 +156,9 @@ export default function GeneratorPage() {
         imageUrl: publicImageUrl,
         instagramPostId: instagramPostId,
         instagramAccountId: selectedAccount,
-        model: savedImage.model
+        instagramAccountName: account?.name || 'Instagram Account',
+        model: savedImage.model,
+        moduleType: 'module1'
       });
       console.log('✅ Saved to Instagram post history');
 
@@ -172,6 +182,7 @@ export default function GeneratorPage() {
       if (user?.uid && generatedImageId) {
         try {
           const savedImage = await ImageService.getImage(generatedImageId);
+          const account = APIBook.instagram.getAccountById(selectedAccount);
           if (savedImage) {
             await InstagramPostService.saveFailedPost({
               userId: user.uid,
@@ -181,8 +192,10 @@ export default function GeneratorPage() {
               hashtags: hashtags,
               imageUrl: savedImage.imageUrl,
               instagramAccountId: selectedAccount,
+              instagramAccountName: account?.name || 'Instagram Account',
               model: savedImage.model,
-              error: errorMsg
+              error: errorMsg,
+              moduleType: 'module1'
             });
           }
         } catch (saveError) {

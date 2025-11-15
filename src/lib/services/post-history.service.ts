@@ -12,6 +12,7 @@ import {
   getDoc
 } from 'firebase/firestore';
 import { app } from '@/lib/firebase/firebase';
+import { ModuleType } from '@/lib/firebase/config/types';
 
 const db = getFirestore(app);
 
@@ -30,11 +31,12 @@ function getTimeAgo(date: Date): string {
 }
 
 /**
- * Instagram Post Record
+ * Instagram Post Record with module type
  */
 export interface InstagramPost {
   id?: string;
   userId: string;
+  moduleType: ModuleType;
   imageId: string; // Reference to generated_images
   prompt: string;
   caption: string;
@@ -42,6 +44,7 @@ export interface InstagramPost {
   imageUrl: string;
   instagramPostId: string;
   instagramAccountId: string;
+  instagramAccountName: string;
   model: string;
   status: 'posted' | 'failed';
   error?: string;
@@ -51,7 +54,7 @@ export interface InstagramPost {
 
 /**
  * Instagram Post Service
- * Manages Instagram post history in Firestore
+ * Manages Instagram post history in Firestore with module tracking
  */
 export const InstagramPostService = {
   /**
@@ -66,17 +69,23 @@ export const InstagramPostService = {
     imageUrl: string;
     instagramPostId: string;
     instagramAccountId: string;
+    instagramAccountName?: string;
     model: string;
+    moduleType?: ModuleType;
   }): Promise<string> {
     try {
+      const moduleType = data.moduleType || 'module1';
+      
       const docRef = await addDoc(collection(db, 'instagram_posts'), {
         ...data,
+        moduleType,
+        instagramAccountName: data.instagramAccountName || 'Instagram Account',
         status: 'posted',
         postedAt: Timestamp.now(),
         createdAt: Timestamp.now()
       });
       
-      console.log('✅ Instagram post saved to history:', docRef.id);
+      console.log(`✅ Instagram post saved to history (${moduleType}):`, docRef.id);
       return docRef.id;
     } catch (error) {
       console.error('❌ Failed to save Instagram post:', error);
@@ -95,17 +104,23 @@ export const InstagramPostService = {
     hashtags: string;
     imageUrl: string;
     instagramAccountId: string;
+    instagramAccountName?: string;
     model: string;
     error: string;
+    moduleType?: ModuleType;
   }): Promise<string> {
     try {
+      const moduleType = data.moduleType || 'module1';
+      
       const docRef = await addDoc(collection(db, 'instagram_posts'), {
         ...data,
+        moduleType,
+        instagramAccountName: data.instagramAccountName || 'Instagram Account',
         status: 'failed',
         createdAt: Timestamp.now()
       });
       
-      console.log('⚠️ Failed Instagram post saved:', docRef.id);
+      console.log(`⚠️ Failed Instagram post saved (${moduleType}):`, docRef.id);
       return docRef.id;
     } catch (error) {
       console.error('❌ Failed to save failed post:', error);
@@ -114,16 +129,32 @@ export const InstagramPostService = {
   },
 
   /**
-   * Get user's Instagram posts
+   * Get user's Instagram posts with optional module filter
    */
-  async getUserPosts(userId: string, limitCount: number = 20): Promise<InstagramPost[]> {
+  async getUserPosts(
+    userId: string, 
+    limitCount: number = 20,
+    moduleType?: ModuleType
+  ): Promise<InstagramPost[]> {
     try {
-      const q = query(
-        collection(db, 'instagram_posts'),
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc'),
-        limit(limitCount)
-      );
+      let q;
+      
+      if (moduleType) {
+        q = query(
+          collection(db, 'instagram_posts'),
+          where('userId', '==', userId),
+          where('moduleType', '==', moduleType),
+          orderBy('createdAt', 'desc'),
+          limit(limitCount)
+        );
+      } else {
+        q = query(
+          collection(db, 'instagram_posts'),
+          where('userId', '==', userId),
+          orderBy('createdAt', 'desc'),
+          limit(limitCount)
+        );
+      }
 
       const querySnapshot = await getDocs(q);
       const posts: InstagramPost[] = [];
@@ -165,11 +196,15 @@ export const InstagramPostService = {
   },
 
   /**
-   * Get recent prompts used (for dropdown suggestions)
+   * Get recent prompts used (for dropdown suggestions) with optional module filter
    */
-  async getRecentPrompts(userId: string, limitCount: number = 5): Promise<{ prompt: string; timestamp: string }[]> {
+  async getRecentPrompts(
+    userId: string, 
+    limitCount: number = 5,
+    moduleType?: ModuleType
+  ): Promise<{ prompt: string; timestamp: string }[]> {
     try {
-      const posts = await this.getUserPosts(userId, limitCount);
+      const posts = await this.getUserPosts(userId, limitCount, moduleType);
       
       // Get unique prompts with timestamps
       const seenPrompts = new Set<string>();
@@ -201,15 +236,26 @@ export const InstagramPostService = {
   },
 
   /**
-   * Get successful posts count
+   * Get successful posts count with optional module filter
    */
-  async getSuccessfulPostsCount(userId: string): Promise<number> {
+  async getSuccessfulPostsCount(userId: string, moduleType?: ModuleType): Promise<number> {
     try {
-      const q = query(
-        collection(db, 'instagram_posts'),
-        where('userId', '==', userId),
-        where('status', '==', 'posted')
-      );
+      let q;
+      
+      if (moduleType) {
+        q = query(
+          collection(db, 'instagram_posts'),
+          where('userId', '==', userId),
+          where('moduleType', '==', moduleType),
+          where('status', '==', 'posted')
+        );
+      } else {
+        q = query(
+          collection(db, 'instagram_posts'),
+          where('userId', '==', userId),
+          where('status', '==', 'posted')
+        );
+      }
 
       const querySnapshot = await getDocs(q);
       return querySnapshot.size;

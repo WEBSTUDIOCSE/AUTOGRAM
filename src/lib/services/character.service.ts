@@ -12,12 +12,11 @@ import {
   orderBy,
   Timestamp 
 } from 'firebase/firestore';
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { app } from '@/lib/firebase/firebase';
+import { StorageService } from './storage.service';
 import type { Character } from '@/lib/firebase/config/types';
 
 const db = getFirestore(app);
-const storage = getStorage(app);
 
 /**
  * Character Service
@@ -42,27 +41,21 @@ export const CharacterService = {
       // Create thumbnail (120x120)
       const thumbnailBase64 = await this.createThumbnail(file, 120, 120);
       
-      // Upload original image to Storage
-      const originalRef = ref(storage, `characters/${userId}/${characterId}/original.jpg`);
-      await uploadBytes(originalRef, file, {
-        contentType: file.type,
-        customMetadata: {
-          uploadedAt: new Date().toISOString(),
-          characterName: name
-        }
-      });
-      const imageUrl = await getDownloadURL(originalRef);
+      // Upload original image to Storage using StorageService
+      const imageUrl = await StorageService.uploadCharacterImage(
+        base64,
+        userId,
+        characterId,
+        'original'
+      );
       
-      // Upload thumbnail to Storage
-      const thumbnailBlob = await this.base64ToBlob(thumbnailBase64);
-      const thumbnailRef = ref(storage, `characters/${userId}/${characterId}/thumbnail.jpg`);
-      await uploadBytes(thumbnailRef, thumbnailBlob, {
-        contentType: 'image/jpeg',
-        customMetadata: {
-          uploadedAt: new Date().toISOString()
-        }
-      });
-      const thumbnailUrl = await getDownloadURL(thumbnailRef);
+      // Upload thumbnail to Storage using StorageService
+      const thumbnailUrl = await StorageService.uploadCharacterImage(
+        thumbnailBase64,
+        userId,
+        characterId,
+        'thumbnail'
+      );
       
       // Create character document
       const character: Character = {
@@ -170,17 +163,18 @@ export const CharacterService = {
       // Delete from Firestore
       await deleteDoc(doc(db, 'characters', characterId));
       
-      // Delete images from Storage
+      // Delete images from Storage using StorageService
       try {
-        const originalRef = ref(storage, `characters/${userId}/${characterId}/original.jpg`);
-        await deleteObject(originalRef);
+        // Construct the storage paths and delete
+        const originalPath = `users/${userId}/module2/characters/${characterId}/original.jpg`;
+        await StorageService.deleteImage(originalPath);
       } catch (err) {
         console.warn('⚠️ Could not delete original image:', err);
       }
       
       try {
-        const thumbnailRef = ref(storage, `characters/${userId}/${characterId}/thumbnail.jpg`);
-        await deleteObject(thumbnailRef);
+        const thumbnailPath = `users/${userId}/module2/characters/${characterId}/thumbnail.jpg`;
+        await StorageService.deleteImage(thumbnailPath);
       } catch (err) {
         console.warn('⚠️ Could not delete thumbnail:', err);
       }

@@ -37,8 +37,8 @@ export default function CharacterGeneratorPage() {
   const [isRefining, setIsRefining] = useState(false);
 
   // Instagram posting state
-  const [selectedAccount, setSelectedAccount] = useState("");
-  const [caption, setCaption] = useState("");
+  const [selectedAccount, setSelectedAccount] = useState('account1');
+  const [caption, setCaption] = useState('');
   const [hashtags, setHashtags] = useState("");
   const [isPosting, setIsPosting] = useState(false);
 
@@ -181,18 +181,23 @@ export default function CharacterGeneratorPage() {
       // Extract base64 from data URL
       const base64 = generatedImage.replace(/^data:image\/\w+;base64,/, '');
       
-      // Upload to storage
-      const imageUrl = await APIBook.storage.uploadImage(base64, user.uid);
+      // Upload to storage with module2 organization
+      const imageUrl = await APIBook.storage.uploadImage(base64, user.uid, 'module2', 'generated');
       
-      // Post to Instagram
+      // Post to Instagram with selected account
       const instagramPostId = await APIBook.instagram.postImage(
         imageUrl,
-        `${caption}\n\n${hashtags}`
+        `${caption}\n\n${hashtags}`,
+        selectedAccount
       );
+      
+      // Get account info for display
+      const account = APIBook.instagram.getAccountById(selectedAccount);
       
       // Save character post (without base64 to avoid Firestore 1MB limit)
       await APIBook.characterPost.saveCharacterPost({
         userId: user.uid,
+        moduleType: 'module2',
         characterId: selectedCharacter.id,
         characterName: selectedCharacter.name,
         prompt: scenePrompt,
@@ -201,7 +206,7 @@ export default function CharacterGeneratorPage() {
         caption,
         hashtags,
         instagramAccountId: selectedAccount,
-        instagramAccountName: 'Instagram Account',
+        instagramAccountName: account?.name || 'Instagram Account',
         postedToInstagram: true,
         instagramPostId: instagramPostId,
         model: 'character-ai',
