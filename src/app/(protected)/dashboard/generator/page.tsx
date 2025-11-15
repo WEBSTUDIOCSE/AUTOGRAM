@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { Download, RefreshCw, Save, ImageIcon, Send, CheckCircle2 } from 'lucide-react';
+import { Download, RefreshCw, Save, ImageIcon, Send, CheckCircle2, Wand2 } from 'lucide-react';
 import { RecentPrompts } from '@/components/module1/RecentPrompts';
 import { PromptInput } from '@/components/module1/PromptInput';
 import { InstagramAccountSelector } from '@/components/module1/InstagramAccountSelector';
@@ -29,6 +29,27 @@ export default function GeneratorPage() {
   const [postSuccess, setPostSuccess] = React.useState(false);
   const [postError, setPostError] = React.useState('');
   const [isSaving, setIsSaving] = React.useState(false);
+  const [isRefining, setIsRefining] = React.useState(false);
+
+  const handleRefinePrompt = async () => {
+    if (!prompt.trim()) {
+      setAiError('Please enter a prompt first');
+      return;
+    }
+
+    setIsRefining(true);
+    setAiError('');
+
+    try {
+      const refinedPrompt = await APIBook.promptRefiner.refinePrompt(prompt);
+      setPrompt(refinedPrompt);
+    } catch (error) {
+      console.error('Failed to refine prompt:', error);
+      setAiError(error instanceof Error ? error.message : 'Failed to refine prompt');
+    } finally {
+      setIsRefining(false);
+    }
+  };
 
   const handleGenerate = async () => {
     if (!prompt.trim() || !user?.uid) return;
@@ -212,21 +233,42 @@ export default function GeneratorPage() {
               value={prompt}
               onChange={setPrompt}
             />
-            <Button
-              onClick={handleGenerate}
-              disabled={!prompt.trim() || isGenerating}
-              className="w-full"
-              size="lg"
-            >
-              {isGenerating ? (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>Generate Image ✨</>
-              )}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleRefinePrompt}
+                disabled={!prompt.trim() || isGenerating || isRefining}
+                variant="outline"
+                className="flex-1"
+                size="lg"
+              >
+                {isRefining ? (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    Refining...
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="mr-2 h-4 w-4" />
+                    Refine Prompt
+                  </>
+                )}
+              </Button>
+              <Button
+                onClick={handleGenerate}
+                disabled={!prompt.trim() || isGenerating || isRefining}
+                className="flex-1"
+                size="lg"
+              >
+                {isGenerating ? (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>Generate Image ✨</>
+                )}
+              </Button>
+            </div>
           </div>
         </div>
 

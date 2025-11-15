@@ -18,8 +18,9 @@ const UAT_CONFIG: FirebaseConfig = {
  * UAT Gemini Configuration
  */
 const UAT_GEMINI: GeminiConfig = {
-    apiKey:  "AIzaSyBH8rO9rjkyTU7DzWVOyGL27n43F8A2n0U",
-    model: "gemini-2.5-flash-image"
+    apiKey:  "AIzaSyCtZnsy6OLF39beST3YtTexJZOP6lACuj8",
+    imageModel: "gemini-2.5-flash-image",
+    textModel: "gemini-2.0-flash-exp"
 };
 
 /**
@@ -51,7 +52,8 @@ const PROD_CONFIG: FirebaseConfig = {
  */
 const PROD_GEMINI: GeminiConfig = {
     apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY_PROD || "",
-    model: "gemini-2.5-flash-image"
+    imageModel: "gemini-2.5-flash-image",
+    textModel: "gemini-2.0-flash-exp"
 };
 
 /**

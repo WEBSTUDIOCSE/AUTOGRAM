@@ -1,4 +1,4 @@
-import { genAI, getModelName } from '@/lib/ai/gemini';
+import { genAI, getImageModelName, getTextModelName } from '@/lib/ai/gemini';
 import { aiHandler } from '@/lib/ai/handler';
 import type { ApiResponse } from '@/lib/firebase/handler';
 
@@ -31,7 +31,7 @@ export const AIService = {
         throw new Error('Prompt cannot be empty');
       }
 
-      const modelName = getModelName();
+      const modelName = getImageModelName();
       
       // Enhanced prompt for better image generation
       const enhancedPrompt = `Create a high-quality, detailed, professional picture of: ${prompt}. The image should be visually appealing, well-composed, and suitable for Instagram posting.`;
@@ -69,7 +69,7 @@ export const AIService = {
       try {
         console.log('🎨 Generating caption and hashtags with AI...');
         
-        const textModel = 'gemini-2.0-flash-exp';
+        const textModel = getTextModelName();
         const captionPrompt = `You are an Instagram caption expert. Based on this image description: "${prompt}"
 
 Create an engaging Instagram post with:
@@ -153,8 +153,9 @@ HASHTAGS: #hashtag1 #hashtag2 #hashtag3 ...`;
   testConnection: async (): Promise<ApiResponse<string>> => {
     return aiHandler(async () => {
       // Simple test - just check if we can initialize
-      const config = getModelName();
-      return `AI connection successful! Using model: ${config}`;
+      const imageModel = getImageModelName();
+      const textModel = getTextModelName();
+      return `AI connection successful! Using models: Image=${imageModel}, Text=${textModel}`;
     }, 'ai/test-connection');
   }
 };

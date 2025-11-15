@@ -13,10 +13,17 @@ export const genAI = new GoogleGenAI({
 });
 
 /**
- * Get configured model name
+ * Get configured image model name
  */
-export const getModelName = () => {
-  return config.model;
+export const getImageModelName = () => {
+  return config.imageModel;
+};
+
+/**
+ * Get configured text model name
+ */
+export const getTextModelName = () => {
+  return config.textModel;
 };
 
 /**
@@ -24,13 +31,16 @@ export const getModelName = () => {
  */
 export const getModelConfig = () => {
   return {
-    model: config.model,
+    imageModel: config.imageModel,
+    textModel: config.textModel,
     apiKey: config.apiKey ? '****' + config.apiKey.slice(-4) : 'Not configured'
   };
 };
 
 // Log initialization in development
 if (process.env.NODE_ENV === 'development') {
-  console.log('🤖 Gemini AI initialized:', config.model);
+  console.log('🤖 Gemini AI initialized');
+  console.log('📸 Image Model:', config.imageModel);
+  console.log('📝 Text Model:', config.textModel);
   console.log('🔑 API Key:', config.apiKey ? 'Configured' : 'Missing');
 }

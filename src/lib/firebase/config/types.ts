@@ -22,7 +22,8 @@ export type Environment = 'UAT' | 'PROD';
  */
 export interface GeminiConfig {
   apiKey: string;
-  model: string;
+  imageModel: string;
+  textModel: string;
 }
 
 /**
@@ -43,4 +44,40 @@ export interface EnvironmentConfig {
   config: FirebaseConfig;
   gemini: GeminiConfig;
   instagram: InstagramConfig;
-} 
+}
+
+/**
+ * Character model for Module 2 - Character Model Generator
+ */
+export interface Character {
+  id: string;
+  userId: string;
+  name: string;
+  imageUrl: string;
+  thumbnailUrl: string;
+  imageBase64: string;
+  uploadedAt: string;
+  lastUsedAt: string | null;
+  usageCount: number;
+}
+
+/**
+ * Character post data for Module 2
+ */
+export interface CharacterPost {
+  id: string;
+  userId: string;
+  characterId: string;
+  characterName: string;
+  prompt: string;
+  generatedImageBase64: string;
+  generatedImageUrl: string;
+  caption: string;
+  hashtags: string;
+  instagramAccountId: string;
+  instagramAccountName: string;
+  postedToInstagram: boolean;
+  instagramPostId: string | null;
+  model: string;
+  timestamp: string;
+}
