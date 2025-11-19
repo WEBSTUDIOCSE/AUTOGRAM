@@ -1,0 +1,8 @@
+# Exclude Firebase Cloud Functions from Vercel deployment
+functions/
+
+# Firebase config files
+firebase.json
+firestore.rules
+firestore.indexes.json
+.firebaserc
