@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LogOut, Home, KeyRound, User, Sparkles, UserCircle } from 'lucide-react';
+import { LogOut, Home, KeyRound, User, Sparkles, UserCircle, Zap } from 'lucide-react';
 
 import {
   Sidebar,
@@ -41,6 +41,11 @@ const navItems = [
     title: 'Character Generator',
     url: '/dashboard/character-generator',
     icon: UserCircle,
+  },
+  {
+    title: 'Auto-Poster',
+    url: '/dashboard/auto-poster',
+    icon: Zap,
   },
 ];
 

@@ -30,6 +30,13 @@ export { CharacterAIService } from '@/lib/services/character-ai.service';
 export { CharacterPostService } from '@/lib/services/character-post.service';
 export { PromptRefinerService } from '@/lib/services/prompt-refiner.service';
 
+// Import Auto-Post services (Module 3)
+export { AutoPostConfigService } from '@/lib/services/auto-post-config.service';
+export { PromptLibraryService } from '@/lib/services/prompt-library.service';
+export { PromptVariationService } from '@/lib/services/prompt-variation.service';
+export { AutoPostLogService } from '@/lib/services/auto-post-log.service';
+export { AutoPostSchedulerService } from '@/lib/services/auto-post-scheduler.service';
+
 // Import types
 export type { AppUser } from './auth.service';
 export type { PaymentRecord } from './payment.service';
@@ -37,7 +44,7 @@ export type { GeneratedImage } from '@/lib/services/ai.service';
 export type { InstagramAccount, InstagramPostResponse } from '@/lib/services/instagram.service';
 export type { GeneratedImage as SavedImage } from '@/lib/services/image.service';
 export type { InstagramPost } from '@/lib/services/post-history.service';
-export type { Character, CharacterPost } from '@/lib/firebase/config/types';
+export type { Character, CharacterPost, AutoPostConfig, PromptTemplate, AutoPostLog } from '@/lib/firebase/config/types';
 export type { ApiResponse } from '../handler';
 
 // Re-export for convenience
@@ -52,6 +59,11 @@ import { CharacterService } from '@/lib/services/character.service';
 import { CharacterAIService } from '@/lib/services/character-ai.service';
 import { CharacterPostService } from '@/lib/services/character-post.service';
 import { PromptRefinerService } from '@/lib/services/prompt-refiner.service';
+import { AutoPostConfigService } from '@/lib/services/auto-post-config.service';
+import { PromptLibraryService } from '@/lib/services/prompt-library.service';
+import { PromptVariationService } from '@/lib/services/prompt-variation.service';
+import { AutoPostLogService } from '@/lib/services/auto-post-log.service';
+import { AutoPostSchedulerService } from '@/lib/services/auto-post-scheduler.service';
 
 /**
  * Centralized APIBook for Firebase services
@@ -68,6 +80,11 @@ import { PromptRefinerService } from '@/lib/services/prompt-refiner.service';
  * const generated = await APIBook.characterAI.generateWithCharacter(base64, prompt);
  * const characterPost = await APIBook.characterPost.saveCharacterPost(postData);
  * const refined = await APIBook.promptRefiner.refinePrompt(rawPrompt);
+ * const autoPostConfig = await APIBook.autoPostConfig.getConfig(userId);
+ * const prompts = await APIBook.promptLibrary.getUserPrompts(userId);
+ * const variation = await APIBook.promptVariation.generateVariation(basePrompt);
+ * const logs = await APIBook.autoPostLog.getUserLogs(userId);
+ * await APIBook.autoPostScheduler.executeAutoPost(userId, scheduledTime);
  */
 export const APIBook = {
   auth: AuthService,
@@ -81,6 +98,11 @@ export const APIBook = {
   characterAI: CharacterAIService,
   characterPost: CharacterPostService,
   promptRefiner: PromptRefinerService,
+  autoPostConfig: AutoPostConfigService,
+  promptLibrary: PromptLibraryService,
+  promptVariation: PromptVariationService,
+  autoPostLog: AutoPostLogService,
+  autoPostScheduler: AutoPostSchedulerService,
 } as const;
 
 /**

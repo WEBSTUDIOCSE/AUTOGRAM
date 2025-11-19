@@ -21,11 +21,18 @@ users/
         {characterId}/
           original.jpg    # Original character image
           thumbnail.jpg   # 120x120 thumbnail
+    module3/              # Auto-Poster (Image-to-Image)
+      generated/          # Character-based generated images
+        {timestamp}-{random}.png
+      characters/         # Character reference images
+        {characterId}/
+          original.jpg    # Original character image
+          thumbnail.jpg   # 120x120 thumbnail
 ```
 
 ### Benefits
 - **Clear Separation**: Each module has its own directory
-- **Scalability**: Easy to add new modules (module3, module4, etc.)
+- **Scalability**: Easy to add new modules (module4, module5, etc.)
 - **Organization**: Easy to locate and manage images
 - **Analytics**: Track storage usage per module
 - **Billing**: Calculate costs per module if needed
@@ -113,8 +120,8 @@ const UAT_INSTAGRAM: InstagramConfig = {
 uploadImage(
   base64Image: string,
   userId: string,
-  moduleType: 'module1' | 'module2',  // Module identifier
-  subfolder?: string                   // Optional subfolder
+  moduleType: 'module1' | 'module2' | 'module3',  // Module identifier
+  subfolder?: string                                // Optional subfolder
 ): Promise<string>
 
 // Character-specific upload
@@ -196,7 +203,7 @@ getUserPosts(
 {
   id: string;
   userId: string;
-  moduleType: 'module1' | 'module2';  // NEW
+  moduleType: 'module1' | 'module2' | 'module3';  // NEW
   prompt: string;
   imageUrl: string;
   model: string;
@@ -217,7 +224,7 @@ getUserPosts(
 {
   id: string;
   userId: string;
-  moduleType: 'module1' | 'module2';     // NEW
+  moduleType: 'module1' | 'module2' | 'module3';     // NEW
   imageId: string;
   prompt: string;
   caption: string;
@@ -254,7 +261,7 @@ getUserPosts(
 {
   id: string;
   userId: string;
-  moduleType: 'module2';                  // Always module2
+  moduleType: 'module2' | 'module3';      // Module 2 or Module 3
   characterId: string;
   characterName: string;
   prompt: string;
@@ -294,6 +301,10 @@ const module1Count = await InstagramPostService.getSuccessfulPostsCount(userId, 
 const module2Posts = await InstagramPostService.getUserPosts(userId, 50, 'module2');
 const module2Count = await InstagramPostService.getSuccessfulPostsCount(userId, 'module2');
 
+// Module 3 posts
+const module3Posts = await InstagramPostService.getUserPosts(userId, 50, 'module3');
+const module3Count = await InstagramPostService.getSuccessfulPostsCount(userId, 'module3');
+
 // All posts
 const allPosts = await InstagramPostService.getUserPosts(userId, 50);
 ```
@@ -305,6 +316,9 @@ const module1Images = await ImageService.getUserImages(userId, 50, 'module1');
 
 // Module 2 images
 const module2Images = await ImageService.getUserImages(userId, 50, 'module2');
+
+// Module 3 images
+const module3Images = await ImageService.getUserImages(userId, 50, 'module3');
 
 // All images
 const allImages = await ImageService.getUserImages(userId, 50);
@@ -324,7 +338,7 @@ const allImages = await ImageService.getUserImages(userId, 50);
 2. **Scheduling**: Schedule posts to specific accounts at specific times
 3. **Analytics Dashboard**: Track performance per account and module
 4. **Account Health**: Monitor token expiration and connection status
-5. **Module 3+**: Easy to add new modules with same structure
+5. **Module 4+**: Easy to add new modules with same structure
 6. **Bulk Operations**: Post same image to multiple accounts
 7. **Account Groups**: Group accounts by brand, client, or campaign
 
@@ -361,6 +375,6 @@ For questions or issues:
 
 ---
 
-**Last Updated**: November 15, 2025
-**Version**: 2.0.0
-**Module Support**: Module 1 (AI Generator), Module 2 (Character Generator)
+**Last Updated**: November 16, 2025
+**Version**: 3.0.0
+**Module Support**: Module 1 (AI Generator), Module 2 (Character Generator), Module 3 (Auto-Poster)

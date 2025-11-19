@@ -121,7 +121,10 @@ export function InstagramAccountSelector({
                       )}
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      @{account.username}
+                      {account.username !== 'main_account' && account.username !== 'secondary_account' 
+                        ? `@${account.username}` 
+                        : `ID: ${account.accountId}`
+                      }
                     </p>
                   </div>
                   {selectedAccountId === account.id && (
