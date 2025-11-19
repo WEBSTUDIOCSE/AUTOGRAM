@@ -137,6 +137,9 @@ export default function AutoPosterPage() {
       setIsGenerating(true);
       setError(null);
 
+      // Save prompt to prompt_templates for auto-posting
+      await APIBook.promptLibrary.createPrompt(user.uid, scenePrompt.trim(), 'general');
+
       // Generate image with character
       const result = await APIBook.characterAI.generateWithCharacter(
         selectedCharacter.imageBase64,

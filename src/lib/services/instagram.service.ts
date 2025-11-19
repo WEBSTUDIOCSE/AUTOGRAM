@@ -1,7 +1,10 @@
 import { getInstagramConfig } from '@/lib/firebase/config/environments';
-import { InstagramAccount } from '@/lib/firebase/config/types';
+import type { InstagramAccount } from '@/lib/firebase/config/types';
 
 const INSTAGRAM_API_URL = 'https://graph.facebook.com/v18.0';
+
+// Re-export InstagramAccount for components
+export type { InstagramAccount };
 
 /**
  * Instagram Post Response

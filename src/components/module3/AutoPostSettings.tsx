@@ -17,10 +17,26 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Loader2, Plus, X, CheckCircle2, AlertCircle, Clock, Instagram } from 'lucide-react';
+import { Loader2, Plus, X, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
 import type { AutoPostConfig, Character } from '@/lib/firebase/config/types';
 import { APIBook } from '@/lib/firebase/services';
-import { InstagramService } from '@/lib/services/instagram.service';
+import { InstagramService, type InstagramAccount } from '@/lib/services/instagram.service';
+
+interface TestResultDetails {
+  character: string;
+  promptTemplate: string;
+  instagramAccount: string;
+  totalCharacters: number;
+  totalPrompts: number;
+  postingTimes: string[];
+  timezone: string;
+}
+
+interface TestResult {
+  success: boolean;
+  message: string;
+  details?: TestResultDetails;
+}
 
 interface AutoPostSettingsProps {
   userId: string;
@@ -34,7 +50,7 @@ export default function AutoPostSettings({ userId, characters }: AutoPostSetting
   const [testing, setTesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [testResult, setTestResult] = useState<any>(null);
+  const [testResult, setTestResult] = useState<TestResult | null>(null);
 
   // Form state
   const [isEnabled, setIsEnabled] = useState(false);

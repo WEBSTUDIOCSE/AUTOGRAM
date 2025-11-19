@@ -150,7 +150,7 @@ export class PromptLibraryService {
     try {
       const promptRef = doc(db, COLLECTION_NAME, promptId);
       
-      const updateData: any = {
+      const updateData: Record<string, unknown> = {
         updatedAt: serverTimestamp(),
       };
 

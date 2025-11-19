@@ -115,80 +115,43 @@ export const triggerAutoPost = onRequest(async (req, res) => {
 });
 
 /**
- * Execute auto-post for a user
+ * Execute auto-post for a user by calling the Next.js API endpoint
  */
 async function executeAutoPost(userId: string, scheduledTime: string, config: any) {
   logger.info(`Executing auto-post for user ${userId} at ${scheduledTime}`);
 
   try {
-    // 1. Select a random character
-    const charactersSnapshot = await db
-      .collection("characters")
-      .where("userId", "==", userId)
-      .get();
+    // Call the Next.js API endpoint on Vercel
+    const apiUrl = "https://autogram-orpin.vercel.app/api/auto-post";
+    const authToken = "autogram-auto-post-secret-2024"; // Should match process.env.AUTO_POST_SECRET_TOKEN
 
-    if (charactersSnapshot.empty) {
-      throw new Error("No characters found for user");
-    }
+    logger.info(`Calling API endpoint: ${apiUrl}`);
 
-    const characters = charactersSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as any[];
-    const selectedCharacter = characters[Math.floor(Math.random() * characters.length)];
-
-    logger.info(`Selected character: ${selectedCharacter.name}`);
-
-    // 2. Select Instagram account based on rotation strategy
-    const accountId = selectInstagramAccount(config);
-    logger.info(`Selected Instagram account: ${accountId}`);
-
-    // 3. Get a random prompt template
-    const promptsSnapshot = await db
-      .collection("prompt_templates")
-      .where("userId", "==", userId)
-      .where("isActive", "==", true)
-      .get();
-
-    if (promptsSnapshot.empty) {
-      throw new Error("No active prompt templates found");
-    }
-
-    const prompts = promptsSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as any[];
-    const selectedPrompt = prompts[Math.floor(Math.random() * prompts.length)];
-    
-    logger.info(`Selected prompt: ${selectedPrompt.basePrompt}`);
-
-    // 4. Save log entry
-    const logData = {
-      userId,
-      characterId: selectedCharacter.id,
-      characterName: selectedCharacter.name,
-      basePrompt: selectedPrompt.basePrompt,
-      generatedPrompt: selectedPrompt.basePrompt, // Will be variation in production
-      instagramAccountId: accountId,
-      instagramAccountName: config.instagramAccounts?.find((a: any) => a === accountId) || accountId,
-      scheduledTime,
-      executedAt: new Date().toISOString(),
-      status: "success",
-      generatedImageUrl: "", // Will be set after generation
-      caption: "",
-      hashtags: "",
-      instagramPostId: "",
-    };
-
-    await db.collection("auto_post_logs").add(logData);
-    
-    // Increment prompt usage
-    await db.collection("prompt_templates").doc(selectedPrompt.id).update({
-      usageCount: (selectedPrompt.usageCount || 0) + 1,
-      lastUsedAt: new Date().toISOString(),
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId,
+        scheduledTime,
+        authToken,
+      }),
     });
 
-    logger.info("Auto-post execution completed and logged");
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`API call failed: ${errorData.error || response.statusText}`);
+    }
+
+    const result = await response.json();
+    logger.info(`API response:`, result);
+
+    if (!result.success) {
+      throw new Error(`Auto-post failed: ${result.error}`);
+    }
+
+    logger.info(`Auto-post completed successfully for user ${userId}`);
   } catch (error) {
     logger.error("Error executing auto-post:", error);
     
@@ -199,29 +162,18 @@ async function executeAutoPost(userId: string, scheduledTime: string, config: an
       executedAt: new Date().toISOString(),
       status: "failed",
       error: error instanceof Error ? error.message : "Unknown error",
+      characterId: "",
+      characterName: "",
+      basePrompt: "",
+      generatedPrompt: "",
+      instagramAccountId: "",
+      instagramAccountName: "",
+      generatedImageUrl: "",
+      caption: "",
+      hashtags: "",
+      instagramPostId: "",
     });
 
     throw error;
   }
 }
-
-/**
- * Select Instagram account based on rotation strategy
- */
-function selectInstagramAccount(config: any): string {
-  const accounts = config.instagramAccounts || [];
-  
-  if (accounts.length === 0) {
-    throw new Error("No Instagram accounts configured");
-  }
-
-  if (config.accountRotationStrategy === "random") {
-    // Random selection
-    return accounts[Math.floor(Math.random() * accounts.length)];
-  } else {
-    // Rotate evenly - use timestamp for simple rotation
-    const index = Math.floor(Date.now() / 1000) % accounts.length;
-    return accounts[index];
-  }
-}
-

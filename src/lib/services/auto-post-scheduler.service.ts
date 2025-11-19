@@ -224,7 +224,15 @@ export class AutoPostSchedulerService {
   static async testAutoPost(userId: string): Promise<{
     success: boolean;
     message: string;
-    details?: any;
+    details?: {
+      character: string;
+      promptTemplate: string;
+      instagramAccount: string;
+      totalCharacters: number;
+      totalPrompts: number;
+      postingTimes: string[];
+      timezone: string;
+    };
   }> {
     try {
       // Get configuration

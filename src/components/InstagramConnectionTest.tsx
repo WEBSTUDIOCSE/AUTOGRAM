@@ -17,7 +17,8 @@ export function InstagramConnectionTest() {
     setAccountInfo(null);
 
     try {
-      const info = await APIBook.instagram.testConnection();
+      // Test with the first available account (account1)
+      const info = await APIBook.instagram.testConnection('account1');
       setAccountInfo(info);
       console.log('✅ Instagram connection successful:', info);
     } catch (err) {
@@ -53,9 +54,9 @@ export function InstagramConnectionTest() {
           <div className="space-y-1">
             <p className="text-sm"><strong>Username:</strong> {accountInfo.username}</p>
             <p className="text-sm"><strong>Account ID:</strong> {accountInfo.id}</p>
-            {accountInfo.profile_picture_url && (
+            {accountInfo.profilePictureUrl && (
               <img 
-                src={accountInfo.profile_picture_url} 
+                src={accountInfo.profilePictureUrl} 
                 alt="Profile" 
                 className="w-16 h-16 rounded-full mt-2"
               />
