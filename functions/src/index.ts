@@ -39,7 +39,7 @@ export const scheduledAutoPost = onSchedule(
       const now = new Date();
       const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
       
-      logger.info("Current time:", {currentTime});
+      logger.info("Current time:", {currentTime, fullTimestamp: now.toISOString()});
 
       // Query all enabled auto-post configs with matching posting time
       const configsSnapshot = await db
@@ -49,6 +49,11 @@ export const scheduledAutoPost = onSchedule(
         .get();
 
       logger.info(`Found ${configsSnapshot.size} enabled configs for time ${currentTime}`);
+
+      if (configsSnapshot.empty) {
+        logger.info("No users scheduled for auto-post at this time");
+        return;
+      }
 
       // Process each config
       const promises = configsSnapshot.docs.map(async (doc) => {

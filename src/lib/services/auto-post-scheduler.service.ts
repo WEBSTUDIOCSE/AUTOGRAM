@@ -13,11 +13,42 @@ import type { Character, AutoPostConfig, PromptTemplate } from '@/lib/firebase/c
  */
 export class AutoPostSchedulerService {
   /**
+   * Check if auto-post was already executed in the current hour
+   */
+  static async wasExecutedThisHour(userId: string, scheduledTime: string): Promise<boolean> {
+    const logs = await AutoPostLogService.getUserLogs(userId, 1);
+    
+    if (logs.length === 0) {
+      return false;
+    }
+
+    const lastLog = logs[0];
+    const lastLogTime = new Date(lastLog.executedAt);
+    const currentTime = new Date();
+
+    // Check if last log was in the same hour and same scheduled time
+    return (
+      lastLogTime.getHours() === currentTime.getHours() &&
+      lastLogTime.getDate() === currentTime.getDate() &&
+      lastLogTime.getMonth() === currentTime.getMonth() &&
+      lastLogTime.getFullYear() === currentTime.getFullYear() &&
+      lastLog.scheduledTime === scheduledTime
+    );
+  }
+
+  /**
    * Main function to execute an auto-post for a user
    */
   static async executeAutoPost(userId: string, scheduledTime: string): Promise<void> {
     try {
       console.log(`[AutoPost] Starting auto-post for user ${userId} at ${scheduledTime}`);
+
+      // Step 0: Check if already executed this hour
+      const alreadyExecuted = await this.wasExecutedThisHour(userId, scheduledTime);
+      if (alreadyExecuted) {
+        console.log(`[AutoPost] Auto-post already executed this hour for user ${userId} at ${scheduledTime}`);
+        return;
+      }
 
       // Step 1: Get and validate configuration
       const config = await AutoPostConfigService.getConfig(userId);
