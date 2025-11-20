@@ -36,6 +36,7 @@ export { PromptLibraryService } from '@/lib/services/prompt-library.service';
 export { PromptVariationService } from '@/lib/services/prompt-variation.service';
 export { AutoPostLogService } from '@/lib/services/auto-post-log.service';
 export { AutoPostSchedulerService } from '@/lib/services/auto-post-scheduler.service';
+export { ErrorNotificationService } from '@/lib/services/error-notification.service';
 
 // Import types
 export type { AppUser } from './auth.service';
@@ -64,6 +65,7 @@ import { PromptLibraryService } from '@/lib/services/prompt-library.service';
 import { PromptVariationService } from '@/lib/services/prompt-variation.service';
 import { AutoPostLogService } from '@/lib/services/auto-post-log.service';
 import { AutoPostSchedulerService } from '@/lib/services/auto-post-scheduler.service';
+import { ErrorNotificationService } from '@/lib/services/error-notification.service';
 
 /**
  * Centralized APIBook for Firebase services
@@ -85,6 +87,7 @@ import { AutoPostSchedulerService } from '@/lib/services/auto-post-scheduler.ser
  * const variation = await APIBook.promptVariation.generateVariation(basePrompt);
  * const logs = await APIBook.autoPostLog.getUserLogs(userId);
  * await APIBook.autoPostScheduler.executeAutoPost(userId, scheduledTime);
+ * const errorInfo = APIBook.errorNotification.formatForDisplay(errorMessage);
  */
 export const APIBook = {
   auth: AuthService,
@@ -103,6 +106,7 @@ export const APIBook = {
   promptVariation: PromptVariationService,
   autoPostLog: AutoPostLogService,
   autoPostScheduler: AutoPostSchedulerService,
+  errorNotification: ErrorNotificationService,
 } as const;
 
 /**

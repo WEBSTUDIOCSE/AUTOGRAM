@@ -6,6 +6,7 @@ import { CharacterService } from './character.service';
 import { CharacterAIService } from './character-ai.service';
 import { StorageService } from './storage.service';
 import { InstagramService } from './instagram.service';
+import { ErrorNotificationService } from './error-notification.service';
 import type { Character, AutoPostConfig, PromptTemplate } from '@/lib/firebase/config/types';
 
 /**
@@ -63,7 +64,7 @@ export class AutoPostSchedulerService {
         await this.logFailure(
           userId,
           scheduledTime,
-          `Not enough characters (${characters.length}/${config.minCharacters})`
+          `Not enough characters: You have ${characters.length} character(s), but need at least ${config.minCharacters}. Upload more characters in the Generate tab.`
         );
         return;
       }
@@ -78,7 +79,7 @@ export class AutoPostSchedulerService {
         await this.logFailure(
           userId,
           scheduledTime,
-          'No active prompt templates found',
+          'No active prompt templates found. Generate an image in the Generate tab to create your first prompt template.',
           selectedCharacter
         );
         return;
@@ -115,7 +116,7 @@ export class AutoPostSchedulerService {
         await this.logFailure(
           userId,
           scheduledTime,
-          `Instagram account not found: ${accountId}`,
+          `Instagram account not found or disconnected (ID: ${accountId}). Please check your Instagram account connection in Settings and ensure the account is still active.`,
           selectedCharacter,
           promptTemplate,
           generatedPrompt
@@ -159,7 +160,17 @@ export class AutoPostSchedulerService {
     } catch (error) {
       console.error('[AutoPost] Error during auto-post execution:', error);
       
-      // Log the failure
+      // Determine error category for better user feedback
+      let errorMessage = 'Unknown error occurred';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+        
+        // Add context to common errors using ErrorNotificationService
+        const errorDisplay = ErrorNotificationService.formatForDisplay(errorMessage);
+        errorMessage = `${errorDisplay.friendly.title}: ${errorDisplay.friendly.description}`;
+      }
+      
+      // Log the failure with detailed error
       await AutoPostLogService.saveLog({
         userId,
         characterId: '',
@@ -174,7 +185,7 @@ export class AutoPostSchedulerService {
         instagramAccountName: '',
         scheduledTime,
         status: 'failed',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: errorMessage,
       });
 
       throw error;
