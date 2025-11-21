@@ -74,7 +74,12 @@ export default function AutoPostSettings({ userId, characters }: AutoPostSetting
       
       // Set form state from config
       setIsEnabled(loadedConfig.isEnabled);
-      setPostingTimes(loadedConfig.postingTimes);
+      // Normalize all times to HH:mm format (zero-padded)
+      const normalizedTimes = loadedConfig.postingTimes.map(time => {
+        const [hours, minutes] = time.split(':');
+        return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+      });
+      setPostingTimes(normalizedTimes);
       setSelectedAccounts(loadedConfig.instagramAccounts);
       setRotationStrategy(loadedConfig.accountRotationStrategy);
       setMinCharacters(loadedConfig.minCharacters);
@@ -174,12 +179,16 @@ export default function AutoPostSettings({ userId, characters }: AutoPostSetting
       return;
     }
 
-    if (postingTimes.includes(newTime)) {
+    // Normalize time to HH:mm format (zero-padded)
+    const [hours, minutes] = newTime.split(':');
+    const normalizedTime = `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+
+    if (postingTimes.includes(normalizedTime)) {
       setError('This time is already added');
       return;
     }
 
-    setPostingTimes([...postingTimes, newTime]);
+    setPostingTimes([...postingTimes, normalizedTime]);
     setNewTime('');
     setError(null);
   };
