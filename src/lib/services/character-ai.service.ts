@@ -24,15 +24,18 @@ export const CharacterAIService = {
       const imageModelName = getImageModelName();
 
       // Prepare the prompt for image-to-image generation
-      const fullPrompt = `Create a new image based on this character. 
-Scene description: ${scenePrompt}
+      const fullPrompt = `Using the EXACT person shown in this reference image, generate a new photo of them in this scene: ${scenePrompt}
 
-Requirements:
-- Keep the character's appearance consistent with the reference image
-- Place the character in the described scene
-- Maintain high quality and realistic details
-- Ensure the character is the main focus
-- Match the style and mood of the scene description`;
+CRITICAL REQUIREMENTS:
+- Use the EXACT SAME PERSON from the reference image - identical face, features, and appearance
+- This must be the SAME PERSON, not a similar-looking person
+- Keep ALL facial features, hair, skin tone, and characteristics identical
+- Place this exact person in the new scene described above
+- Maintain photorealistic quality
+- The person must be clearly visible and the main focus
+- Natural lighting and composition
+
+Remember: This is a photo editing task - keep the person's identity and appearance EXACTLY the same, only change the background/scene/setting.
 
       console.log('🎨 Generating character scene with Gemini...');
       console.log('📝 Scene prompt:', scenePrompt);
