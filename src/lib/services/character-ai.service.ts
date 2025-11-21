@@ -24,18 +24,7 @@ export const CharacterAIService = {
       const imageModelName = getImageModelName();
 
       // Prepare the prompt for image-to-image generation
-      const fullPrompt = `Using the EXACT person shown in this reference image, generate a new photo of them in this scene: ${scenePrompt}
-
-CRITICAL REQUIREMENTS:
-- Use the EXACT SAME PERSON from the reference image - identical face, features, and appearance
-- This must be the SAME PERSON, not a similar-looking person
-- Keep ALL facial features, hair, skin tone, and characteristics identical
-- Place this exact person in the new scene described above
-- Maintain photorealistic quality
-- The person must be clearly visible and the main focus
-- Natural lighting and composition
-
-Remember: This is a photo editing task - keep the person's identity and appearance EXACTLY the same, only change the background/scene/setting.
+      const fullPrompt = 'Using the EXACT person shown in this reference image, generate a new photo of them in this scene: ' + scenePrompt + '\n\nCRITICAL REQUIREMENTS:\n- Use the EXACT SAME PERSON from the reference image - identical face, features, and appearance\n- This must be the SAME PERSON, not a similar-looking person\n- Keep ALL facial features, hair, skin tone, and characteristics identical\n- Place this exact person in the new scene described above\n- Maintain photorealistic quality\n- The person must be clearly visible and the main focus\n- Natural lighting and composition\n\nRemember: This is a photo editing task - keep the person\'s identity and appearance EXACTLY the same, only change the background/scene/setting.';
 
       console.log('🎨 Generating character scene with Gemini...');
       console.log('📝 Scene prompt:', scenePrompt);
@@ -93,8 +82,10 @@ Remember: This is a photo editing task - keep the person's identity and appearan
         scenePrompt
       );
 
+      const imageDataUrl = 'data:image/png;base64,' + generatedImageBase64;
+
       return {
-        imageBase64: `data:image/png;base64,${generatedImageBase64}`,
+        imageBase64: imageDataUrl,
         caption,
         hashtags,
         model: imageModelName,
@@ -118,15 +109,7 @@ Remember: This is a photo editing task - keep the person's identity and appearan
     try {
       const modelName = getTextModelName();
 
-      const captionPrompt = `Based on this scene description: "${scenePrompt}"
-
-Generate:
-1. An engaging Instagram caption (2-3 sentences, natural and conversational)
-2. 10-15 relevant hashtags
-
-Format your response exactly as:
-CAPTION: [your caption here]
-HASHTAGS: [hashtags here separated by spaces]`;
+      const captionPrompt = 'Based on this scene description: "' + scenePrompt + '"\n\nGenerate:\n1. An engaging Instagram caption (2-3 sentences, natural and conversational)\n2. 10-15 relevant hashtags\n\nFormat your response exactly as:\nCAPTION: [your caption here]\nHASHTAGS: [hashtags here separated by spaces]';
 
       const response = await genAI.models.generateContent({
         model: modelName,

@@ -17,6 +17,9 @@ const UAT_CONFIG: FirebaseConfig = {
 /**
  * UAT Gemini Configuration
  */
+/**
+ * UAT Gemini Configuration
+ */
 const UAT_GEMINI: GeminiConfig = {
     apiKey: process.env.NEXT_PUBLIC_UAT || "",
     imageModel: "gemini-2.5-flash-image",
