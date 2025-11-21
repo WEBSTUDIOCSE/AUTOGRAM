@@ -28,8 +28,8 @@ setGlobalOptions({
  */
 export const scheduledAutoPost = onSchedule(
   {
-    schedule: "0 * * * *", // Every hour
-    timeZone: "America/New_York", // Adjust to your timezone
+    schedule: "0 * * * *", // Every hour at :00
+    timeZone: "Asia/Kolkata", // India Standard Time (IST)
   },
   async (event) => {
     logger.info("Starting scheduled auto-post check", {timestamp: event.scheduleTime});
