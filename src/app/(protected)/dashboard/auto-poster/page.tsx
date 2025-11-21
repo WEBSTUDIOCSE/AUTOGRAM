@@ -47,31 +47,13 @@ export default function AutoPosterPage() {
 
   // Error handling
   const [error, setError] = useState<string | null>(null);
-  const [recentErrors, setRecentErrors] = useState<string[]>([]);
 
   // Load user's characters on mount
   useEffect(() => {
     if (user) {
       loadCharacters();
-      loadRecentErrors();
     }
   }, [user]);
-
-  // Load recent failed auto-posts to show errors
-  const loadRecentErrors = async () => {
-    if (!user) return;
-    
-    try {
-      const logs = await APIBook.autoPostLog.getUserLogs(user.uid, 5);
-      const errors = logs
-        .filter(log => log.status === 'failed' && log.error)
-        .slice(0, 3)
-        .map(log => log.error);
-      setRecentErrors(errors as string[]);
-    } catch (err) {
-      console.error('Failed to load recent errors:', err);
-    }
-  };
 
   const loadCharacters = async () => {
     if (!user) return;
@@ -262,33 +244,6 @@ export default function AutoPosterPage() {
       </div>
 
       <Separator />
-
-      {/* Recent Auto-Post Errors Banner */}
-      {recentErrors.length > 0 && (
-        <Alert variant="destructive" className="border-red-300 bg-red-50">
-          <AlertDescription>
-            <div className="space-y-2">
-              <p className="font-semibold text-red-900">⚠️ Recent Auto-Post Errors:</p>
-              <ul className="list-disc list-inside space-y-1 text-sm text-red-800">
-                {recentErrors.map((err, idx) => (
-                  <li key={idx}>{err}</li>
-                ))}
-              </ul>
-              <p className="text-xs text-red-700 mt-2">
-                Check the History tab for full details and fix any issues in Settings.
-              </p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={loadRecentErrors}
-                className="mt-2"
-              >
-                Refresh
-              </Button>
-            </div>
-          </AlertDescription>
-        </Alert>
-      )}
 
       {error && (
         <Alert variant="destructive">
