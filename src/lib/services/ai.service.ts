@@ -70,17 +70,30 @@ export const AIService = {
         console.log('🎨 Generating caption and hashtags with AI...');
         
         const textModel = getTextModelName();
-        const captionPrompt = `You are an Instagram caption expert. Based on this image description: "${prompt}"
+        const captionPrompt = `Based on this image: "${prompt}"
 
-Create an engaging Instagram post with:
-1. A captivating caption (2-3 sentences) that describes what's in the image
-2. Add appropriate emojis naturally within the caption
-3. Generate 10-15 relevant hashtags based on the image content
-4. Always include these base hashtags: #AIArt #AIGenerated #Autogram
+Create an authentic, human-written Instagram post as if someone is sharing a genuine moment from their life.
 
-Format your response EXACTLY as:
-CAPTION: [Your engaging caption with emojis]
-HASHTAGS: #hashtag1 #hashtag2 #hashtag3 ...`;
+Guidelines:
+- Write in first person (I, me, my)
+- Be conversational and natural, like talking to friends
+- Share emotions, thoughts, or story behind the moment
+- 2-3 sentences maximum
+- NO mention of AI, digital art, or generated content
+- Sound real and authentic
+- Use casual language and emojis naturally
+
+Hashtags:
+- Use 8-12 hashtags that real people use
+- Mix popular and niche tags
+- NO AI-related tags (#AIArt, #AIGenerated, #DigitalArt, etc.)
+- Use lifestyle, mood, and moment-based tags
+- Focus on the activity, location, emotion, or theme
+- Make them look organic, not automated
+
+Format:
+CAPTION: [authentic first-person caption with emojis]
+HASHTAGS: [natural hashtags without AI mentions]`;
 
         const captionResponse = await genAI.models.generateContent({
           model: textModel,
@@ -109,7 +122,9 @@ HASHTAGS: #hashtag1 #hashtag2 #hashtag3 ...`;
         
       } catch (error) {
         console.error('❌ Failed to generate caption/hashtags with AI:', error);
-        // No fallback - leave empty so user can fill manually
+        // Use human-like fallbacks
+        caption = 'Just living in the moment 💫';
+        hashtags = '#lifestyle #mood #vibes #instagood #photooftheday #dailylife #blessed #grateful #happiness #goodtimes';
       }
       
       return {

@@ -109,7 +109,7 @@ export const CharacterAIService = {
     try {
       const modelName = getTextModelName();
 
-      const captionPrompt = 'Based on this scene description: "' + scenePrompt + '"\n\nGenerate:\n1. An engaging Instagram caption (2-3 sentences, natural and conversational)\n2. 10-15 relevant hashtags\n\nFormat your response exactly as:\nCAPTION: [your caption here]\nHASHTAGS: [hashtags here separated by spaces]';
+      const captionPrompt = 'Based on this scene: "' + scenePrompt + '"\n\nCreate an authentic, human-written Instagram post as if someone is sharing a genuine moment from their life.\n\nGuidelines:\n- Write in first person (I, me, my)\n- Be conversational and natural, like talking to friends\n- Share emotions, thoughts, or story behind the moment\n- 2-3 sentences maximum\n- NO mention of AI, digital art, or generated content\n- Sound real and authentic\n- Use casual language and emojis naturally\n\nHashtags:\n- Use 8-12 hashtags that real people use\n- Mix popular and niche tags\n- NO AI-related tags (#AIArt, #AIGenerated, #DigitalArt, etc.)\n- Use lifestyle, mood, and moment-based tags\n- Focus on the activity, location, emotion, or theme\n- Make them look organic, not automated\n\nFormat:\nCAPTION: [authentic first-person caption with emojis]\nHASHTAGS: [natural hashtags without AI mentions]';
 
       const response = await genAI.models.generateContent({
         model: modelName,
@@ -135,20 +135,20 @@ export const CharacterAIService = {
 
       const caption = captionMatch
         ? captionMatch[1].trim()
-        : 'AI-generated character scene';
+        : 'Living my best life ✨';
       const hashtags = hashtagsMatch
         ? hashtagsMatch[1].trim()
-        : '#AIArt #CharacterArt #DigitalArt';
+        : '#lifestyle #goodvibes #mood #instagood #photooftheday #beautiful #happy #love #life #moments';
 
       console.log('✅ Generated caption and hashtags');
 
       return { caption, hashtags };
     } catch (error) {
       console.error('❌ Caption generation error:', error);
-      // Return defaults on error
+      // Return human-like defaults on error
       return {
-        caption: 'AI-generated character scene ✨',
-        hashtags: '#AIArt #CharacterArt #DigitalArt #AIGenerated #CreativeAI',
+        caption: 'Just living in the moment 💫',
+        hashtags: '#lifestyle #mood #vibes #instagood #photooftheday #dailylife #blessed #grateful #happiness #goodtimes',
       };
     }
   },
