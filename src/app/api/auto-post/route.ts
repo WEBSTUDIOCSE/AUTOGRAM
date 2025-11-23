@@ -6,13 +6,20 @@ import { AutoPostSchedulerService } from '@/lib/services/auto-post-scheduler.ser
  * Called by Firebase Cloud Functions on schedule
  */
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  console.log(`[AutoPost API] ===== NEW REQUEST RECEIVED =====`);
+  console.log(`[AutoPost API] Timestamp: ${new Date().toISOString()}`);
+  
   try {
     // Parse request body
     const body = await request.json();
+    console.log(`[AutoPost API] Request body:`, JSON.stringify(body, null, 2));
+    
     const { userId, scheduledTime, authToken } = body;
 
     // Validate required fields
     if (!userId || !scheduledTime) {
+      console.error(`[AutoPost API] ❌ Missing required fields - userId: ${userId}, scheduledTime: ${scheduledTime}`);
       return NextResponse.json(
         { 
           success: false, 
@@ -25,8 +32,12 @@ export async function POST(request: NextRequest) {
     // Verify authorization token (basic security)
     // In production, use a more secure method like Firebase Admin SDK token verification
     const expectedToken = process.env.AUTO_POST_SECRET_TOKEN || 'autogram-auto-post-secret-2024';
+    console.log(`[AutoPost API] 🔐 Token verification - Match: ${authToken === expectedToken}`);
+    
     if (authToken !== expectedToken) {
-      console.warn(`[AutoPost API] Unauthorized request for user ${userId}`);
+      console.error(`[AutoPost API] ❌ Unauthorized request for user ${userId}`);
+      console.error(`[AutoPost API] Expected token: ${expectedToken?.substring(0, 10)}...`);
+      console.error(`[AutoPost API] Received token: ${authToken?.substring(0, 10)}...`);
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
@@ -38,7 +49,10 @@ export async function POST(request: NextRequest) {
     // Execute auto-post workflow
     await AutoPostSchedulerService.executeAutoPost(userId, scheduledTime);
 
-    console.log(`[AutoPost API] Successfully completed auto-post for user ${userId}`);
+    const duration = Date.now() - startTime;
+    console.log(`[AutoPost API] ✅ Successfully completed auto-post for user ${userId}`);
+    console.log(`[AutoPost API] Total execution time: ${duration}ms (${(duration/1000).toFixed(2)}s)`);
+    console.log(`[AutoPost API] ===== REQUEST COMPLETED =====`);
 
     return NextResponse.json({
       success: true,
@@ -46,10 +60,19 @@ export async function POST(request: NextRequest) {
       userId,
       scheduledTime,
       timestamp: new Date().toISOString(),
+      executionTimeMs: duration,
     });
 
   } catch (error) {
-    console.error('[AutoPost API] Error executing auto-post:', error);
+    const duration = Date.now() - startTime;
+    console.error(`[AutoPost API] ❌ Error executing auto-post after ${duration}ms:`);
+    console.error('[AutoPost API] Error details:', error);
+    if (error instanceof Error) {
+      console.error('[AutoPost API] Error name:', error.name);
+      console.error('[AutoPost API] Error message:', error.message);
+      console.error('[AutoPost API] Error stack:', error.stack);
+    }
+    console.log(`[AutoPost API] ===== REQUEST FAILED =====`);
     
     return NextResponse.json(
       {

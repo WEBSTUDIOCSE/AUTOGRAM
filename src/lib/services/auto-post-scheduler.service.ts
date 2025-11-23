@@ -41,26 +41,50 @@ export class AutoPostSchedulerService {
    * Main function to execute an auto-post for a user
    */
   static async executeAutoPost(userId: string, scheduledTime: string): Promise<void> {
+    const stepTimer = { start: Date.now(), steps: [] as any[] };
+    
     try {
-      console.log(`[AutoPost] Starting auto-post for user ${userId} at ${scheduledTime}`);
+      console.log(`[AutoPost] ━━━━━ STARTING AUTO-POST WORKFLOW ━━━━━`);
+      console.log(`[AutoPost] User ID: ${userId}`);
+      console.log(`[AutoPost] Scheduled Time: ${scheduledTime}`);
+      console.log(`[AutoPost] Current Time: ${new Date().toISOString()}`);
 
       // Step 0: Check if already executed this hour
+      console.log(`[AutoPost] STEP 0: Checking duplicate execution...`);
+      const stepStart = Date.now();
       const alreadyExecuted = await this.wasExecutedThisHour(userId, scheduledTime);
+      stepTimer.steps.push({ step: 0, name: 'Duplicate Check', duration: Date.now() - stepStart, success: true });
+      
       if (alreadyExecuted) {
-        console.log(`[AutoPost] Auto-post already executed this hour for user ${userId} at ${scheduledTime}`);
+        console.log(`[AutoPost] ⚠️ Auto-post already executed this hour - SKIPPING`);
         return;
       }
+      console.log(`[AutoPost] ✅ No duplicate found, proceeding...`);
 
       // Step 1: Get and validate configuration
+      console.log(`[AutoPost] STEP 1: Loading configuration...`);
+      const step1Start = Date.now();
       const config = await AutoPostConfigService.getConfig(userId);
-      if (!config || !config.isEnabled) {
-        console.log(`[AutoPost] Auto-posting is disabled for user ${userId}`);
+      stepTimer.steps.push({ step: 1, name: 'Load Config', duration: Date.now() - step1Start, success: !!config });
+      if (!config) {
+        console.error(`[AutoPost] ❌ No configuration found for user ${userId}`);
+        return;
+      }
+      console.log(`[AutoPost] ✅ Config loaded - isEnabled: ${config.isEnabled}, accounts: ${config.instagramAccounts.length}, times: ${config.postingTimes.length}`);
+      
+      if (!config.isEnabled) {
+        console.log(`[AutoPost] ⚠️ Auto-posting is disabled for user ${userId}`);
         return;
       }
 
       // Step 2: Get user's characters
+      console.log(`[AutoPost] STEP 2: Loading user characters...`);
+      const step2Start = Date.now();
       const characters = await CharacterService.getUserCharacters(userId);
+      stepTimer.steps.push({ step: 2, name: 'Load Characters', duration: Date.now() - step2Start, count: characters.length });
+      console.log(`[AutoPost] ✅ Found ${characters.length} character(s), need ${config.minCharacters}`);
       if (characters.length < config.minCharacters) {
+        console.error(`[AutoPost] ❌ Not enough characters: ${characters.length}/${config.minCharacters}`);
         await this.logFailure(
           userId,
           scheduledTime,
@@ -70,12 +94,17 @@ export class AutoPostSchedulerService {
       }
 
       // Step 3: Select random character
+      console.log(`[AutoPost] STEP 3: Selecting random character...`);
       const selectedCharacter = this.selectRandomCharacter(characters);
-      console.log(`[AutoPost] Selected character: ${selectedCharacter.name}`);
+      console.log(`[AutoPost] ✅ Selected: ${selectedCharacter.name} (ID: ${selectedCharacter.id})`);
 
       // Step 4: Get random active prompt template
+      console.log(`[AutoPost] STEP 4: Loading prompt template...`);
+      const step4Start = Date.now();
       const promptTemplate = await PromptLibraryService.getRandomPrompt(userId);
+      stepTimer.steps.push({ step: 4, name: 'Load Prompt', duration: Date.now() - step4Start, found: !!promptTemplate });
       if (!promptTemplate) {
+        console.error(`[AutoPost] ❌ No active prompt templates found`);
         await this.logFailure(
           userId,
           scheduledTime,
@@ -84,22 +113,30 @@ export class AutoPostSchedulerService {
         );
         return;
       }
-      console.log(`[AutoPost] Selected prompt template: ${promptTemplate.basePrompt}`);
+      console.log(`[AutoPost] ✅ Selected: "${promptTemplate.basePrompt.substring(0, 50)}..."`);
 
       // Step 5: Generate prompt variation
+      console.log(`[AutoPost] STEP 5: Generating prompt variation...`);
+      const step5Start = Date.now();
       const generatedPrompt = await PromptVariationService.generateVariation(
         promptTemplate.basePrompt
       );
-      console.log(`[AutoPost] Generated prompt variation: ${generatedPrompt}`);
+      stepTimer.steps.push({ step: 5, name: 'Generate Variation', duration: Date.now() - step5Start });
+      console.log(`[AutoPost] ✅ Variation: "${generatedPrompt.substring(0, 50)}..."`);
 
       // Step 6: Generate image with character
+      console.log(`[AutoPost] STEP 6: Generating image with AI...`);
+      const step6Start = Date.now();
       const result = await CharacterAIService.generateWithCharacter(
         selectedCharacter.imageBase64,
         generatedPrompt
       );
-      console.log(`[AutoPost] Image generated successfully`);
+      stepTimer.steps.push({ step: 6, name: 'AI Image Generation', duration: Date.now() - step6Start });
+      console.log(`[AutoPost] ✅ Image generated (${result.imageBase64.length} bytes)`);
 
       // Step 7: Upload to Firebase Storage
+      console.log(`[AutoPost] STEP 7: Uploading to Firebase Storage...`);
+      const step7Start = Date.now();
       const base64 = result.imageBase64.replace(/^data:image\/\w+;base64,/, '');
       const imageUrl = await StorageService.uploadImage(
         base64,
@@ -107,12 +144,15 @@ export class AutoPostSchedulerService {
         'module3',
         'auto-generated'
       );
-      console.log(`[AutoPost] Image uploaded to storage: ${imageUrl}`);
+      stepTimer.steps.push({ step: 7, name: 'Upload Storage', duration: Date.now() - step7Start });
+      console.log(`[AutoPost] ✅ Uploaded: ${imageUrl}`);
 
       // Step 8: Select Instagram account
+      console.log(`[AutoPost] STEP 8: Selecting Instagram account...`);
       const accountId = this.selectInstagramAccount(config);
       const account = InstagramService.getAccountById(accountId);
       if (!account) {
+        console.error(`[AutoPost] ❌ Instagram account not found: ${accountId}`);
         await this.logFailure(
           userId,
           scheduledTime,
@@ -123,18 +163,26 @@ export class AutoPostSchedulerService {
         );
         return;
       }
-      console.log(`[AutoPost] Selected Instagram account: ${account.name}`);
+      console.log(`[AutoPost] ✅ Selected: ${account.name} (${accountId})`);
 
       // Step 9: Post to Instagram
+      console.log(`[AutoPost] STEP 9: Posting to Instagram...`);
+      const step9Start = Date.now();
       const fullCaption = `${result.caption}\n\n${result.hashtags}`;
+      console.log(`[AutoPost] Caption: "${result.caption.substring(0, 50)}..."`);
+      console.log(`[AutoPost] Hashtags: ${result.hashtags}`);
+      
       const instagramPostId = await InstagramService.postImage(
         imageUrl,
         fullCaption,
         accountId
       );
-      console.log(`[AutoPost] Posted to Instagram: ${instagramPostId}`);
+      stepTimer.steps.push({ step: 9, name: 'Instagram Post', duration: Date.now() - step9Start });
+      console.log(`[AutoPost] ✅ Posted! Instagram ID: ${instagramPostId}`);
 
       // Step 10: Save log
+      console.log(`[AutoPost] STEP 10: Saving execution log...`);
+      const step10Start = Date.now();
       await AutoPostLogService.saveLog({
         userId,
         characterId: selectedCharacter.id,
@@ -152,13 +200,30 @@ export class AutoPostSchedulerService {
         status: 'success',
       });
 
+      stepTimer.steps.push({ step: 10, name: 'Save Log', duration: Date.now() - step10Start });
+      console.log(`[AutoPost] ✅ Log saved`);
+
       // Step 11: Update usage statistics
+      console.log(`[AutoPost] STEP 11: Updating usage statistics...`);
       await CharacterService.updateCharacterUsage(selectedCharacter.id);
       await PromptLibraryService.incrementUsage(promptTemplate.id);
+      console.log(`[AutoPost] ✅ Statistics updated`);
 
-      console.log(`[AutoPost] Auto-post completed successfully for user ${userId}`);
+      const totalDuration = Date.now() - stepTimer.start;
+      console.log(`[AutoPost] ━━━━━ WORKFLOW COMPLETED SUCCESSFULLY ━━━━━`);
+      console.log(`[AutoPost] Total time: ${totalDuration}ms (${(totalDuration/1000).toFixed(2)}s)`);
+      console.log(`[AutoPost] Step timings:`);
+      stepTimer.steps.forEach(s => {
+        console.log(`[AutoPost]   Step ${s.step} (${s.name}): ${s.duration}ms`);
+      });
     } catch (error) {
+      console.error('[AutoPost] ━━━━━ WORKFLOW FAILED ━━━━━');
       console.error('[AutoPost] Error during auto-post execution:', error);
+      if (error instanceof Error) {
+        console.error('[AutoPost] Error type:', error.constructor.name);
+        console.error('[AutoPost] Error message:', error.message);
+        console.error('[AutoPost] Stack trace:', error.stack);
+      }
       
       // Determine error category for better user feedback
       let errorMessage = 'Unknown error occurred';
