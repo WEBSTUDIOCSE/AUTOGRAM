@@ -58,7 +58,7 @@ export default function AutoPostSettings({ userId, characters }: AutoPostSetting
   const [newTime, setNewTime] = useState('');
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
   const [rotationStrategy, setRotationStrategy] = useState<'rotate' | 'random'>('rotate');
-  const [minCharacters, setMinCharacters] = useState(3);
+  const [minCharacters, setMinCharacters] = useState(1);
 
   const availableAccounts = InstagramService.getAccounts();
 
