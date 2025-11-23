@@ -35,11 +35,12 @@ export const scheduledAutoPost = onSchedule(
     logger.info("Starting scheduled auto-post check", {timestamp: event.scheduleTime});
 
     try {
-      // Get current time in HH:mm format
+      // Get current time in IST (Asia/Kolkata timezone)
       const now = new Date();
-      const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+      const istTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+      const currentTime = `${istTime.getHours().toString().padStart(2, "0")}:${istTime.getMinutes().toString().padStart(2, "0")}`;
       
-      logger.info("Current time:", {currentTime, fullTimestamp: now.toISOString()});
+      logger.info("Current time:", {currentTime, utcTime: now.toISOString(), istTime: istTime.toISOString()});
 
       // Query all enabled auto-post configs with matching posting time
       const configsSnapshot = await db
