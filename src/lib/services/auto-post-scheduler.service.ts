@@ -41,7 +41,7 @@ export class AutoPostSchedulerService {
    * Main function to execute an auto-post for a user
    */
   static async executeAutoPost(userId: string, scheduledTime: string): Promise<void> {
-    const stepTimer = { start: Date.now(), steps: [] as any[] };
+    const stepTimer: { start: number; steps: Array<{ step: number; name: string; duration: number; success?: boolean; count?: number; found?: boolean }> } = { start: Date.now(), steps: [] };
     
     try {
       console.log(`[AutoPost] ━━━━━ STARTING AUTO-POST WORKFLOW ━━━━━`);
