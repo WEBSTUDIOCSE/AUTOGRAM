@@ -24,7 +24,49 @@ export const CharacterAIService = {
       const imageModelName = getImageModelName();
 
       // Prepare the prompt for image-to-image generation
-      const fullPrompt = 'Using the EXACT person shown in this reference image, generate a new photo of them in this scene: ' + scenePrompt + '\n\nCRITICAL REQUIREMENTS:\n- Use the EXACT SAME PERSON from the reference image - identical face, features, and appearance\n- This must be the SAME PERSON, not a similar-looking person\n- Keep ALL facial features, hair, skin tone, and characteristics identical\n- Place this exact person in the new scene described above\n- Maintain photorealistic quality\n- The person must be clearly visible and the main focus\n- Natural lighting and composition\n\nRemember: This is a photo editing task - keep the person\'s identity and appearance EXACTLY the same, only change the background/scene/setting.';
+      const fullPrompt = `CRITICAL INSTRUCTION: Using the EXACT SAME PERSON from the reference image, create an ultra-realistic photograph in this scene:
+
+"${scenePrompt}"
+
+🎯 PERSON REQUIREMENTS (HIGHEST PRIORITY):
+- This MUST be the IDENTICAL person from the reference image
+- EXACT same face structure, features, expressions
+- EXACT same skin tone, hair color, hair style
+- EXACT same eye color, eye shape, nose, mouth
+- Maintain all unique facial characteristics and beauty marks
+- Same body type, proportions, and physical attributes
+- This is face-swapping/identity preservation - NOT creating a new person
+
+📸 PHOTOGRAPHY REQUIREMENTS:
+- Ultra-high definition, photorealistic quality
+- Professional photography standards
+- Natural, realistic lighting (avoid artificial/CGI look)
+- Proper depth of field and bokeh
+- Realistic shadows, highlights, and reflections
+- Natural color grading (not oversaturated)
+- Sharp focus on the person, natural background blur
+- Realistic proportions and perspective
+
+🎬 SCENE & COMPOSITION:
+- Follow the scene description accurately: ${scenePrompt}
+- Natural, candid pose (not posed/artificial)
+- Person should be main subject, clearly visible
+- Authentic setting and environment
+- Contextually appropriate clothing and styling
+- Realistic interaction with environment
+- Natural body language and positioning
+
+❌ AVOID:
+- Artificial/CGI/rendered look
+- Oversaturated or unrealistic colors
+- Unnatural lighting or shadows
+- Distorted proportions or features
+- Blurry or low-quality results
+- Cartoonish or illustrated style
+- Changing the person's identity/face
+- Adding unrealistic elements
+
+REMEMBER: This should look like a real photograph taken with a professional camera, featuring the exact same person from the reference image in a new setting.`;
 
       console.log('🎨 Generating character scene with Gemini...');
       console.log('📝 Scene prompt:', scenePrompt);
@@ -109,7 +151,42 @@ export const CharacterAIService = {
     try {
       const modelName = getTextModelName();
 
-      const captionPrompt = 'Based on this scene: "' + scenePrompt + '"\n\nCreate an authentic, human-written Instagram post as if someone is sharing a genuine moment from their life.\n\nGuidelines:\n- Write in first person (I, me, my)\n- Be conversational and natural, like talking to friends\n- Share emotions, thoughts, or story behind the moment\n- 2-3 sentences maximum\n- NO mention of AI, digital art, or generated content\n- Sound real and authentic\n- Use casual language and emojis naturally\n\nHashtags:\n- Use 8-12 hashtags that real people use\n- Mix popular and niche tags\n- NO AI-related tags (#AIArt, #AIGenerated, #DigitalArt, etc.)\n- Use lifestyle, mood, and moment-based tags\n- Focus on the activity, location, emotion, or theme\n- Make them look organic, not automated\n\nFormat:\nCAPTION: [authentic first-person caption with emojis]\nHASHTAGS: [natural hashtags without AI mentions]';
+      const captionPrompt = `You are writing an authentic Instagram post for this moment: "${scenePrompt}"
+
+Write as if YOU are the person in this moment, sharing it with friends on Instagram.
+
+CRITICAL RULES:
+- Write in FIRST PERSON (I, me, my, we)
+- Be HIGHLY SPECIFIC to this exact scene - mention specific details, activities, emotions
+- Make it sound completely real and unrehearsed
+- VARY the length naturally:
+  * Exciting moments: 3-4 sentences with enthusiasm
+  * Peaceful/reflective moments: 1-2 sentences, calm tone
+  * Action/adventure: 2-3 sentences with energy
+  * Casual moments: 1-2 short sentences, relaxed
+- Use emojis that match the mood (1-3 emojis max)
+- Include personal thoughts, feelings, or mini-stories
+- NO generic phrases like "living my best life", "good vibes only", "blessed"
+- NO mention of AI, digital, generated, or artificial content
+- Sound like a REAL person would write it
+
+EXAMPLES OF GOOD CAPTIONS:
+- "Finally made it to this spot I've been dreaming about 🌅 The hike was brutal but this view made it so worth it"
+- "Coffee first, adulting second ☕"
+- "This sunset though... Sometimes you just gotta stop and appreciate moments like these 🌇"
+- "Trying out this new place everyone's been talking about and wow, did not disappoint! Already planning my next visit 😍"
+
+Hashtags:
+- Pick 8-12 hashtags that are DIRECTLY relevant to what's in the scene
+- Mix popular tags (100K+ uses) with niche tags (10K-50K uses)
+- MUST match the activity/location/mood/objects in the scene
+- NO generic lifestyle tags unless they truly fit
+- NO AI-related tags whatsoever
+- Make them look natural and hand-picked
+
+Format your response EXACTLY as:
+CAPTION: [your authentic, scene-specific caption]
+HASHTAGS: [space-separated hashtags]`;
 
       const response = await genAI.models.generateContent({
         model: modelName,
@@ -145,10 +222,28 @@ export const CharacterAIService = {
       return { caption, hashtags };
     } catch (error) {
       console.error('❌ Caption generation error:', error);
-      // Return human-like defaults on error
+      // Return varied human-like fallbacks based on random selection
+      const fallbackCaptions = [
+        'Sometimes you just need moments like these 💫',
+        'Making memories one day at a time ✨',
+        'This is what happiness looks like 😊',
+        'Taking it all in 🌟',
+        'Here for the good times 🙌',
+        'Feeling grateful for moments like this 💛',
+        'Just me being me 💁',
+        'These are the days I live for ⭐',
+      ];
+      
+      const fallbackHashtags = [
+        '#lifestyle #mood #vibes #instagood #photooftheday #dailylife #moments #happiness #grateful #goodtimes',
+        '#weekendvibes #goodmood #positive #blessed #enjoying #lifemoments #happy #smile #peace #joy',
+        '#authentic #real #natural #genuine #casual #everyday #simple #beauty #appreciate #present',
+        '#living #exploring #discovering #adventure #journey #experience #memories #create #capture #share',
+      ];
+      
       return {
-        caption: 'Just living in the moment 💫',
-        hashtags: '#lifestyle #mood #vibes #instagood #photooftheday #dailylife #blessed #grateful #happiness #goodtimes',
+        caption: fallbackCaptions[Math.floor(Math.random() * fallbackCaptions.length)],
+        hashtags: fallbackHashtags[Math.floor(Math.random() * fallbackHashtags.length)],
       };
     }
   },

@@ -70,30 +70,42 @@ export const AIService = {
         console.log('🎨 Generating caption and hashtags with AI...');
         
         const textModel = getTextModelName();
-        const captionPrompt = `Based on this image: "${prompt}"
+        const captionPrompt = `You are writing an authentic Instagram post for this moment: "${prompt}"
 
-Create an authentic, human-written Instagram post as if someone is sharing a genuine moment from their life.
+Write as if YOU are experiencing this moment right now and sharing it with friends on Instagram.
 
-Guidelines:
-- Write in first person (I, me, my)
-- Be conversational and natural, like talking to friends
-- Share emotions, thoughts, or story behind the moment
-- 2-3 sentences maximum
-- NO mention of AI, digital art, or generated content
-- Sound real and authentic
-- Use casual language and emojis naturally
+CRITICAL RULES:
+- Write in FIRST PERSON (I, me, my, we)
+- Be HIGHLY SPECIFIC to this exact scene - mention specific details, activities, emotions
+- Make it sound completely real and unrehearsed
+- VARY the length naturally:
+  * Exciting moments: 3-4 sentences with enthusiasm
+  * Peaceful/reflective moments: 1-2 sentences, calm tone
+  * Action/adventure: 2-3 sentences with energy
+  * Casual moments: 1-2 short sentences, relaxed
+- Use emojis that match the mood (1-3 emojis max)
+- Include personal thoughts, feelings, or mini-stories
+- NO generic phrases like "living my best life", "good vibes only", "blessed"
+- NO mention of AI, digital, generated, or artificial content
+- Sound like a REAL person would write it
+
+EXAMPLES OF GOOD CAPTIONS:
+- "Finally made it to this spot I've been dreaming about 🌅 The hike was brutal but this view made it so worth it"
+- "Coffee first, adulting second ☕"
+- "This sunset though... Sometimes you just gotta stop and appreciate moments like these 🌇"
+- "Trying out this new place everyone's been talking about and wow, did not disappoint! Already planning my next visit 😍"
 
 Hashtags:
-- Use 8-12 hashtags that real people use
-- Mix popular and niche tags
-- NO AI-related tags (#AIArt, #AIGenerated, #DigitalArt, etc.)
-- Use lifestyle, mood, and moment-based tags
-- Focus on the activity, location, emotion, or theme
-- Make them look organic, not automated
+- Pick 8-12 hashtags that are DIRECTLY relevant to what's in the scene
+- Mix popular tags (100K+ uses) with niche tags (10K-50K uses)
+- MUST match the activity/location/mood/objects in the scene
+- NO generic lifestyle tags unless they truly fit
+- NO AI-related tags whatsoever
+- Make them look natural and hand-picked
 
-Format:
-CAPTION: [authentic first-person caption with emojis]
-HASHTAGS: [natural hashtags without AI mentions]`;
+Format your response EXACTLY as:
+CAPTION: [your authentic, scene-specific caption]
+HASHTAGS: [space-separated hashtags]`;
 
         const captionResponse = await genAI.models.generateContent({
           model: textModel,
@@ -122,9 +134,27 @@ HASHTAGS: [natural hashtags without AI mentions]`;
         
       } catch (error) {
         console.error('❌ Failed to generate caption/hashtags with AI:', error);
-        // Use human-like fallbacks
-        caption = 'Just living in the moment 💫';
-        hashtags = '#lifestyle #mood #vibes #instagood #photooftheday #dailylife #blessed #grateful #happiness #goodtimes';
+        // Use varied human-like fallbacks
+        const fallbackCaptions = [
+          'Sometimes you just need moments like these 💫',
+          'Making memories one day at a time ✨',
+          'This is what happiness looks like 😊',
+          'Taking it all in 🌟',
+          'Here for the good times 🙌',
+          'Feeling grateful for moments like this 💛',
+          'Just me being me 💁',
+          'These are the days I live for ⭐',
+        ];
+        
+        const fallbackHashtags = [
+          '#lifestyle #mood #vibes #instagood #photooftheday #dailylife #moments #happiness #grateful #goodtimes',
+          '#weekendvibes #goodmood #positive #blessed #enjoying #lifemoments #happy #smile #peace #joy',
+          '#authentic #real #natural #genuine #casual #everyday #simple #beauty #appreciate #present',
+          '#living #exploring #discovering #adventure #journey #experience #memories #create #capture #share',
+        ];
+        
+        caption = fallbackCaptions[Math.floor(Math.random() * fallbackCaptions.length)];
+        hashtags = fallbackHashtags[Math.floor(Math.random() * fallbackHashtags.length)];
       }
       
       return {
