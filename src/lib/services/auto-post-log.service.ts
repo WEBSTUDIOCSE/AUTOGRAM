@@ -14,6 +14,9 @@ import type { AutoPostLog } from '@/lib/firebase/config/types';
 
 const COLLECTION_NAME = 'auto_post_logs';
 
+// Re-export AutoPostLog for components
+export type { AutoPostLog };
+
 /**
  * Service for managing auto-post logs for Module 3
  */
