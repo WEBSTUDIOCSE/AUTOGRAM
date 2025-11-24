@@ -127,11 +127,8 @@ export function InstagramAccountsGrid({ userId }: { userId: string }) {
 
       {accountsData.length === 0 ? (
         <div className="rounded-lg border border-dashed p-8 sm:p-12 text-center">
-          <p className="text-sm sm:text-base text-muted-foreground mb-4">No Instagram accounts connected yet</p>
-          <Button onClick={handleAddAccount} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Connect Your First Account
-          </Button>
+          <p className="text-sm sm:text-base text-muted-foreground">No Instagram accounts connected yet</p>
+          <p className="text-xs text-muted-foreground mt-2">Connect your Instagram account in settings to get started</p>
         </div>
       ) : (
         <div className="grid gap-3 sm:gap-4 grid-cols-1">
