@@ -157,36 +157,46 @@ Write as if YOU are the person in this moment, sharing it with friends on Instag
 
 CRITICAL RULES:
 - Write in FIRST PERSON (I, me, my, we)
-- Be HIGHLY SPECIFIC to this exact scene - mention specific details, activities, emotions
+- Be HIGHLY SPECIFIC to this exact scene - mention specific details, activities, emotions, colors, objects
 - Make it sound completely real and unrehearsed
-- VARY the length naturally:
-  * Exciting moments: 3-4 sentences with enthusiasm
-  * Peaceful/reflective moments: 1-2 sentences, calm tone
-  * Action/adventure: 2-3 sentences with energy
-  * Casual moments: 1-2 short sentences, relaxed
+- VARY the length and style dramatically based on the scene
 - Use emojis that match the mood (1-3 emojis max)
 - Include personal thoughts, feelings, or mini-stories
-- NO generic phrases like "living my best life", "good vibes only", "blessed"
+- NEVER use these phrases: "living my best life", "good vibes only", "blessed", "vibes", "mood"
 - NO mention of AI, digital, generated, or artificial content
-- Sound like a REAL person would write it
+- Sound like a REAL person would write it - casual, natural, spontaneous
 
-EXAMPLES OF GOOD CAPTIONS:
-- "Finally made it to this spot I've been dreaming about 🌅 The hike was brutal but this view made it so worth it"
-- "Coffee first, adulting second ☕"
-- "This sunset though... Sometimes you just gotta stop and appreciate moments like these 🌇"
-- "Trying out this new place everyone's been talking about and wow, did not disappoint! Already planning my next visit 😍"
+SCENE-SPECIFIC APPROACH:
+1. Look at the exact details in the scene prompt
+2. Pick 1-2 specific elements to focus on (clothing, location, activity, emotion)
+3. Write about THOSE specific things, not generic concepts
+4. Imagine what thought you'd actually share if this was YOUR photo
+
+EXAMPLES:
+Scene: "Woman in white dress at beach sunset"
+Caption: "This dress was definitely not made for sand but here we are 😂 Worth it for this view though"
+
+Scene: "Coffee shop with laptop"
+Caption: "Third coffee today and it's only 2pm ☕ No regrets"
+
+Scene: "Hiking on mountain trail"  
+Caption: "My legs are going to hate me tomorrow but look at this! Can't believe I almost skipped this hike 🏔️"
+
+Scene: "Night city lights"
+Caption: "Sometimes the best plans are the ones you don't make. Just wandering tonight ✨"
 
 Hashtags:
-- Pick 8-12 hashtags that are DIRECTLY relevant to what's in the scene
-- Mix popular tags (100K+ uses) with niche tags (10K-50K uses)
-- MUST match the activity/location/mood/objects in the scene
-- NO generic lifestyle tags unless they truly fit
+- Pick 8-12 hashtags DIRECTLY from the scene details (clothing, location, activity, time of day, colors, objects)
+- Mix size: 3-4 popular (500K+ uses), 4-5 medium (50K-500K), 2-3 niche (10K-50K)
+- NO generic lifestyle tags like #lifestyle, #mood, #vibes, #goodvibes
+- Must describe actual visual elements or specific activities shown
 - NO AI-related tags whatsoever
-- Make them look natural and hand-picked
 
 Format your response EXACTLY as:
-CAPTION: [your authentic, scene-specific caption]
-HASHTAGS: [space-separated hashtags]`;
+CAPTION: [your specific, unique caption about THIS exact scene]
+HASHTAGS: [space-separated relevant hashtags]
+
+Remember: If the caption could work for ANY photo, it's too generic. Make it SPECIFIC to THIS scene only.`;
 
       const response = await genAI.models.generateContent({
         model: modelName,
@@ -206,44 +216,79 @@ HASHTAGS: [space-separated hashtags]`;
         }
       }
 
+      console.log('📝 AI Caption Response:', responseText.substring(0, 200) + '...');
+
       // Parse the response without 's' flag
       const captionMatch = responseText.match(/CAPTION:\s*(.+?)(?=\nHASHTAGS:|HASHTAGS:|$)/);
       const hashtagsMatch = responseText.match(/HASHTAGS:\s*(.+?)$/);
 
-      const caption = captionMatch
-        ? captionMatch[1].trim()
-        : 'Living my best life ✨';
-      const hashtags = hashtagsMatch
+      // If parsing failed or caption too short, generate a simple dynamic caption from the scene
+      if (!captionMatch || !captionMatch[1] || captionMatch[1].trim().length < 5) {
+        console.log('⚠️ Caption parsing failed, generating simple dynamic caption from scene');
+        
+        // Extract key words from scene to make caption dynamic
+        const words = scenePrompt.toLowerCase().split(' ');
+        const timeWords = words.filter(w => ['morning', 'evening', 'night', 'sunset', 'sunrise', 'afternoon'].includes(w));
+        const placeWords = words.filter(w => ['beach', 'mountain', 'city', 'park', 'home', 'cafe', 'street', 'studio'].includes(w));
+        const actionWords = words.filter(w => ['walking', 'sitting', 'standing', 'posing', 'relaxing', 'enjoying'].includes(w));
+        
+        // Build simple dynamic caption
+        let simpleCap = '';
+        if (timeWords.length > 0) {
+          simpleCap = `${timeWords[0].charAt(0).toUpperCase() + timeWords[0].slice(1)} vibes ✨`;
+        } else if (placeWords.length > 0) {
+          simpleCap = `${placeWords[0].charAt(0).toUpperCase() + placeWords[0].slice(1)} moments 💫`;
+        } else if (actionWords.length > 0) {
+          simpleCap = `Just ${actionWords[0]} 🌟`;
+        } else {
+          simpleCap = 'Captured this moment ✨';
+        }
+        
+        return {
+          caption: simpleCap,
+          hashtags: '#photooftheday #instagood #photography #beautiful #lifestyle #instadaily #picoftheday #photo',
+        };
+      }
+
+      const caption = captionMatch[1].trim();
+      const hashtags = hashtagsMatch && hashtagsMatch[1]
         ? hashtagsMatch[1].trim()
-        : '#lifestyle #goodvibes #mood #instagood #photooftheday #beautiful #happy #love #life #moments';
+        : '#photooftheday #instagood #beautiful #lifestyle #moments #daily #instagram #photo #capture #memory';
 
       console.log('✅ Generated caption and hashtags');
 
       return { caption, hashtags };
     } catch (error) {
       console.error('❌ Caption generation error:', error);
-      // Return varied human-like fallbacks based on random selection
-      const fallbackCaptions = [
-        'Sometimes you just need moments like these 💫',
-        'Making memories one day at a time ✨',
-        'This is what happiness looks like 😊',
-        'Taking it all in 🌟',
-        'Here for the good times 🙌',
-        'Feeling grateful for moments like this 💛',
-        'Just me being me 💁',
-        'These are the days I live for ⭐',
-      ];
       
-      const fallbackHashtags = [
-        '#lifestyle #mood #vibes #instagood #photooftheday #dailylife #moments #happiness #grateful #goodtimes',
-        '#weekendvibes #goodmood #positive #blessed #enjoying #lifemoments #happy #smile #peace #joy',
-        '#authentic #real #natural #genuine #casual #everyday #simple #beauty #appreciate #present',
-        '#living #exploring #discovering #adventure #journey #experience #memories #create #capture #share',
-      ];
+      // On error, create simple dynamic caption from scene prompt instead of hardcoded fallbacks
+      console.log('⚠️ Using simple scene-based caption due to error');
+      
+      // Extract key words from scene to make caption dynamic
+      const words = scenePrompt.toLowerCase().split(' ');
+      const timeWords = words.filter(w => ['morning', 'evening', 'night', 'sunset', 'sunrise', 'afternoon'].includes(w));
+      const placeWords = words.filter(w => ['beach', 'mountain', 'city', 'park', 'home', 'cafe', 'street', 'studio', 'nature', 'outdoor', 'indoor'].includes(w));
+      const moodWords = words.filter(w => ['happy', 'peaceful', 'calm', 'energetic', 'relaxed', 'confident', 'joyful'].includes(w));
+      const actionWords = words.filter(w => ['walking', 'sitting', 'standing', 'posing', 'relaxing', 'enjoying', 'exploring'].includes(w));
+      
+      // Build simple dynamic caption based on scene content
+      let caption = 'Captured this moment ✨';
+      
+      if (timeWords.length > 0 && placeWords.length > 0) {
+        caption = `${timeWords[0].charAt(0).toUpperCase() + timeWords[0].slice(1)} at the ${placeWords[0]} 🌟`;
+      } else if (timeWords.length > 0) {
+        caption = `${timeWords[0].charAt(0).toUpperCase() + timeWords[0].slice(1)} vibes ✨`;
+      } else if (placeWords.length > 0) {
+        caption = `${placeWords[0].charAt(0).toUpperCase() + placeWords[0].slice(1)} moments 💫`;
+      } else if (moodWords.length > 0) {
+        caption = `Feeling ${moodWords[0]} today 😊`;
+      } else if (actionWords.length > 0) {
+        caption = `Just ${actionWords[0]} 🌈`;
+      }
       
       return {
-        caption: fallbackCaptions[Math.floor(Math.random() * fallbackCaptions.length)],
-        hashtags: fallbackHashtags[Math.floor(Math.random() * fallbackHashtags.length)],
+        caption,
+        hashtags: '#photooftheday #instagood #photography #beautiful #lifestyle #instadaily #picoftheday #photo',
       };
     }
   },
