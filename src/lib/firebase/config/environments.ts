@@ -40,16 +40,16 @@ const UAT_INSTAGRAM: InstagramConfig = {
             accessToken: "EAAUBCTXkEMkBP4SaPeh5op1SCfZApZBNvj7ybjJZB8AV9qsa3qzSLkpF786isLxmrZBwxfzweSORGP2XZCuGdO34SxgEVY5C9BhmONK4LO5r19j8vfYogeE1kpe8ITKk9Cj5t76C3nnHpbQC8HCSVVEGr2PGrvLlFq2QZBiFWddFptVLHfXfw5ZBFvNP0pc",
             accountId: "17841478413044591",
             isActive: true
-        }
+        },
         // Add more Instagram accounts here:
-        // {
-        //     id: "account2",
-        //     name: "Secondary Account",
-        //     username: "secondary_account",
-        //     accessToken: "YOUR_ACCESS_TOKEN_2",
-        //     accountId: "YOUR_ACCOUNT_ID_2",
-        //     isActive: true
-        // }
+        {
+            id: "account2",
+            name: "Secondary Account",
+            username: "secondary_account",
+            accessToken: "EAAKc24FnljoBQEOueQh30pSRBCTjj5Vwlvzp2AjNP2gyKRh42SR3iER4jDC8oDP3cF17is7Bb0ZBBNNBbIZCXqa6p30fJi0ZCF01WEjiEcri3UAVSk8vPAjUf8TgvO5ghVQjfxkaZAZA8eKh45RHgKMiyOtKC3oK1gNNlcXy7BZAFAuONor8kjRWCo2JN4NvOY1RDN24CA",
+            accountId: "17841473226055306",
+            isActive: true
+        }
     ]
 };
 
