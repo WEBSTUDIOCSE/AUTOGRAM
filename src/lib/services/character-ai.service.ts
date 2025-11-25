@@ -148,6 +148,9 @@ REMEMBER: This should look like a real photograph taken with a professional came
   async generateCaptionAndHashtags(
     scenePrompt: string
   ): Promise<{ caption: string; hashtags: string }> {
+    console.log('🔥 [CAPTION GEN] Starting caption generation - Version: 2024-11-25-v3');
+    console.log('🔥 [CAPTION GEN] Scene prompt:', scenePrompt);
+    
     try {
       const modelName = getTextModelName();
 
@@ -314,6 +317,8 @@ Remember: If the caption could work for ANY photo, it's too generic. Make it SPE
 
       console.log('✅ Generated caption and hashtags');
       console.log('📝 Final caption:', caption);
+      console.log('🏷️ Final hashtags:', hashtags);
+      console.log('🔥 [CAPTION GEN] Completed successfully - Version: 2024-11-25-v3');
 
       return { caption, hashtags };
     } catch (error) {
