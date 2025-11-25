@@ -199,6 +199,7 @@ Format your response EXACTLY as:
 CAPTION: [your specific, unique caption about THIS exact scene]
 HASHTAGS: [space-separated relevant hashtags]
 
+CRITICAL: Keep caption on ONE line, no line breaks within the caption itself.
 Remember: If the caption could work for ANY photo, it's too generic. Make it SPECIFIC to THIS scene only.`;
 
       const response = await genAI.models.generateContent({
@@ -221,9 +222,14 @@ Remember: If the caption could work for ANY photo, it's too generic. Make it SPE
 
       console.log('📝 AI Caption Response:', responseText.substring(0, 200) + '...');
 
-      // Parse the response without 's' flag
-      const captionMatch = responseText.match(/CAPTION:\s*(.+?)(?=\nHASHTAGS:|HASHTAGS:|$)/);
-      const hashtagsMatch = responseText.match(/HASHTAGS:\s*(.+?)$/);
+      // Parse the response - use dotAll mode for multiline captions
+      const captionMatch = responseText.match(/CAPTION:\s*(.+?)(?=\n*HASHTAGS:|$)/s);
+      const hashtagsMatch = responseText.match(/HASHTAGS:\s*(.+?)$/s);
+
+      console.log('🔍 Caption match found:', !!captionMatch);
+      if (captionMatch) {
+        console.log('🔍 Captured caption:', captionMatch[1]?.trim().substring(0, 100));
+      }
 
       // If parsing failed or caption too short, generate a simple dynamic caption from the scene
       if (!captionMatch || !captionMatch[1] || captionMatch[1].trim().length < 5) {
