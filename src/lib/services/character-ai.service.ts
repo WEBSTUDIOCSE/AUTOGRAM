@@ -224,71 +224,140 @@ Remember: If the caption could work for ANY photo, it's too generic. Make it SPE
 
       // If parsing failed or caption too short, generate a simple dynamic caption from the scene
       if (!captionMatch || !captionMatch[1] || captionMatch[1].trim().length < 5) {
-        console.log('⚠️ Caption parsing failed, generating simple dynamic caption from scene');
+        console.log('⚠️ Caption parsing failed, generating specific scene-based caption');
         
-        // Extract key words from scene to make caption dynamic
-        const words = scenePrompt.toLowerCase().split(' ');
-        const timeWords = words.filter(w => ['morning', 'evening', 'night', 'sunset', 'sunrise', 'afternoon'].includes(w));
-        const placeWords = words.filter(w => ['beach', 'mountain', 'city', 'park', 'home', 'cafe', 'street', 'studio'].includes(w));
-        const actionWords = words.filter(w => ['walking', 'sitting', 'standing', 'posing', 'relaxing', 'enjoying'].includes(w));
+        // Extract detailed words from scene to make caption VERY specific
+        const words = scenePrompt.toLowerCase().split(/\s+/);
+        const timeWords = words.filter(w => ['morning', 'evening', 'night', 'sunset', 'sunrise', 'afternoon', 'dawn', 'dusk'].includes(w));
+        const placeWords = words.filter(w => ['beach', 'mountain', 'city', 'park', 'cafe', 'restaurant', 'rooftop', 'street', 'garden', 'forest', 'lake', 'ocean', 'downtown'].includes(w));
+        const activityWords = words.filter(w => ['walking', 'hiking', 'running', 'coffee', 'breakfast', 'lunch', 'dinner', 'reading', 'working', 'shopping', 'exploring'].includes(w));
+        const colorWords = words.filter(w => ['red', 'blue', 'white', 'black', 'green', 'yellow', 'pink', 'golden'].includes(w));
         
-        // Build simple dynamic caption
+        // Build SPECIFIC caption from scene details (NO generic phrases)
         let simpleCap = '';
-        if (timeWords.length > 0) {
-          simpleCap = `${timeWords[0].charAt(0).toUpperCase() + timeWords[0].slice(1)} vibes ✨`;
+        if (activityWords.length > 0 && placeWords.length > 0) {
+          simpleCap = `${activityWords[0].charAt(0).toUpperCase() + activityWords[0].slice(1)} at ${placeWords[0]} rn`;
+        } else if (timeWords.length > 0 && placeWords.length > 0) {
+          simpleCap = `${timeWords[0].charAt(0).toUpperCase() + timeWords[0].slice(1)} ${placeWords[0]} 📸`;
+        } else if (colorWords.length > 0) {
+          simpleCap = `${colorWords[0].charAt(0).toUpperCase() + colorWords[0].slice(1)} day`;
         } else if (placeWords.length > 0) {
-          simpleCap = `${placeWords[0].charAt(0).toUpperCase() + placeWords[0].slice(1)} moments 💫`;
-        } else if (actionWords.length > 0) {
-          simpleCap = `Just ${actionWords[0]} 🌟`;
+          simpleCap = `At ${placeWords[0]} today`;
+        } else if (activityWords.length > 0) {
+          simpleCap = `${activityWords[0].charAt(0).toUpperCase() + activityWords[0].slice(1)} rn`;
         } else {
-          simpleCap = 'Captured this moment ✨';
+          // Use current time to ensure uniqueness
+          const hour = new Date().getHours();
+          simpleCap = hour < 12 ? 'Out here this morning' : hour < 17 ? 'Afternoon break' : 'Tonight 🌙';
         }
         
         return {
           caption: simpleCap,
-          hashtags: '#photooftheday #instagood #photography #beautiful #lifestyle #instadaily #picoftheday #photo',
+          hashtags: '#photooftheday #instagood #photography #photo #instadaily #picoftheday #capture #instagram',
         };
       }
 
-      const caption = captionMatch[1].trim();
+      let caption = captionMatch[1].trim();
       const hashtags = hashtagsMatch && hashtagsMatch[1]
         ? hashtagsMatch[1].trim()
         : '#photooftheday #instagood #beautiful #lifestyle #moments #daily #instagram #photo #capture #memory';
 
+      // CRITICAL: Filter out banned generic phrases
+      const bannedPhrases = [
+        'living my best life',
+        'living the best life',
+        'good vibes',
+        'vibes',
+        'blessed',
+        'mood',
+        'lifestyle',
+        'captured this moment',
+        'moments',
+        'feeling grateful'
+      ];
+      
+      const captionLower = caption.toLowerCase();
+      const hasBannedPhrase = bannedPhrases.some(phrase => captionLower.includes(phrase));
+      
+      if (hasBannedPhrase) {
+        console.log('⚠️ AI generated banned phrase, creating unique scene-based caption');
+        
+        // Extract specific details from scene prompt
+        const words = scenePrompt.toLowerCase().split(/\s+/);
+        
+        // More specific word lists
+        const timeWords = words.filter(w => ['morning', 'evening', 'night', 'sunset', 'sunrise', 'afternoon', 'dawn', 'dusk', 'noon', 'midnight'].includes(w));
+        const placeWords = words.filter(w => ['beach', 'mountain', 'city', 'park', 'cafe', 'restaurant', 'street', 'rooftop', 'garden', 'forest', 'lake', 'river', 'ocean', 'downtown', 'urban', 'countryside'].includes(w));
+        const activityWords = words.filter(w => ['walking', 'hiking', 'running', 'sitting', 'coffee', 'breakfast', 'lunch', 'dinner', 'reading', 'working', 'dancing', 'shopping', 'exploring'].includes(w));
+        const weatherWords = words.filter(w => ['sunny', 'cloudy', 'rainy', 'windy', 'foggy', 'clear', 'overcast'].includes(w));
+        const colorWords = words.filter(w => ['red', 'blue', 'white', 'black', 'green', 'yellow', 'pink', 'purple', 'golden', 'silver'].includes(w));
+        
+        // Build unique caption from actual scene details
+        if (activityWords.length > 0 && placeWords.length > 0) {
+          caption = `${activityWords[0].charAt(0).toUpperCase() + activityWords[0].slice(1)} at ${placeWords[0]} today`;
+        } else if (timeWords.length > 0 && placeWords.length > 0) {
+          caption = `${timeWords[0].charAt(0).toUpperCase() + timeWords[0].slice(1)} ${placeWords[0]} 📸`;
+        } else if (colorWords.length > 0 && placeWords.length > 0) {
+          caption = `${colorWords[0].charAt(0).toUpperCase() + colorWords[0].slice(1)} ${placeWords[0]} kind of day`;
+        } else if (weatherWords.length > 0) {
+          caption = `${weatherWords[0].charAt(0).toUpperCase() + weatherWords[0].slice(1)} day out here`;
+        } else if (placeWords.length > 0) {
+          caption = `Found this spot at ${placeWords[0]} 🌟`;
+        } else if (activityWords.length > 0) {
+          caption = `${activityWords[0].charAt(0).toUpperCase() + activityWords[0].slice(1)} right now`;
+        } else {
+          // Last resort: use timestamp to ensure uniqueness
+          const hour = new Date().getHours();
+          caption = hour < 12 ? 'Morning out here ☀️' : hour < 17 ? 'Afternoon break 🌤️' : 'Evening scenes 🌆';
+        }
+      }
+
       console.log('✅ Generated caption and hashtags');
+      console.log('📝 Final caption:', caption);
 
       return { caption, hashtags };
     } catch (error) {
       console.error('❌ Caption generation error:', error);
       
-      // On error, create simple dynamic caption from scene prompt instead of hardcoded fallbacks
-      console.log('⚠️ Using simple scene-based caption due to error');
+      // On error, create SPECIFIC scene-based caption (NO generic phrases)
+      console.log('⚠️ Using specific scene-based caption due to error');
       
-      // Extract key words from scene to make caption dynamic
-      const words = scenePrompt.toLowerCase().split(' ');
-      const timeWords = words.filter(w => ['morning', 'evening', 'night', 'sunset', 'sunrise', 'afternoon'].includes(w));
-      const placeWords = words.filter(w => ['beach', 'mountain', 'city', 'park', 'home', 'cafe', 'street', 'studio', 'nature', 'outdoor', 'indoor'].includes(w));
-      const moodWords = words.filter(w => ['happy', 'peaceful', 'calm', 'energetic', 'relaxed', 'confident', 'joyful'].includes(w));
-      const actionWords = words.filter(w => ['walking', 'sitting', 'standing', 'posing', 'relaxing', 'enjoying', 'exploring'].includes(w));
+      // Extract detailed words from scene to make caption specific
+      const words = scenePrompt.toLowerCase().split(/\s+/);
+      const timeWords = words.filter(w => ['morning', 'evening', 'night', 'sunset', 'sunrise', 'afternoon', 'dawn', 'dusk'].includes(w));
+      const placeWords = words.filter(w => ['beach', 'mountain', 'city', 'park', 'cafe', 'restaurant', 'rooftop', 'street', 'garden', 'forest', 'lake', 'ocean', 'downtown', 'home', 'studio'].includes(w));
+      const activityWords = words.filter(w => ['walking', 'hiking', 'running', 'coffee', 'breakfast', 'lunch', 'dinner', 'reading', 'working', 'shopping', 'exploring', 'sitting', 'standing'].includes(w));
+      const colorWords = words.filter(w => ['red', 'blue', 'white', 'black', 'green', 'yellow', 'pink', 'golden', 'silver'].includes(w));
+      const weatherWords = words.filter(w => ['sunny', 'cloudy', 'rainy', 'foggy', 'clear'].includes(w));
       
-      // Build simple dynamic caption based on scene content
-      let caption = 'Captured this moment ✨';
+      // Build SPECIFIC caption from actual scene details (NO generic words)
+      let caption = '';
       
-      if (timeWords.length > 0 && placeWords.length > 0) {
-        caption = `${timeWords[0].charAt(0).toUpperCase() + timeWords[0].slice(1)} at the ${placeWords[0]} 🌟`;
-      } else if (timeWords.length > 0) {
-        caption = `${timeWords[0].charAt(0).toUpperCase() + timeWords[0].slice(1)} vibes ✨`;
+      if (activityWords.length > 0 && placeWords.length > 0) {
+        caption = `${activityWords[0].charAt(0).toUpperCase() + activityWords[0].slice(1)} at ${placeWords[0]} rn`;
+      } else if (timeWords.length > 0 && placeWords.length > 0) {
+        caption = `${timeWords[0].charAt(0).toUpperCase() + timeWords[0].slice(1)} ${placeWords[0]} 📸`;
+      } else if (colorWords.length > 0 && placeWords.length > 0) {
+        caption = `${colorWords[0].charAt(0).toUpperCase() + colorWords[0].slice(1)} ${placeWords[0]}`;
+      } else if (weatherWords.length > 0) {
+        caption = `${weatherWords[0].charAt(0).toUpperCase() + weatherWords[0].slice(1)} day out`;
       } else if (placeWords.length > 0) {
-        caption = `${placeWords[0].charAt(0).toUpperCase() + placeWords[0].slice(1)} moments 💫`;
-      } else if (moodWords.length > 0) {
-        caption = `Feeling ${moodWords[0]} today 😊`;
-      } else if (actionWords.length > 0) {
-        caption = `Just ${actionWords[0]} 🌈`;
+        caption = `At ${placeWords[0]} today`;
+      } else if (activityWords.length > 0) {
+        caption = `${activityWords[0].charAt(0).toUpperCase() + activityWords[0].slice(1)} rn`;
+      } else {
+        // Last resort: use timestamp to ensure complete uniqueness
+        const now = new Date();
+        const hour = now.getHours();
+        const day = now.getDate();
+        caption = hour < 12 ? `Out this morning (${day}th)` : hour < 17 ? `This afternoon (${day}th)` : `Tonight (${day}th) 🌙`;
       }
+      
+      console.log('📝 Error fallback caption:', caption);
       
       return {
         caption,
-        hashtags: '#photooftheday #instagood #photography #beautiful #lifestyle #instadaily #picoftheday #photo',
+        hashtags: '#photooftheday #instagood #photography #photo #instadaily #picoftheday #capture',
       };
     }
   },
