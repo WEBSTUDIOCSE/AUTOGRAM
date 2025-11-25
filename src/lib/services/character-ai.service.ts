@@ -222,9 +222,9 @@ Remember: If the caption could work for ANY photo, it's too generic. Make it SPE
 
       console.log('📝 AI Caption Response:', responseText.substring(0, 200) + '...');
 
-      // Parse the response - use dotAll mode for multiline captions
-      const captionMatch = responseText.match(/CAPTION:\s*(.+?)(?=\n*HASHTAGS:|$)/s);
-      const hashtagsMatch = responseText.match(/HASHTAGS:\s*(.+?)$/s);
+      // Parse the response - use [\s\S] instead of . with s flag for ES5 compatibility
+      const captionMatch = responseText.match(/CAPTION:\s*([\s\S]+?)(?=\n*HASHTAGS:|$)/);
+      const hashtagsMatch = responseText.match(/HASHTAGS:\s*([\s\S]+?)$/);
 
       console.log('🔍 Caption match found:', !!captionMatch);
       if (captionMatch) {
