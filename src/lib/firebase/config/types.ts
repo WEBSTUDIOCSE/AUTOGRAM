@@ -35,6 +35,8 @@ export interface InstagramAccount {
   username: string;
   accessToken: string;
   accountId: string;
+  appId: string; // Facebook App ID for this Instagram account
+  appSecret: string; // Facebook App Secret for this Instagram account
   profilePictureUrl?: string;
   isActive: boolean;
 }
@@ -43,8 +45,6 @@ export interface InstagramAccount {
  * Instagram Graph API configuration interface
  */
 export interface InstagramConfig {
-  appId: string;
-  appSecret: string;
   accounts: InstagramAccount[];
 }
 
