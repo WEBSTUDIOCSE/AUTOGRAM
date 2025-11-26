@@ -23,12 +23,12 @@ setGlobalOptions({
 });
 
 /**
- * Scheduled function that runs every minute to check for auto-posts (TESTING MODE)
- * Runs at: * * * * * (every minute)
+ * Scheduled function that runs every hour to check for auto-posts
+ * Runs at: 0 * * * * (every hour at :00)
  */
 export const scheduledAutoPost = onSchedule(
   {
-    schedule: "* * * * *", // Every minute (for testing)
+    schedule: "0 * * * *", // Every hour at :00
     timeZone: "Asia/Kolkata", // India Standard Time (IST)
   },
   async (event) => {
