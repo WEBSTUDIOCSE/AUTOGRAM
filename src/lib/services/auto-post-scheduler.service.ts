@@ -99,122 +99,143 @@ export class AutoPostSchedulerService {
         return; // Not an error, just no characters scheduled for this time
       }
 
-      // Step 3: Select character (weighted by usage - prefer less-used)
-      console.log(`[AutoPost] STEP 3: Selecting character (weighted by usage)...`);
-      const selectedCharacter = this.selectCharacterWeighted(activeCharacters);
-      console.log(`[AutoPost] ✅ Selected: ${selectedCharacter.name} (Usage: ${selectedCharacter.usageCount} times)`);
-
-      // Step 4: Get character's assigned Instagram account
-      console.log(`[AutoPost] STEP 4: Getting character's assigned account...`);
-      const assignedAccount = InstagramService.getAccountById(selectedCharacter.assignedAccountId);
-      if (!assignedAccount || !assignedAccount.isActive) {
-        console.error(`[AutoPost] ❌ Character's assigned account not available: ${selectedCharacter.assignedAccountId}`);
-        await this.logFailure(
-          userId,
-          scheduledTime,
-          `Character "${selectedCharacter.name}" is assigned to an inactive or missing Instagram account. Please reassign the character in the Characters section.`,
-          selectedCharacter
-        );
-        return;
-      }
-      console.log(`[AutoPost] ✅ Will post to: @${assignedAccount.username || assignedAccount.name} (${assignedAccount.accountId})`);
-
-      // Step 5: Get random active prompt template
-      console.log(`[AutoPost] STEP 5: Loading prompt template...`);
-      const step5Start = Date.now();
-      const promptTemplate = await PromptLibraryService.getRandomPrompt(userId);
-      stepTimer.steps.push({ step: 5, name: 'Load Prompt', duration: Date.now() - step5Start, found: !!promptTemplate });
-      if (!promptTemplate) {
-        console.error(`[AutoPost] ❌ No active prompt templates found`);
-        await this.logFailure(
-          userId,
-          scheduledTime,
-          'No active prompt templates found. Generate an image in the Generate tab to create your first prompt template.',
-          selectedCharacter
-        );
-        return;
-      }
-      console.log(`[AutoPost] ✅ Selected: "${promptTemplate.basePrompt.substring(0, 50)}..."`);
-
-      // Step 6: Generate prompt variation
-      console.log(`[AutoPost] STEP 6: Generating prompt variation...`);
-      const step6Start = Date.now();
-      const generatedPrompt = await PromptVariationService.generateVariation(
-        promptTemplate.basePrompt
-      );
-      stepTimer.steps.push({ step: 6, name: 'Generate Variation', duration: Date.now() - step6Start });
-      console.log(`[AutoPost] ✅ Variation: "${generatedPrompt.substring(0, 50)}..."`);
-
-      // Step 7: Generate image with character
-      console.log(`[AutoPost] STEP 7: Generating image with AI...`);
-      const step7Start = Date.now();
-      const result = await CharacterAIService.generateWithCharacter(
-        selectedCharacter.imageBase64,
-        generatedPrompt
-      );
-      stepTimer.steps.push({ step: 7, name: 'AI Image Generation', duration: Date.now() - step7Start });
-      console.log(`[AutoPost] ✅ Image generated (${result.imageBase64.length} bytes)`);
-
-      // Step 8: Upload to Firebase Storage
-      console.log(`[AutoPost] STEP 8: Uploading to Firebase Storage...`);
-      const step8Start = Date.now();
-      const base64 = result.imageBase64.replace(/^data:image\/\w+;base64,/, '');
-      const imageUrl = await StorageService.uploadImage(
-        base64,
-        userId,
-        'module3',
-        'auto-generated'
-      );
-      stepTimer.steps.push({ step: 8, name: 'Upload Storage', duration: Date.now() - step8Start });
-      console.log(`[AutoPost] ✅ Uploaded: ${imageUrl}`);
-
-      // Step 9: Post to Instagram (character's assigned account)
-      console.log(`[AutoPost] STEP 9: Posting to Instagram...`);
-      const step9Start = Date.now();
-      const fullCaption = `${result.caption}\n\n${result.hashtags}`;
-      console.log(`[AutoPost] Caption: "${result.caption.substring(0, 50)}..."`);
-      console.log(`[AutoPost] Hashtags: ${result.hashtags}`);
-      console.log(`[AutoPost] Posting to: @${assignedAccount.username || assignedAccount.name}`);
+      // Step 3: Post for EACH character scheduled at this time
+      console.log(`[AutoPost] STEP 3: Processing ${activeCharacters.length} character(s)...`);
       
-      const instagramPostId = await InstagramService.postImage(
-        imageUrl,
-        fullCaption,
-        assignedAccount.accountId
-      );
-      stepTimer.steps.push({ step: 9, name: 'Instagram Post', duration: Date.now() - step9Start });
-      console.log(`[AutoPost] ✅ Posted! Instagram ID: ${instagramPostId}`);
+      for (const selectedCharacter of activeCharacters) {
+        try {
+          console.log(`[AutoPost] 📸 Processing character: ${selectedCharacter.name} (Usage: ${selectedCharacter.usageCount} times)`);
+          
+          // Step 4: Get character's assigned Instagram account
+          console.log(`[AutoPost] STEP 4: Getting character's assigned account...`);
+          const assignedAccount = InstagramService.getAccountById(selectedCharacter.assignedAccountId);
+          if (!assignedAccount || !assignedAccount.isActive) {
+            console.error(`[AutoPost] ❌ Character's assigned account not available: ${selectedCharacter.assignedAccountId}`);
+            await this.logFailure(
+              userId,
+              scheduledTime,
+              `Character "${selectedCharacter.name}" is assigned to an inactive or missing Instagram account. Please reassign the character in the Characters section.`,
+              selectedCharacter
+            );
+            continue; // Skip this character, try the next one
+          }
+          console.log(`[AutoPost] ✅ Will post to: @${assignedAccount.username || assignedAccount.name} (${assignedAccount.accountId})`);
 
-      // Step 10: Save log
-      console.log(`[AutoPost] STEP 10: Saving execution log...`);
-      const step10Start = Date.now();
-      await AutoPostLogService.saveLog({
-        userId,
-        characterId: selectedCharacter.id,
-        characterName: selectedCharacter.name,
-        promptTemplateId: promptTemplate.id,
-        basePrompt: promptTemplate.basePrompt,
-        generatedPrompt,
-        generatedImageUrl: imageUrl,
-        caption: result.caption,
-        hashtags: result.hashtags,
-        instagramPostId,
-        instagramAccountId: assignedAccount.accountId,
-        instagramAccountName: assignedAccount.username || assignedAccount.name,
-        scheduledTime,
-        status: 'success',
-      });
+          // Step 5: Get random active prompt template
+          console.log(`[AutoPost] STEP 5: Loading prompt template...`);
+          const step5Start = Date.now();
+          const promptTemplate = await PromptLibraryService.getRandomPrompt(userId);
+          stepTimer.steps.push({ step: 5, name: 'Load Prompt', duration: Date.now() - step5Start, found: !!promptTemplate });
+          if (!promptTemplate) {
+            console.error(`[AutoPost] ❌ No active prompt templates found`);
+            await this.logFailure(
+              userId,
+              scheduledTime,
+              'No active prompt templates found. Generate an image in the Generate tab to create your first prompt template.',
+              selectedCharacter
+            );
+            continue; // Skip this character, try the next one
+          }
+          console.log(`[AutoPost] ✅ Selected: "${promptTemplate.basePrompt.substring(0, 50)}..."`);
 
-      stepTimer.steps.push({ step: 10, name: 'Save Log', duration: Date.now() - step10Start });
-      console.log(`[AutoPost] ✅ Log saved`);
+          // Step 6: Generate prompt variation
+          console.log(`[AutoPost] STEP 6: Generating prompt variation...`);
+          const step6Start = Date.now();
+          const generatedPrompt = await PromptVariationService.generateVariation(
+            promptTemplate.basePrompt
+          );
+          stepTimer.steps.push({ step: 6, name: 'Generate Variation', duration: Date.now() - step6Start });
+          console.log(`[AutoPost] ✅ Variation: "${generatedPrompt.substring(0, 50)}..."`);
 
-      // Step 11: Update usage statistics
-      console.log(`[AutoPost] STEP 11: Updating usage statistics...`);
-      await CharacterService.updateCharacterUsage(selectedCharacter.id);
-      await PromptLibraryService.incrementUsage(promptTemplate.id);
-      console.log(`[AutoPost] ✅ Statistics updated`);
+          // Step 7: Generate image with character
+          console.log(`[AutoPost] STEP 7: Generating image with AI...`);
+          const step7Start = Date.now();
+          const result = await CharacterAIService.generateWithCharacter(
+            selectedCharacter.imageBase64,
+            generatedPrompt
+          );
+          stepTimer.steps.push({ step: 7, name: 'AI Image Generation', duration: Date.now() - step7Start });
+          console.log(`[AutoPost] ✅ Image generated (${result.imageBase64.length} bytes)`);
+
+          // Step 8: Upload to Firebase Storage
+          console.log(`[AutoPost] STEP 8: Uploading to Firebase Storage...`);
+          const step8Start = Date.now();
+          const base64 = result.imageBase64.replace(/^data:image\/\w+;base64,/, '');
+          const imageUrl = await StorageService.uploadImage(
+            base64,
+            userId,
+            'module3',
+            'auto-generated'
+          );
+          stepTimer.steps.push({ step: 8, name: 'Upload Storage', duration: Date.now() - step8Start });
+          console.log(`[AutoPost] ✅ Uploaded: ${imageUrl}`);
+
+          // Step 9: Post to Instagram (character's assigned account)
+          console.log(`[AutoPost] STEP 9: Posting to Instagram...`);
+          const step9Start = Date.now();
+          const fullCaption = `${result.caption}\n\n${result.hashtags}`;
+          console.log(`[AutoPost] Caption: "${result.caption.substring(0, 50)}..."`);
+          console.log(`[AutoPost] Hashtags: ${result.hashtags}`);
+          console.log(`[AutoPost] Posting to: @${assignedAccount.username || assignedAccount.name}`);
+          
+          const instagramPostId = await InstagramService.postImage(
+            imageUrl,
+            fullCaption,
+            assignedAccount.accountId
+          );
+          stepTimer.steps.push({ step: 9, name: 'Instagram Post', duration: Date.now() - step9Start });
+          console.log(`[AutoPost] ✅ Posted! Instagram ID: ${instagramPostId}`);
+
+          // Step 10: Save log
+          console.log(`[AutoPost] STEP 10: Saving execution log...`);
+          const step10Start = Date.now();
+          await AutoPostLogService.saveLog({
+            userId,
+            characterId: selectedCharacter.id,
+            characterName: selectedCharacter.name,
+            promptTemplateId: promptTemplate.id,
+            basePrompt: promptTemplate.basePrompt,
+            generatedPrompt,
+            generatedImageUrl: imageUrl,
+            caption: result.caption,
+            hashtags: result.hashtags,
+            instagramPostId,
+            instagramAccountId: assignedAccount.accountId,
+            instagramAccountName: assignedAccount.username || assignedAccount.name,
+            scheduledTime,
+            status: 'success',
+          });
+
+          stepTimer.steps.push({ step: 10, name: 'Save Log', duration: Date.now() - step10Start });
+          console.log(`[AutoPost] ✅ Log saved`);
+
+          // Step 11: Update usage statistics
+          console.log(`[AutoPost] STEP 11: Updating usage statistics...`);
+          await CharacterService.updateCharacterUsage(selectedCharacter.id);
+          await PromptLibraryService.incrementUsage(promptTemplate.id);
+          console.log(`[AutoPost] ✅ Statistics updated`);
+
+          console.log(`[AutoPost] ✅ Successfully posted for character: ${selectedCharacter.name}`);
+          
+        } catch (charError) {
+          console.error(`[AutoPost] ❌ Failed to post for character ${selectedCharacter.name}:`, charError);
+          
+          // Log failure for this specific character
+          await this.logFailure(
+            userId,
+            scheduledTime,
+            charError instanceof Error ? charError.message : 'Unknown error occurred',
+            selectedCharacter
+          );
+          
+          // Continue with next character
+          continue;
+        }
+      }
 
       const totalDuration = Date.now() - stepTimer.start;
-      console.log(`[AutoPost] ━━━━━ WORKFLOW COMPLETED SUCCESSFULLY ━━━━━`);
+      console.log(`[AutoPost] ━━━━━ WORKFLOW COMPLETED ━━━━━`);
+      console.log(`[AutoPost] Processed ${activeCharacters.length} character(s)`);
       console.log(`[AutoPost] Total time: ${totalDuration}ms (${(totalDuration/1000).toFixed(2)}s)`);
       console.log(`[AutoPost] Step timings:`);
       stepTimer.steps.forEach(s => {
