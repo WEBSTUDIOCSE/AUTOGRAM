@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -44,12 +44,20 @@ export default function EditCharacterModal({
   onDelete,
   onUpdate,
 }: EditCharacterModalProps) {
-  const [name, setName] = useState(character?.name || "");
-  const [postingTimes, setPostingTimes] = useState<string[]>(character?.postingTimes || []);
+  const [name, setName] = useState("");
+  const [postingTimes, setPostingTimes] = useState<string[]>([]);
   const [newTime, setNewTime] = useState("");
   const [isRenaming, setIsRenaming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  // Sync state when character changes
+  useEffect(() => {
+    if (character) {
+      setName(character.name || "");
+      setPostingTimes(character.postingTimes || []);
+    }
+  }, [character]);
 
   const handleRename = async () => {
     if (!character || !name.trim()) return;
@@ -66,21 +74,23 @@ export default function EditCharacterModal({
   };
 
   const handleAddTime = () => {
-    if (!newTime) return;
-    
-    // Validate time format HH:mm
-    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
-    if (!timeRegex.test(newTime)) {
-      alert("Please enter time in HH:mm format (e.g., 09:00, 14:30)");
+    if (!newTime) {
+      alert("Please select a time");
       return;
     }
+    
+    // Format the time to HH:mm if needed
+    let formattedTime = newTime;
+    if (newTime.length === 5 && newTime.includes(':')) {
+      formattedTime = newTime; // Already in HH:mm format
+    }
 
-    if (postingTimes.includes(newTime)) {
+    if (postingTimes.includes(formattedTime)) {
       alert("This time is already added");
       return;
     }
 
-    setPostingTimes([...postingTimes, newTime].sort());
+    setPostingTimes([...postingTimes, formattedTime].sort());
     setNewTime("");
   };
 
@@ -104,6 +114,7 @@ export default function EditCharacterModal({
       onClose();
     } catch (error) {
       console.error("Failed to update character:", error);
+      alert("Failed to update character. Please try again.");
     } finally {
       setIsRenaming(false);
     }
@@ -124,8 +135,10 @@ export default function EditCharacterModal({
     }
   };
 
-  const hasChanges = name.trim() !== character?.name || 
-    JSON.stringify(postingTimes.sort()) !== JSON.stringify((character?.postingTimes || []).sort());
+  const hasChanges = character && (
+    name.trim() !== character.name || 
+    JSON.stringify([...postingTimes].sort()) !== JSON.stringify([...(character.postingTimes || [])].sort())
+  );
 
   if (!character) return null;
 
@@ -170,42 +183,50 @@ export default function EditCharacterModal({
                   type="time"
                   value={newTime}
                   onChange={(e) => setNewTime(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddTime();
+                    }
+                  }}
                   placeholder="HH:mm"
                   className="flex-1"
                 />
                 <Button
                   type="button"
-                  size="icon"
                   onClick={handleAddTime}
                   disabled={!newTime}
+                  className="gap-2"
                 >
                   <Plus className="h-4 w-4" />
+                  Add
                 </Button>
               </div>
 
               {postingTimes.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {postingTimes.map((time) => (
-                    <Badge key={time} variant="secondary" className="gap-1">
+                    <Badge key={time} variant="secondary" className="gap-1 px-3 py-1">
                       <Clock className="h-3 w-3" />
                       {time}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-4 w-4 p-0 hover:bg-transparent"
+                      <button
+                        type="button"
+                        className="ml-1 hover:text-destructive"
                         onClick={() => handleRemoveTime(time)}
                       >
                         <X className="h-3 w-3" />
-                      </Button>
+                      </button>
                     </Badge>
                   ))}
                 </div>
               )}
 
               {postingTimes.length === 0 && (
-                <p className="text-sm text-muted-foreground italic">
-                  No posting times configured. Add at least one time to enable auto-posting for this character.
-                </p>
+                <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-3 mt-2">
+                  <p className="text-sm text-yellow-800">
+                    ⚠️ No posting times configured. Add at least one time to enable auto-posting for this character.
+                  </p>
+                </div>
               )}
             </div>
           </div>
