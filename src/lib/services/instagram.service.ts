@@ -29,12 +29,13 @@ export const InstagramService = {
 
   /**
    * Get account by ID
-   * @param accountId - Account ID
+   * @param accountId - Instagram account ID (accountId field)
    * @returns Instagram account or null
    */
   getAccountById: (accountId: string): InstagramAccount | null => {
     const accounts = InstagramService.getAccounts();
-    return accounts.find(account => account.id === accountId) || null;
+    // Look up by accountId field (Instagram's ID), not internal id
+    return accounts.find(account => account.accountId === accountId) || null;
   },
 
   /**
