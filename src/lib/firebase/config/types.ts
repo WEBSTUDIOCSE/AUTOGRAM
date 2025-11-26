@@ -114,6 +114,13 @@ export interface AutoPostConfig {
   timezone: string; // e.g., 'Asia/Kolkata'
   activeCharacterIds: string[]; // Character IDs enabled for auto-posting
   minCharacters: number; // Minimum characters required to enable auto-posting
+  promptVariationSettings?: {
+    enabled: boolean;
+    preferredCategories: ('festival' | 'event' | 'seasonal' | 'travel' | 'lifestyle' | 'trending' | 'daily')[];
+    tone: 'casual' | 'professional' | 'fun' | 'elegant';
+    avoidTopics?: string[];
+    includeLocation?: boolean;
+  };
   createdAt: string;
   updatedAt: string;
 }

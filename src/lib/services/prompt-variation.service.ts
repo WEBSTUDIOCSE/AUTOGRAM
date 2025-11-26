@@ -1,11 +1,255 @@
 import { genAI, getTextModelName } from '@/lib/ai/gemini';
+import { DailyContextService, type DailyContext } from './daily-context.service';
+import type { Character } from '@/lib/firebase/config/types';
+
+/**
+ * Prompt Category for content variation
+ */
+export type PromptCategory = 
+  | 'festival' 
+  | 'event' 
+  | 'seasonal' 
+  | 'travel' 
+  | 'lifestyle' 
+  | 'trending'
+  | 'daily';
+
+/**
+ * Prompt Variation Settings
+ */
+export interface PromptVariationSettings {
+  enabled: boolean;
+  preferredCategories: PromptCategory[];
+  tone: 'casual' | 'professional' | 'fun' | 'elegant';
+  avoidTopics?: string[]; // Topics to avoid
+  includeLocation?: boolean; // Include India-specific context
+}
+
+/**
+ * Generated Prompt with Context
+ */
+export interface GeneratedPrompt {
+  prompt: string;
+  category: PromptCategory;
+  contextUsed: string; // What context influenced this prompt
+  originalBasePrompt: string;
+}
 
 /**
  * Service for generating prompt variations using Gemini AI
  */
 export class PromptVariationService {
   /**
-   * Generate a creative variation of a base prompt
+   * Generate a context-aware prompt (NEW - Main Method)
+   * Uses daily context (festivals, events, seasons) to create relevant prompts
+   */
+  static async generateContextualPrompt(
+    character: Character,
+    basePrompt: string,
+    settings: PromptVariationSettings
+  ): Promise<GeneratedPrompt> {
+    try {
+      // If variations disabled, return original prompt
+      if (!settings.enabled) {
+        return {
+          prompt: basePrompt,
+          category: 'daily',
+          contextUsed: 'Original base prompt (variations disabled)',
+          originalBasePrompt: basePrompt
+        };
+      }
+
+      // Get today's context
+      const dailyContext = await DailyContextService.getTodaysContext();
+      
+      // Determine which category to use
+      const category = this.selectCategory(dailyContext, settings);
+      
+      // Generate the varied prompt
+      const generatedPrompt = await this.generatePromptWithContext(
+        character,
+        basePrompt,
+        dailyContext,
+        category,
+        settings
+      );
+
+      return generatedPrompt;
+    } catch (error) {
+      console.error('Error generating contextual prompt:', error);
+      // Fallback to base prompt on error
+      return {
+        prompt: basePrompt,
+        category: 'daily',
+        contextUsed: 'Error occurred, using base prompt',
+        originalBasePrompt: basePrompt
+      };
+    }
+  }
+
+  /**
+   * Select prompt category based on context and settings
+   */
+  private static selectCategory(
+    context: DailyContext,
+    settings: PromptVariationSettings
+  ): PromptCategory {
+    const available: PromptCategory[] = [];
+
+    // Check what's relevant today
+    if (context.festivals.length > 0 && settings.preferredCategories.includes('festival')) {
+      available.push('festival');
+    }
+    
+    if (context.specialEvents.length > 0 && settings.preferredCategories.includes('event')) {
+      available.push('event');
+    }
+    
+    if (context.seasonalThemes.length > 0 && settings.preferredCategories.includes('seasonal')) {
+      available.push('seasonal');
+    }
+    
+    if (settings.preferredCategories.includes('travel')) {
+      available.push('travel');
+    }
+    
+    if (settings.preferredCategories.includes('lifestyle')) {
+      available.push('lifestyle');
+    }
+    
+    if (context.trendingTopics.length > 0 && settings.preferredCategories.includes('trending')) {
+      available.push('trending');
+    }
+
+    // If nothing matches, use daily
+    if (available.length === 0) {
+      return 'daily';
+    }
+
+    // Randomly select from available categories
+    return available[Math.floor(Math.random() * available.length)];
+  }
+
+  /**
+   * Generate prompt with daily context
+   */
+  private static async generatePromptWithContext(
+    character: Character,
+    basePrompt: string,
+    context: DailyContext,
+    category: PromptCategory,
+    settings: PromptVariationSettings
+  ): Promise<GeneratedPrompt> {
+    const modelName = getTextModelName();
+
+    // Build context information
+    let contextInfo = '';
+    
+    if (category === 'festival' && context.festivals.length > 0) {
+      contextInfo = `Today's Festivals: ${context.festivals.join(', ')}`;
+    } else if (category === 'event' && context.specialEvents.length > 0) {
+      contextInfo = `Today's Special Events: ${context.specialEvents.join(', ')}`;
+    } else if (category === 'seasonal' && context.seasonalThemes.length > 0) {
+      contextInfo = `Season: ${context.season}. Themes: ${context.seasonalThemes.join(', ')}`;
+    } else if (category === 'trending' && context.trendingTopics.length > 0) {
+      contextInfo = `Trending Topics: ${context.trendingTopics.join(', ')}`;
+    } else if (category === 'travel') {
+      contextInfo = `Season: ${context.season}. Popular activities: ${context.seasonalThemes.slice(0, 2).join(', ')}`;
+    } else if (category === 'lifestyle') {
+      contextInfo = `General lifestyle content with ${settings.tone} tone`;
+    } else {
+      contextInfo = 'Daily lifestyle content';
+    }
+
+    const avoidText = settings.avoidTopics && settings.avoidTopics.length > 0
+      ? `\nAVOID these topics: ${settings.avoidTopics.join(', ')}`
+      : '';
+
+    const locationText = settings.includeLocation && context.locationContext
+      ? `\nLocation Context: ${context.locationContext}`
+      : '';
+
+    const prompt = `You are creating an image generation prompt for a character named "${character.name}" for Instagram.
+
+BASE STYLE: ${basePrompt}
+
+CONTEXT: ${contextInfo}${locationText}${avoidText}
+
+TONE: ${settings.tone}
+
+CATEGORY: ${category}
+
+Task: Create a NEW image generation prompt that:
+1. Maintains the visual style from the base prompt (appearance, quality, aesthetics)
+2. Incorporates today's context (${category}) naturally and relevantly
+3. Matches the ${settings.tone} tone
+4. Is specific and descriptive for image generation
+5. Stays appropriate for Instagram
+6. Feels fresh and not repetitive
+
+IMPORTANT:
+- Keep the character's appearance/style from base prompt
+- Make it feel natural, not forced
+- Focus on visual elements that can be generated
+- Don't just add "celebrating [festival]" - be creative and specific
+- Output ONLY the new prompt, no explanations
+
+Example transformations:
+- Festival: "Beautiful Indian model in traditional festive attire with diyas and marigold decorations, warm golden lighting"
+- Travel: "Beautiful model at a scenic hill station, morning mist, adventure vibes, candid travel photography"
+- Lifestyle: "Beautiful model in casual chic outfit, cozy home setting, natural window light, relaxed morning vibe"
+
+Generate the new prompt:`;
+
+    const response = await genAI.models.generateContent({
+      model: modelName,
+      contents: prompt,
+    });
+
+    let generatedText = '';
+    
+    if (response.candidates && response.candidates[0]?.content?.parts) {
+      for (const part of response.candidates[0].content.parts) {
+        if (part.text) {
+          generatedText = part.text.trim();
+          break;
+        }
+      }
+    }
+
+    if (!generatedText) {
+      // Fallback if generation fails
+      return {
+        prompt: basePrompt,
+        category: 'daily',
+        contextUsed: 'Generation failed, using base prompt',
+        originalBasePrompt: basePrompt
+      };
+    }
+
+    return {
+      prompt: generatedText,
+      category,
+      contextUsed: contextInfo,
+      originalBasePrompt: basePrompt
+    };
+  }
+
+  /**
+   * Get default variation settings
+   */
+  static getDefaultSettings(): PromptVariationSettings {
+    return {
+      enabled: true,
+      preferredCategories: ['festival', 'event', 'seasonal', 'lifestyle', 'trending'],
+      tone: 'casual',
+      avoidTopics: [],
+      includeLocation: true
+    };
+  }
+
+  /**
+   * Generate a creative variation of a base prompt (EXISTING METHOD - Kept for compatibility)
    */
   static async generateVariation(basePrompt: string): Promise<string> {
     try {

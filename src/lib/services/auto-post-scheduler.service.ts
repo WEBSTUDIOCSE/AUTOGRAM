@@ -157,13 +157,24 @@ export class AutoPostSchedulerService {
           }
           console.log(`[AutoPost] ✅ Selected: "${promptTemplate.basePrompt.substring(0, 50)}..."`);
 
-          // Step 6: Generate prompt variation
-          console.log(`[AutoPost] STEP 6: Generating prompt variation...`);
+          // Step 6: Generate context-aware prompt variation
+          console.log(`[AutoPost] STEP 6: Generating contextual prompt variation...`);
           const step6Start = Date.now();
-          const generatedPrompt = await PromptVariationService.generateVariation(
-            promptTemplate.basePrompt
+          
+          // Get variation settings from config (use defaults if not set)
+          const variationSettings = config.promptVariationSettings || PromptVariationService.getDefaultSettings();
+          
+          // Generate context-aware prompt
+          const promptResult = await PromptVariationService.generateContextualPrompt(
+            selectedCharacter,
+            promptTemplate.basePrompt,
+            variationSettings
           );
-          stepTimer.steps.push({ step: 6, name: 'Generate Variation', duration: Date.now() - step6Start });
+          const generatedPrompt = promptResult.prompt;
+          
+          stepTimer.steps.push({ step: 6, name: 'Generate Contextual Variation', duration: Date.now() - step6Start });
+          console.log(`[AutoPost] ✅ Context: ${promptResult.contextUsed}`);
+          console.log(`[AutoPost] ✅ Category: ${promptResult.category}`);
           console.log(`[AutoPost] ✅ Variation: "${generatedPrompt.substring(0, 50)}..."`);
 
           // Step 7: Generate image with character
