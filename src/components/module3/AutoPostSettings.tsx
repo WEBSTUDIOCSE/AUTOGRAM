@@ -59,12 +59,48 @@ export default function AutoPostSettings({ userId, characters }: AutoPostSetting
   const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
   const [rotationStrategy, setRotationStrategy] = useState<'rotate' | 'random'>('rotate');
   const [minCharacters, setMinCharacters] = useState(1);
-
-  const availableAccounts = InstagramService.getAccounts();
+  const [availableAccounts, setAvailableAccounts] = useState<InstagramAccount[]>([]);
+  const [loadingAccounts, setLoadingAccounts] = useState(true);
 
   useEffect(() => {
     loadConfig();
+    loadInstagramAccounts();
   }, [userId]);
+
+  const loadInstagramAccounts = async () => {
+    try {
+      setLoadingAccounts(true);
+      const accounts = InstagramService.getAccounts();
+      
+      // Fetch real usernames from Instagram API
+      const accountsWithUsernames = await Promise.all(
+        accounts.map(async (account) => {
+          try {
+            const response = await fetch(
+              `https://graph.facebook.com/v18.0/${account.accountId}?fields=username,name&access_token=${account.accessToken}`
+            );
+            const data = await response.json();
+            
+            return {
+              ...account,
+              username: data.username || account.username,
+              name: data.name || account.name
+            };
+          } catch (err) {
+            console.error(`Failed to fetch username for account ${account.accountId}:`, err);
+            return account;
+          }
+        })
+      );
+      
+      setAvailableAccounts(accountsWithUsernames);
+    } catch (err) {
+      console.error('Failed to load Instagram accounts:', err);
+      setAvailableAccounts(InstagramService.getAccounts());
+    } finally {
+      setLoadingAccounts(false);
+    }
+  };
 
   const loadConfig = async () => {
     try {
@@ -390,16 +426,13 @@ export default function AutoPostSettings({ userId, characters }: AutoPostSetting
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-sm font-medium leading-none flex items-center gap-1.5">
-                            {account.name}
+                            {account.username || account.name}
                             {account.isActive && (
                               <CheckCircle2 className="h-3 w-3 text-green-500" />
                             )}
                           </p>
                           <p className="text-xs text-muted-foreground mt-0.5">
-                            {account.username !== 'main_account' && account.username !== 'secondary_account' 
-                              ? `@${account.username}` 
-                              : `ID: ${account.accountId}`
-                            }
+                            {account.username ? `@${account.username}` : `ID: ${account.accountId}`}
                           </p>
                         </div>
                         {isSelected && (

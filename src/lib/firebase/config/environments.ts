@@ -28,28 +28,42 @@ const UAT_GEMINI: GeminiConfig = {
 
 /**
  * UAT Instagram Configuration
+ * 
+ * To add more accounts:
+ * 1. Get Page Access Token from Facebook Graph API
+ * 2. Get Instagram Business Account ID
+ * 3. Add new account object below with unique id
+ * 4. Username will be fetched automatically from Instagram Graph API
  */
 const UAT_INSTAGRAM: InstagramConfig = {
     appId: "1408513954025673",
     appSecret: "1beb014e5c9b74c73f1bb38ba1a1e325",
     accounts: [
         {
-            id: "account1",
-            name: "Main Account",
-            username: "main_account",
+            id: "account_17841478413044591",
+            name: "Instagram Account 1",
+            username: "", // Will be fetched from Instagram API
             accessToken: "EAAUBCTXkEMkBP4SaPeh5op1SCfZApZBNvj7ybjJZB8AV9qsa3qzSLkpF786isLxmrZBwxfzweSORGP2XZCuGdO34SxgEVY5C9BhmONK4LO5r19j8vfYogeE1kpe8ITKk9Cj5t76C3nnHpbQC8HCSVVEGr2PGrvLlFq2QZBiFWddFptVLHfXfw5ZBFvNP0pc",
             accountId: "17841478413044591",
             isActive: true
         },
-        // Add more Instagram accounts here:
         {
-            id: "account2",
-            name: "Secondary Account",
-            username: "secondary_account",
+            id: "account_17841473226055306",
+            name: "Instagram Account 2",
+            username: "", // Will be fetched from Instagram API
             accessToken: "EAAKc24FnljoBQEOueQh30pSRBCTjj5Vwlvzp2AjNP2gyKRh42SR3iER4jDC8oDP3cF17is7Bb0ZBBNNBbIZCXqa6p30fJi0ZCF01WEjiEcri3UAVSk8vPAjUf8TgvO5ghVQjfxkaZAZA8eKh45RHgKMiyOtKC3oK1gNNlcXy7BZAFAuONor8kjRWCo2JN4NvOY1RDN24CA",
             accountId: "17841473226055306",
             isActive: true
         }
+        // Add more accounts here following the same pattern
+        // {
+        //     id: "account_YOUR_INSTAGRAM_ID",
+        //     name: "Instagram Account 3",
+        //     username: "",
+        //     accessToken: "YOUR_PAGE_ACCESS_TOKEN",
+        //     accountId: "YOUR_INSTAGRAM_BUSINESS_ACCOUNT_ID",
+        //     isActive: true
+        // }
     ]
 };
 

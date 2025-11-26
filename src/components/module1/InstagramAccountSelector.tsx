@@ -115,16 +115,13 @@ export function InstagramAccountSelector({
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium leading-none flex items-center gap-1.5">
-                      {account.name}
+                      {account.username || account.name}
                       {account.isActive && (
                         <CheckCircle2 className="h-3 w-3 text-green-500" />
                       )}
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {account.username !== 'main_account' && account.username !== 'secondary_account' 
-                        ? `@${account.username}` 
-                        : `ID: ${account.accountId}`
-                      }
+                      {account.username ? `@${account.username}` : `ID: ${account.accountId}`}
                     </p>
                   </div>
                   {selectedAccountId === account.id && (
