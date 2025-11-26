@@ -108,9 +108,28 @@ export class AutoPostSchedulerService {
           
           // Step 4: Get character's assigned Instagram account
           console.log(`[AutoPost] STEP 4: Getting character's assigned account...`);
+          console.log(`[AutoPost] Character's assignedAccountId: ${selectedCharacter.assignedAccountId}`);
+          
           const assignedAccount = InstagramService.getAccountById(selectedCharacter.assignedAccountId);
+          
+          console.log(`[AutoPost] Account lookup result:`, assignedAccount ? {
+            id: assignedAccount.id,
+            accountId: assignedAccount.accountId,
+            name: assignedAccount.name,
+            isActive: assignedAccount.isActive
+          } : 'null');
+          
           if (!assignedAccount || !assignedAccount.isActive) {
             console.error(`[AutoPost] ❌ Character's assigned account not available: ${selectedCharacter.assignedAccountId}`);
+            
+            // Debug: List all available accounts
+            const allAccounts = InstagramService.getAccounts();
+            console.log(`[AutoPost] Available accounts (${allAccounts.length}):`, allAccounts.map(a => ({
+              id: a.id,
+              accountId: a.accountId,
+              isActive: a.isActive
+            })));
+            
             await this.logFailure(
               userId,
               scheduledTime,
