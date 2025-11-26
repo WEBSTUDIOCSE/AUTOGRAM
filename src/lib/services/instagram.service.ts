@@ -189,5 +189,28 @@ export const InstagramService = {
    */
   getAccountInfo: async (accountId: string): Promise<InstagramAccount> => {
     return InstagramService.testConnection(accountId);
+  },
+
+  /**
+   * Fetch usernames for all available accounts
+   * @returns Array of Instagram accounts with usernames populated
+   */
+  fetchAccountsWithUsernames: async (): Promise<InstagramAccount[]> => {
+    const accounts = InstagramService.getAccounts();
+    
+    const accountsWithUsernames = await Promise.all(
+      accounts.map(async (account) => {
+        try {
+          const accountInfo = await InstagramService.getAccountInfo(account.id);
+          return accountInfo;
+        } catch (error) {
+          console.error(`Failed to fetch username for ${account.id}:`, error);
+          // Return account as-is if fetch fails
+          return account;
+        }
+      })
+    );
+    
+    return accountsWithUsernames;
   }
 };

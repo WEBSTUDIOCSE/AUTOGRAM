@@ -32,12 +32,19 @@ export function TodaySchedule({ userId }: { userId: string }) {
   const loadSchedule = async () => {
     try {
       const config = await AutoPostConfigService.getConfig(userId);
-      if (!config || !config.isEnabled || config.postingTimes.length === 0) {
+      if (!config || !config.isEnabled) {
         setScheduledPosts([]);
         setLoading(false);
         return;
       }
 
+      // TODO: Update for character-specific posting times
+      // For now, show empty schedule
+      setScheduledPosts([]);
+      setLoading(false);
+      return;
+
+      /*
       const now = new Date();
       const today = new Date(now);
       today.setHours(0, 0, 0, 0);
@@ -85,6 +92,7 @@ export function TodaySchedule({ userId }: { userId: string }) {
 
       // Limit to next 6 posts
       setScheduledPosts(posts.slice(0, 6));
+      */
     } catch (error) {
       console.error('Error loading schedule:', error);
     } finally {

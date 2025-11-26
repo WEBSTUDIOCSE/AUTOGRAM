@@ -33,11 +33,9 @@ export class AutoPostConfigService {
         id: configSnap.id,
         userId: data.userId,
         isEnabled: data.isEnabled,
-        postingTimes: data.postingTimes,
         timezone: data.timezone,
-        instagramAccounts: data.instagramAccounts,
+        activeCharacterIds: data.activeCharacterIds || [],
         minCharacters: data.minCharacters,
-        accountRotationStrategy: data.accountRotationStrategy,
         createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : data.createdAt,
         updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
       };
@@ -57,11 +55,9 @@ export class AutoPostConfigService {
       const defaultConfig = {
         userId,
         isEnabled: false,
-        postingTimes: ['10:00', '18:00'],
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        instagramAccounts: [],
+        timezone: 'Asia/Kolkata',
+        activeCharacterIds: [], // No characters active by default
         minCharacters: 1,
-        accountRotationStrategy: 'rotate' as const,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
@@ -72,11 +68,9 @@ export class AutoPostConfigService {
         id: userId,
         userId,
         isEnabled: false,
-        postingTimes: ['10:00', '18:00'],
         timezone: defaultConfig.timezone,
-        instagramAccounts: [],
+        activeCharacterIds: [],
         minCharacters: 1,
-        accountRotationStrategy: 'rotate',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -132,25 +126,29 @@ export class AutoPostConfigService {
   }
 
   /**
-   * Update posting times
+   * Update active character IDs for auto-posting
    */
-  static async updatePostingTimes(userId: string, times: string[]): Promise<void> {
-    // Validate time format (HH:mm)
-    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
-    for (const time of times) {
-      if (!timeRegex.test(time)) {
-        throw new Error(`Invalid time format: ${time}. Use HH:mm format.`);
-      }
-    }
-
-    await this.updateConfig(userId, { postingTimes: times });
+  static async updateActiveCharacters(userId: string, characterIds: string[]): Promise<void> {
+    await this.updateConfig(userId, { activeCharacterIds: characterIds });
   }
 
   /**
-   * Update Instagram accounts
+   * Add a character to active list
    */
-  static async updateInstagramAccounts(userId: string, accountIds: string[]): Promise<void> {
-    await this.updateConfig(userId, { instagramAccounts: accountIds });
+  static async addActiveCharacter(userId: string, characterId: string): Promise<void> {
+    const config = await this.getOrCreateConfig(userId);
+    const activeIds = new Set(config.activeCharacterIds);
+    activeIds.add(characterId);
+    await this.updateConfig(userId, { activeCharacterIds: Array.from(activeIds) });
+  }
+
+  /**
+   * Remove a character from active list
+   */
+  static async removeActiveCharacter(userId: string, characterId: string): Promise<void> {
+    const config = await this.getOrCreateConfig(userId);
+    const activeIds = config.activeCharacterIds.filter(id => id !== characterId);
+    await this.updateConfig(userId, { activeCharacterIds: activeIds });
   }
 
   /**
@@ -171,42 +169,35 @@ export class AutoPostConfigService {
   }
 
   /**
-   * Update account rotation strategy
-   */
-  static async updateRotationStrategy(
-    userId: string,
-    strategy: 'rotate' | 'random'
-  ): Promise<void> {
-    await this.updateConfig(userId, { accountRotationStrategy: strategy });
-  }
-
-  /**
    * Check if user can enable auto-posting
+   * Validates that at least one character is active and has posting times configured
    */
   static async canEnableAutoPosting(
     userId: string,
-    characterCount: number
+    characters: Array<{ id: string; postingTimes: string[] }>
   ): Promise<{ canEnable: boolean; reason?: string }> {
     const config = await this.getOrCreateConfig(userId);
 
-    if (characterCount < config.minCharacters) {
+    if (config.activeCharacterIds.length === 0) {
       return {
         canEnable: false,
-        reason: `You need at least ${config.minCharacters} characters uploaded to enable auto-posting`,
+        reason: 'Please select at least one character for auto-posting',
       };
     }
 
-    if (config.instagramAccounts.length === 0) {
-      return {
-        canEnable: false,
-        reason: 'Please select at least one Instagram account',
-      };
-    }
+    // Check if at least one active character has posting times configured
+    const activeCharacters = characters.filter(char => 
+      config.activeCharacterIds.includes(char.id)
+    );
 
-    if (config.postingTimes.length === 0) {
+    const hasPostingTimes = activeCharacters.some(char => 
+      char.postingTimes && char.postingTimes.length > 0
+    );
+
+    if (!hasPostingTimes) {
       return {
         canEnable: false,
-        reason: 'Please set at least one posting time',
+        reason: 'At least one active character must have posting times configured',
       };
     }
 

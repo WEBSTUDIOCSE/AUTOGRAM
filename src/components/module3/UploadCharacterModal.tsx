@@ -14,20 +14,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { InstagramAccount } from "@/lib/firebase/config/types";
 
 interface UploadCharacterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUpload: (file: File, name: string) => Promise<void>;
+  onUpload: (file: File, name: string, assignedAccountId: string) => Promise<void>;
+  availableAccounts: InstagramAccount[];
 }
 
 export default function UploadCharacterModal({
   isOpen,
   onClose,
   onUpload,
+  availableAccounts,
 }: UploadCharacterModalProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [characterName, setCharacterName] = useState("");
+  const [selectedAccountId, setSelectedAccountId] = useState<string>("");
   const [preview, setPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,10 +77,15 @@ export default function UploadCharacterModal({
       return;
     }
 
+    if (!selectedAccountId) {
+      setError("Please select an Instagram account");
+      return;
+    }
+
     try {
       setIsUploading(true);
       setError(null);
-      await onUpload(selectedFile, characterName.trim());
+      await onUpload(selectedFile, characterName.trim(), selectedAccountId);
       handleClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to upload character");
@@ -81,6 +97,7 @@ export default function UploadCharacterModal({
   const handleClose = () => {
     setSelectedFile(null);
     setCharacterName("");
+    setSelectedAccountId("");
     setPreview(null);
     setError(null);
     setIsUploading(false);
@@ -114,6 +131,37 @@ export default function UploadCharacterModal({
               disabled={isUploading}
               maxLength={50}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="instagram-account">Instagram Account</Label>
+            <Select
+              value={selectedAccountId}
+              onValueChange={setSelectedAccountId}
+              disabled={isUploading}
+            >
+              <SelectTrigger id="instagram-account">
+                <SelectValue placeholder="Select an Instagram account" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableAccounts.length === 0 ? (
+                  <div className="px-2 py-3 text-sm text-muted-foreground">
+                    No accounts available
+                  </div>
+                ) : (
+                  availableAccounts.map((account) => (
+                    <SelectItem key={account.id} value={account.id}>
+                      {account.username || account.name}
+                      {account.username && (
+                        <span className="text-xs text-muted-foreground ml-2">
+                          @{account.username}
+                        </span>
+                      )}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
@@ -157,7 +205,7 @@ export default function UploadCharacterModal({
           </Button>
           <Button
             onClick={handleUpload}
-            disabled={!selectedFile || !characterName.trim() || isUploading}
+            disabled={!selectedFile || !characterName.trim() || !selectedAccountId || isUploading}
           >
             {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Upload

@@ -60,6 +60,7 @@ export interface EnvironmentConfig {
 
 /**
  * Character model for Module 2 - Character Model Generator
+ * Each character is assigned to a specific Instagram account
  */
 export interface Character {
   id: string;
@@ -68,6 +69,8 @@ export interface Character {
   imageUrl: string;
   thumbnailUrl: string;
   imageBase64: string;
+  assignedAccountId: string; // Instagram account ID this character posts to
+  postingTimes: string[]; // Character-specific posting times in HH:mm format ['10:00', '14:00']
   uploadedAt: string;
   lastUsedAt: string | null;
   usageCount: number;
@@ -102,16 +105,15 @@ export interface CharacterPost {
 
 /**
  * Auto-Post Configuration for Module 3
+ * Simplified - characters now have individual posting schedules
  */
 export interface AutoPostConfig {
   id: string;
   userId: string;
   isEnabled: boolean;
-  postingTimes: string[]; // ['10:00', '18:00'] in HH:mm format
-  timezone: string; // e.g., 'America/New_York'
-  instagramAccounts: string[]; // Account IDs to rotate through
+  timezone: string; // e.g., 'Asia/Kolkata'
+  activeCharacterIds: string[]; // Character IDs enabled for auto-posting
   minCharacters: number; // Minimum characters required to enable auto-posting
-  accountRotationStrategy: 'rotate' | 'random'; // How to select accounts
   createdAt: string;
   updatedAt: string;
 }

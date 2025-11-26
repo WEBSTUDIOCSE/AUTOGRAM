@@ -21,6 +21,8 @@ import AutoPostHistory from "@/components/module3/AutoPostHistory";
 import { InstagramAccountSelector } from "@/components/module1/InstagramAccountSelector";
 import { useAuth } from "@/contexts/AuthContext";
 import { APIBook } from "@/lib/firebase/services";
+import { InstagramService } from "@/lib/services/instagram.service";
+import type { InstagramAccount } from "@/lib/firebase/config/types";
 
 export default function AutoPosterPage() {
   const { user } = useAuth();
@@ -32,6 +34,7 @@ export default function AutoPosterPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [characterToEdit, setCharacterToEdit] = useState<Character | null>(null);
   const [loadingCharacters, setLoadingCharacters] = useState(true);
+  const [availableAccounts, setAvailableAccounts] = useState<InstagramAccount[]>([]);
 
   // Generation state
   const [scenePrompt, setScenePrompt] = useState("");
@@ -52,8 +55,22 @@ export default function AutoPosterPage() {
   useEffect(() => {
     if (user) {
       loadCharacters();
+      // Load available Instagram accounts with usernames
+      loadInstagramAccounts();
     }
   }, [user]);
+
+  const loadInstagramAccounts = async () => {
+    try {
+      const accounts = await InstagramService.fetchAccountsWithUsernames();
+      setAvailableAccounts(accounts);
+    } catch (err) {
+      console.error('Failed to load Instagram accounts:', err);
+      // Fallback to accounts without usernames
+      const accounts = InstagramService.getAccounts();
+      setAvailableAccounts(accounts);
+    }
+  };
 
   const loadCharacters = async () => {
     if (!user) return;
@@ -70,12 +87,12 @@ export default function AutoPosterPage() {
     }
   };
 
-  const handleUploadCharacter = async (file: File, name: string) => {
+  const handleUploadCharacter = async (file: File, name: string, assignedAccountId: string) => {
     if (!user) {
       throw new Error('User not authenticated');
     }
 
-    const character = await APIBook.character.uploadCharacter(file, name, user.uid);
+    const character = await APIBook.character.uploadCharacter(file, name, user.uid, assignedAccountId);
     setCharacters((prev) => [character, ...prev]);
   };
 
@@ -416,6 +433,7 @@ export default function AutoPosterPage() {
         isOpen={showUploadModal}
         onClose={() => setShowUploadModal(false)}
         onUpload={handleUploadCharacter}
+        availableAccounts={availableAccounts}
       />
 
       <EditCharacterModal
@@ -427,6 +445,7 @@ export default function AutoPosterPage() {
         character={characterToEdit}
         onRename={handleRenameCharacter}
         onDelete={handleDeleteCharacter}
+        onUpdate={loadCharacters}
       />
     </div>
   );

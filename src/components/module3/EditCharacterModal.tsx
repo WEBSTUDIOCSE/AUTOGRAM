@@ -12,7 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Trash2, Clock, Plus, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,6 +25,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import type { Character } from "@/lib/firebase/config/types";
+import { CharacterService } from "@/lib/services/character.service";
 
 interface EditCharacterModalProps {
   isOpen: boolean;
@@ -31,6 +33,7 @@ interface EditCharacterModalProps {
   character: Character | null;
   onRename: (characterId: string, newName: string) => Promise<void>;
   onDelete: (characterId: string) => Promise<void>;
+  onUpdate?: () => void; // Callback to refresh character list
 }
 
 export default function EditCharacterModal({
@@ -39,8 +42,11 @@ export default function EditCharacterModal({
   character,
   onRename,
   onDelete,
+  onUpdate,
 }: EditCharacterModalProps) {
   const [name, setName] = useState(character?.name || "");
+  const [postingTimes, setPostingTimes] = useState<string[]>(character?.postingTimes || []);
+  const [newTime, setNewTime] = useState("");
   const [isRenaming, setIsRenaming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -54,6 +60,50 @@ export default function EditCharacterModal({
       onClose();
     } catch (error) {
       console.error("Failed to rename character:", error);
+    } finally {
+      setIsRenaming(false);
+    }
+  };
+
+  const handleAddTime = () => {
+    if (!newTime) return;
+    
+    // Validate time format HH:mm
+    const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+    if (!timeRegex.test(newTime)) {
+      alert("Please enter time in HH:mm format (e.g., 09:00, 14:30)");
+      return;
+    }
+
+    if (postingTimes.includes(newTime)) {
+      alert("This time is already added");
+      return;
+    }
+
+    setPostingTimes([...postingTimes, newTime].sort());
+    setNewTime("");
+  };
+
+  const handleRemoveTime = (time: string) => {
+    setPostingTimes(postingTimes.filter(t => t !== time));
+  };
+
+  const handleSavePostingTimes = async () => {
+    if (!character) return;
+
+    try {
+      setIsRenaming(true);
+      await CharacterService.updatePostingTimes(character.id, postingTimes);
+      
+      // Also save name if changed
+      if (name.trim() !== character.name) {
+        await onRename(character.id, name.trim());
+      }
+      
+      onUpdate?.(); // Refresh the character list
+      onClose();
+    } catch (error) {
+      console.error("Failed to update character:", error);
     } finally {
       setIsRenaming(false);
     }
@@ -74,16 +124,19 @@ export default function EditCharacterModal({
     }
   };
 
+  const hasChanges = name.trim() !== character?.name || 
+    JSON.stringify(postingTimes.sort()) !== JSON.stringify((character?.postingTimes || []).sort());
+
   if (!character) return null;
 
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Character</DialogTitle>
             <DialogDescription>
-              Rename or delete this character
+              Update character details and posting schedule
             </DialogDescription>
           </DialogHeader>
 
@@ -104,6 +157,56 @@ export default function EditCharacterModal({
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter character name"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Posting Times (24-hour format)</Label>
+              <p className="text-sm text-muted-foreground">
+                Set specific times when this character should post
+              </p>
+              
+              <div className="flex gap-2">
+                <Input
+                  type="time"
+                  value={newTime}
+                  onChange={(e) => setNewTime(e.target.value)}
+                  placeholder="HH:mm"
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  size="icon"
+                  onClick={handleAddTime}
+                  disabled={!newTime}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {postingTimes.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {postingTimes.map((time) => (
+                    <Badge key={time} variant="secondary" className="gap-1">
+                      <Clock className="h-3 w-3" />
+                      {time}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-4 w-4 p-0 hover:bg-transparent"
+                        onClick={() => handleRemoveTime(time)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              {postingTimes.length === 0 && (
+                <p className="text-sm text-muted-foreground italic">
+                  No posting times configured. Add at least one time to enable auto-posting for this character.
+                </p>
+              )}
             </div>
           </div>
 
@@ -127,8 +230,8 @@ export default function EditCharacterModal({
                 Cancel
               </Button>
               <Button
-                onClick={handleRename}
-                disabled={isRenaming || !name.trim() || name === character.name}
+                onClick={handleSavePostingTimes}
+                disabled={isRenaming || !name.trim() || !hasChanges}
                 className="flex-1 sm:flex-none"
               >
                 {isRenaming ? (

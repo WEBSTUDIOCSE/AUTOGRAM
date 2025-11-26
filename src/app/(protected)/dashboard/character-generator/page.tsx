@@ -72,7 +72,10 @@ export default function CharacterGeneratorPage() {
       throw new Error('User not authenticated');
     }
 
-    const character = await APIBook.character.uploadCharacter(file, name, user.uid);
+    // Use first available account as default for character-generator page
+    // TODO: Add account selection UI here too
+    const defaultAccountId = 'account_17841478413044591';
+    const character = await APIBook.character.uploadCharacter(file, name, user.uid, defaultAccountId);
     setCharacters((prev) => [character, ...prev]);
   };
 

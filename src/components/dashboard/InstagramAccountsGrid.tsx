@@ -39,7 +39,9 @@ export function InstagramAccountsGrid({ userId }: { userId: string }) {
         );
 
         // Calculate next scheduled time
+        // TODO: Update this to work with character-specific posting times
         let nextScheduledTime: string | undefined;
+        /*
         if (config && config.isEnabled && config.postingTimes.length > 0) {
           const now = new Date();
           const today = new Date(now);
@@ -71,6 +73,7 @@ export function InstagramAccountsGrid({ userId }: { userId: string }) {
             }
           }
         }
+        */
 
         return {
           account,
