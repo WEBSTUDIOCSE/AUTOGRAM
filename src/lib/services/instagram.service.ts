@@ -33,9 +33,25 @@ export const InstagramService = {
    * @returns Instagram account or null
    */
   getAccountById: (accountId: string): InstagramAccount | null => {
+    console.log('[InstagramService] getAccountById called with:', accountId);
+    
     const accounts = InstagramService.getAccounts();
+    console.log('[InstagramService] Available accounts:', accounts.map(a => ({
+      id: a.id,
+      accountId: a.accountId,
+      name: a.name,
+      isActive: a.isActive
+    })));
+    
     // Look up by accountId field (Instagram's ID), not internal id
-    return accounts.find(account => account.accountId === accountId) || null;
+    const found = accounts.find(account => account.accountId === accountId);
+    console.log('[InstagramService] Account found:', found ? {
+      id: found.id,
+      accountId: found.accountId,
+      name: found.name
+    } : 'null');
+    
+    return found || null;
   },
 
   /**
