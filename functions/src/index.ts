@@ -42,28 +42,51 @@ export const scheduledAutoPost = onSchedule(
       
       logger.info("Current time:", {currentTime, utcTime: now.toISOString(), istTime: istTime.toISOString()});
 
-      // Query all enabled auto-post configs with matching posting time
+      // Get all enabled auto-post configs
       const configsSnapshot = await db
         .collection("auto_post_configs")
         .where("isEnabled", "==", true)
-        .where("postingTimes", "array-contains", currentTime)
         .get();
 
-      logger.info(`Found ${configsSnapshot.size} enabled configs for time ${currentTime}`);
+      logger.info(`Found ${configsSnapshot.size} enabled auto-post config(s)`);
 
       if (configsSnapshot.empty) {
-        logger.info("No users scheduled for auto-post at this time");
+        logger.info("No enabled auto-post configs found");
         return;
       }
 
-      // Process each config
+      // For each user, check if they have characters scheduled for this time
       const promises = configsSnapshot.docs.map(async (doc) => {
         const userId = doc.id;
         const config = doc.data();
 
-        logger.info(`Processing auto-post for user: ${userId}`);
+        logger.info(`Checking user: ${userId} for time ${currentTime}`);
 
         try {
+          // Get user's characters to check for matching posting times
+          const charactersSnapshot = await db
+            .collection("characters")
+            .where("userId", "==", userId)
+            .get();
+
+          // Check if any active character has this posting time
+          const hasMatchingCharacter = charactersSnapshot.docs.some((charDoc) => {
+            const charData = charDoc.data();
+            const isActive = config.activeCharacterIds?.includes(charDoc.id);
+            const hasPostingTime = charData.postingTimes?.includes(currentTime);
+            
+            if (isActive && hasPostingTime) {
+              logger.info(`User ${userId} has character "${charData.name}" scheduled for ${currentTime}`);
+            }
+            
+            return isActive && hasPostingTime;
+          });
+
+          if (!hasMatchingCharacter) {
+            logger.info(`User ${userId} has no characters scheduled for ${currentTime}`);
+            return;
+          }
+
           // Call the auto-post execution endpoint
           await executeAutoPost(userId, currentTime, config);
           logger.info(`Successfully executed auto-post for user: ${userId}`);
