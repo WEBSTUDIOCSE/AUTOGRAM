@@ -29,7 +29,7 @@ export const InstagramService = {
 
   /**
    * Get account by ID
-   * @param accountId - Instagram account ID (accountId field)
+   * @param accountId - Instagram account ID (accountId field) or internal id
    * @returns Instagram account or null
    */
   getAccountById: (accountId: string): InstagramAccount | null => {
@@ -43,8 +43,10 @@ export const InstagramService = {
       isActive: a.isActive
     })));
     
-    // Look up by accountId field (Instagram's ID), not internal id
-    const found = accounts.find(account => account.accountId === accountId);
+    // Look up by accountId field (Instagram's ID) OR by internal id (for backwards compatibility)
+    const found = accounts.find(account => 
+      account.accountId === accountId || account.id === accountId
+    );
     console.log('[InstagramService] Account found:', found ? {
       id: found.id,
       accountId: found.accountId,

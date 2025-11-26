@@ -280,7 +280,7 @@ export default function AutoPostSettings({ userId, characters }: AutoPostSetting
             <div className="space-y-3">
               {characters.map((character) => {
                 const isActive = activeCharacterIds.includes(character.id);
-                const assignedAccount = availableAccounts.find((acc) => acc.id === character.assignedAccountId);
+                const assignedAccount = availableAccounts.find((acc) => acc.accountId === character.assignedAccountId);
                 const hasPostingTimes = character.postingTimes && character.postingTimes.length > 0;
                 
                 return (

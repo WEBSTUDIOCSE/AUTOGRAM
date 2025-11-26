@@ -150,7 +150,7 @@ export default function UploadCharacterModal({
                   </div>
                 ) : (
                   availableAccounts.map((account) => (
-                    <SelectItem key={account.id} value={account.id}>
+                    <SelectItem key={account.id} value={account.accountId}>
                       {account.username || account.name}
                       {account.username && (
                         <span className="text-xs text-muted-foreground ml-2">
