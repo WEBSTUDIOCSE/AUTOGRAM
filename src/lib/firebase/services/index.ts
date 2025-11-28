@@ -22,7 +22,7 @@ export { StorageService } from '@/lib/services/storage.service';
 export { ImageService } from '@/lib/services/image.service';
 
 // Import Instagram Post service
-export { InstagramPostService } from '@/lib/services/post-history.service';
+export { InstagramPostService } from '@/lib/services/module3/post-history.service';
 
 // Import Character services
 export { CharacterService } from '@/lib/services/character.service';
@@ -31,11 +31,11 @@ export { CharacterPostService } from '@/lib/services/character-post.service';
 export { PromptRefinerService } from '@/lib/services/prompt-refiner.service';
 
 // Import Auto-Post services (Module 3)
-export { AutoPostConfigService } from '@/lib/services/auto-post-config.service';
+export { AutoPostConfigService } from '@/lib/services/module3/auto-post-config.service';
 export { PromptLibraryService } from '@/lib/services/prompt-library.service';
-export { PromptVariationService } from '@/lib/services/prompt-variation.service';
-export { AutoPostLogService } from '@/lib/services/auto-post-log.service';
-export { AutoPostSchedulerService } from '@/lib/services/auto-post-scheduler.service';
+export { PromptVariationService } from '@/lib/services/module3/prompt-variation.service';
+export { AutoPostLogService } from '@/lib/services/module3/auto-post-log.service';
+export { AutoPostSchedulerService } from '@/lib/services/module3/auto-post-scheduler.service';
 export { ErrorNotificationService } from '@/lib/services/error-notification.service';
 
 // Import types
@@ -44,7 +44,7 @@ export type { PaymentRecord } from './payment.service';
 export type { GeneratedImage } from '@/lib/services/ai.service';
 export type { InstagramAccount, InstagramPostResponse } from '@/lib/services/instagram.service';
 export type { GeneratedImage as SavedImage } from '@/lib/services/image.service';
-export type { InstagramPost } from '@/lib/services/post-history.service';
+export type { InstagramPost } from '@/lib/services/module3/post-history.service';
 export type { Character, CharacterPost, AutoPostConfig, PromptTemplate, AutoPostLog } from '@/lib/firebase/config/types';
 export type { ApiResponse } from '../handler';
 
@@ -55,16 +55,16 @@ import { AIService } from '@/lib/services/ai.service';
 import { InstagramService } from '@/lib/services/instagram.service';
 import { StorageService } from '@/lib/services/storage.service';
 import { ImageService } from '@/lib/services/image.service';
-import { InstagramPostService } from '@/lib/services/post-history.service';
+import { InstagramPostService } from '@/lib/services/module3/post-history.service';
 import { CharacterService } from '@/lib/services/character.service';
 import { CharacterAIService } from '@/lib/services/character-ai.service';
 import { CharacterPostService } from '@/lib/services/character-post.service';
 import { PromptRefinerService } from '@/lib/services/prompt-refiner.service';
-import { AutoPostConfigService } from '@/lib/services/auto-post-config.service';
+import { AutoPostConfigService } from '@/lib/services/module3/auto-post-config.service';
 import { PromptLibraryService } from '@/lib/services/prompt-library.service';
-import { PromptVariationService } from '@/lib/services/prompt-variation.service';
-import { AutoPostLogService } from '@/lib/services/auto-post-log.service';
-import { AutoPostSchedulerService } from '@/lib/services/auto-post-scheduler.service';
+import { PromptVariationService } from '@/lib/services/module3/prompt-variation.service';
+import { AutoPostLogService } from '@/lib/services/module3/auto-post-log.service';
+import { AutoPostSchedulerService } from '@/lib/services/module3/auto-post-scheduler.service';
 import { ErrorNotificationService } from '@/lib/services/error-notification.service';
 
 /**

@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import { InstagramAccountCard } from './InstagramAccountCard';
 import { InstagramService, type InstagramAccount } from '@/lib/services/instagram.service';
-import { AutoPostLogService } from '@/lib/services/auto-post-log.service';
-import { AutoPostConfigService } from '@/lib/services/auto-post-config.service';
+import { AutoPostLogService } from '@/lib/services/module3/auto-post-log.service';
+import { AutoPostConfigService } from '@/lib/services/module3/auto-post-config.service';
 import { useRouter } from 'next/navigation';
 
 interface AccountWithData {

@@ -1,28 +1,20 @@
 import { genAI, getTextModelName } from '@/lib/ai/gemini';
-import { DailyContextService, type DailyContext } from './daily-context.service';
+import { DailyContextService, type DailyContext, type ContentOpportunity } from './daily-context.service';
+import { InstagramPostService } from './post-history.service';
 import type { Character } from '@/lib/firebase/config/types';
-
-/**
- * Prompt Category for content variation
- */
-export type PromptCategory = 
-  | 'festival' 
-  | 'event' 
-  | 'seasonal' 
-  | 'travel' 
-  | 'lifestyle' 
-  | 'trending'
-  | 'daily';
 
 /**
  * Prompt Variation Settings
  */
 export interface PromptVariationSettings {
   enabled: boolean;
-  preferredCategories: PromptCategory[];
   tone: 'casual' | 'professional' | 'fun' | 'elegant';
+  allowTrending?: boolean; // Allow viral/trending topics
   avoidTopics?: string[]; // Topics to avoid
   includeLocation?: boolean; // Include India-specific context
+  trackHistory?: boolean; // Track and avoid recent themes (default true)
+  avoidRepetitionDays?: number; // How many days back to check (default 14)
+  creativityLevel?: 'low' | 'medium' | 'high'; // How creative to be (default medium)
 }
 
 /**
@@ -30,7 +22,7 @@ export interface PromptVariationSettings {
  */
 export interface GeneratedPrompt {
   prompt: string;
-  category: PromptCategory;
+  opportunity: ContentOpportunity; // Which opportunity was used
   contextUsed: string; // What context influenced this prompt
   originalBasePrompt: string;
 }
@@ -40,8 +32,8 @@ export interface GeneratedPrompt {
  */
 export class PromptVariationService {
   /**
-   * Generate a context-aware prompt (NEW - Main Method)
-   * Uses daily context (festivals, events, seasons) to create relevant prompts
+   * Generate a context-aware prompt (REDESIGNED - Fully Dynamic)
+   * Uses daily opportunities + post history to create unique, non-repetitive prompts
    */
   static async generateContextualPrompt(
     character: Character,
@@ -53,25 +45,63 @@ export class PromptVariationService {
       if (!settings.enabled) {
         return {
           prompt: basePrompt,
-          category: 'daily',
+          opportunity: {
+            id: 'disabled',
+            title: 'Original Prompt',
+            description: 'Variations disabled',
+            tags: [],
+            relevanceScore: 0
+          },
           contextUsed: 'Original base prompt (variations disabled)',
           originalBasePrompt: basePrompt
         };
       }
 
-      // Get today's context
+      // Get today's dynamic context with opportunities
       const dailyContext = await DailyContextService.getTodaysContext();
       
-      // Determine which category to use
-      const category = this.selectCategory(dailyContext, settings);
+      // Get post history to avoid repetition (if enabled)
+      const recentThemes: string[] = [];
+      const usedOpportunityIds: string[] = [];
       
-      // Generate the varied prompt
-      const generatedPrompt = await this.generatePromptWithContext(
+      if (settings.trackHistory !== false) {
+        const historyDays = settings.avoidRepetitionDays || 14;
+        // TODO: Implement getRecentThemes and getRecentOpportunities in PostHistoryService
+        // For now, we'll skip this until the service is updated
+        console.log(`[Variation] Would check history for last ${historyDays} days`);
+      }
+
+      // Filter opportunities based on settings
+      let availableOpportunities = dailyContext.contentOpportunities;
+
+      // Filter out trending if not allowed
+      if (settings.allowTrending === false) {
+        availableOpportunities = availableOpportunities.filter(opp => !opp.isViral);
+      }
+
+      // Filter out recently used opportunities
+      if (usedOpportunityIds.length > 0) {
+        availableOpportunities = availableOpportunities.filter(
+          opp => !usedOpportunityIds.includes(opp.id)
+        );
+      }
+
+      // If no opportunities left, use defaults
+      if (availableOpportunities.length === 0) {
+        availableOpportunities = DailyContextService.getDefaultOpportunities();
+      }
+
+      // Select opportunity (weighted by relevance score)
+      const selectedOpportunity = this.selectOpportunityWeighted(availableOpportunities);
+
+      // Generate prompt using the opportunity
+      const generatedPrompt = await this.generatePromptFromOpportunity(
         character,
         basePrompt,
+        selectedOpportunity,
         dailyContext,
-        category,
-        settings
+        settings,
+        recentThemes
       );
 
       return generatedPrompt;
@@ -80,7 +110,13 @@ export class PromptVariationService {
       // Fallback to base prompt on error
       return {
         prompt: basePrompt,
-        category: 'daily',
+        opportunity: {
+          id: 'error',
+          title: 'Error Fallback',
+          description: 'Error occurred',
+          tags: [],
+          relevanceScore: 0
+        },
         contextUsed: 'Error occurred, using base prompt',
         originalBasePrompt: basePrompt
       };
@@ -88,118 +124,94 @@ export class PromptVariationService {
   }
 
   /**
-   * Select prompt category based on context and settings
+   * Select opportunity using weighted random selection
+   * Higher relevanceScore = higher chance of selection
    */
-  private static selectCategory(
-    context: DailyContext,
-    settings: PromptVariationSettings
-  ): PromptCategory {
-    const available: PromptCategory[] = [];
-
-    // Check what's relevant today
-    if (context.festivals.length > 0 && settings.preferredCategories.includes('festival')) {
-      available.push('festival');
+  private static selectOpportunityWeighted(opportunities: ContentOpportunity[]): ContentOpportunity {
+    // Calculate total weight
+    const totalWeight = opportunities.reduce((sum, opp) => sum + opp.relevanceScore, 0);
+    
+    // Random value between 0 and totalWeight
+    let random = Math.random() * totalWeight;
+    
+    // Select based on weight
+    for (const opportunity of opportunities) {
+      random -= opportunity.relevanceScore;
+      if (random <= 0) {
+        return opportunity;
+      }
     }
     
-    if (context.specialEvents.length > 0 && settings.preferredCategories.includes('event')) {
-      available.push('event');
-    }
-    
-    if (context.seasonalThemes.length > 0 && settings.preferredCategories.includes('seasonal')) {
-      available.push('seasonal');
-    }
-    
-    if (settings.preferredCategories.includes('travel')) {
-      available.push('travel');
-    }
-    
-    if (settings.preferredCategories.includes('lifestyle')) {
-      available.push('lifestyle');
-    }
-    
-    if (context.trendingTopics.length > 0 && settings.preferredCategories.includes('trending')) {
-      available.push('trending');
-    }
-
-    // If nothing matches, use daily
-    if (available.length === 0) {
-      return 'daily';
-    }
-
-    // Randomly select from available categories
-    return available[Math.floor(Math.random() * available.length)];
+    // Fallback to last opportunity
+    return opportunities[opportunities.length - 1];
   }
 
   /**
-   * Generate prompt with daily context
+   * Generate prompt from a selected opportunity
    */
-  private static async generatePromptWithContext(
+  private static async generatePromptFromOpportunity(
     character: Character,
     basePrompt: string,
+    opportunity: ContentOpportunity,
     context: DailyContext,
-    category: PromptCategory,
-    settings: PromptVariationSettings
+    settings: PromptVariationSettings,
+    recentThemes: string[]
   ): Promise<GeneratedPrompt> {
     const modelName = getTextModelName();
 
-    // Build context information
-    let contextInfo = '';
-    
-    if (category === 'festival' && context.festivals.length > 0) {
-      contextInfo = `Today's Festivals: ${context.festivals.join(', ')}`;
-    } else if (category === 'event' && context.specialEvents.length > 0) {
-      contextInfo = `Today's Special Events: ${context.specialEvents.join(', ')}`;
-    } else if (category === 'seasonal' && context.seasonalThemes.length > 0) {
-      contextInfo = `Season: ${context.season}. Themes: ${context.seasonalThemes.join(', ')}`;
-    } else if (category === 'trending' && context.trendingTopics.length > 0) {
-      contextInfo = `Trending Topics: ${context.trendingTopics.join(', ')}`;
-    } else if (category === 'travel') {
-      contextInfo = `Season: ${context.season}. Popular activities: ${context.seasonalThemes.slice(0, 2).join(', ')}`;
-    } else if (category === 'lifestyle') {
-      contextInfo = `General lifestyle content with ${settings.tone} tone`;
-    } else {
-      contextInfo = 'Daily lifestyle content';
-    }
-
     const avoidText = settings.avoidTopics && settings.avoidTopics.length > 0
       ? `\nAVOID these topics: ${settings.avoidTopics.join(', ')}`
+      : '';
+
+    const recentThemesText = recentThemes.length > 0
+      ? `\nRECENTLY USED THEMES (avoid these): ${recentThemes.join(', ')}`
       : '';
 
     const locationText = settings.includeLocation && context.locationContext
       ? `\nLocation Context: ${context.locationContext}`
       : '';
 
-    const prompt = `You are creating an image generation prompt for a character named "${character.name}" for Instagram.
+    const creativityGuidance = {
+      low: 'Stay close to the original style, make subtle variations only',
+      medium: 'Balance familiarity with creativity, moderate variations',
+      high: 'Be very creative and unexpected, push boundaries while staying tasteful'
+    };
 
-BASE STYLE: ${basePrompt}
+    const creativityLevel = settings.creativityLevel || 'medium';
 
-CONTEXT: ${contextInfo}${locationText}${avoidText}
+    const prompt = `You are creating a UNIQUE, NON-REPETITIVE image generation prompt for Instagram.
+
+CHARACTER: "${character.name}"
+BASE VISUAL STYLE: ${basePrompt}
+
+TODAY'S CONTENT OPPORTUNITY:
+Title: ${opportunity.title}
+Description: ${opportunity.description}
+Tags: ${opportunity.tags.join(', ')}
+${opportunity.isViral ? '⚡ TRENDING/VIRAL TOPIC' : ''}
+
+CONTEXT: ${context.summary}${locationText}${avoidText}${recentThemesText}
 
 TONE: ${settings.tone}
+CREATIVITY LEVEL: ${creativityGuidance[creativityLevel]}
 
-CATEGORY: ${category}
-
-Task: Create a NEW image generation prompt that:
-1. Maintains the visual style from the base prompt (appearance, quality, aesthetics)
-2. Incorporates today's context (${category}) naturally and relevantly
+Task: Create a NEW, SPECIFIC image generation prompt that:
+1. Maintains the character's visual style from base prompt (appearance, quality)
+2. Incorporates the opportunity "${opportunity.title}" naturally and creatively
 3. Matches the ${settings.tone} tone
-4. Is specific and descriptive for image generation
-5. Stays appropriate for Instagram
-6. Feels fresh and not repetitive
+4. Is SPECIFIC and DESCRIPTIVE for AI image generation
+5. Feels FRESH and UNIQUE - not generic or repetitive
+6. Is appropriate for Instagram
+7. Uses concrete visual elements (lighting, setting, mood, composition)
 
 IMPORTANT:
-- Keep the character's appearance/style from base prompt
-- Make it feel natural, not forced
-- Focus on visual elements that can be generated
-- Don't just add "celebrating [festival]" - be creative and specific
-- Output ONLY the new prompt, no explanations
+- Keep character's core appearance/style
+- Be SPECIFIC (not "festive look" but "silver-sequined lehenga with golden zari work, diya decorations")
+- Make it visually rich and detailed
+- Avoid clichés and overused phrases
+- Output ONLY the prompt, no explanations or meta-text
 
-Example transformations:
-- Festival: "Beautiful Indian model in traditional festive attire with diyas and marigold decorations, warm golden lighting"
-- Travel: "Beautiful model at a scenic hill station, morning mist, adventure vibes, candid travel photography"
-- Lifestyle: "Beautiful model in casual chic outfit, cozy home setting, natural window light, relaxed morning vibe"
-
-Generate the new prompt:`;
+Generate the prompt now:`;
 
     const response = await genAI.models.generateContent({
       model: modelName,
@@ -221,7 +233,7 @@ Generate the new prompt:`;
       // Fallback if generation fails
       return {
         prompt: basePrompt,
-        category: 'daily',
+        opportunity,
         contextUsed: 'Generation failed, using base prompt',
         originalBasePrompt: basePrompt
       };
@@ -229,8 +241,8 @@ Generate the new prompt:`;
 
     return {
       prompt: generatedText,
-      category,
-      contextUsed: contextInfo,
+      opportunity,
+      contextUsed: `Opportunity: ${opportunity.title} | ${context.summary}`,
       originalBasePrompt: basePrompt
     };
   }
@@ -241,10 +253,13 @@ Generate the new prompt:`;
   static getDefaultSettings(): PromptVariationSettings {
     return {
       enabled: true,
-      preferredCategories: ['festival', 'event', 'seasonal', 'lifestyle', 'trending'],
       tone: 'casual',
+      allowTrending: true,
       avoidTopics: [],
-      includeLocation: true
+      includeLocation: true,
+      trackHistory: true,
+      avoidRepetitionDays: 14,
+      creativityLevel: 'medium'
     };
   }
 

@@ -17,7 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { InstagramPostService } from '@/lib/services/post-history.service';
+import { InstagramPostService } from '@/lib/services/module3/post-history.service';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface RecentPromptsProps {

@@ -10,7 +10,7 @@ import { RecentPrompts } from '@/components/module1/RecentPrompts';
 import { PromptInput } from '@/components/module1/PromptInput';
 import { InstagramAccountSelector } from '@/components/module1/InstagramAccountSelector';
 import { APIBook } from '@/lib/firebase/services';
-import { InstagramPostService } from '@/lib/services/post-history.service';
+import { InstagramPostService } from '@/lib/services/module3/post-history.service';
 import { ImageService } from '@/lib/services/image.service';
 import { useAuth } from '@/contexts/AuthContext';
 

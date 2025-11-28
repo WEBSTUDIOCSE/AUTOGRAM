@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { AutoPostLogService } from '@/lib/services/auto-post-log.service';
+import { AutoPostLogService } from '@/lib/services/module3/auto-post-log.service';
 
 interface DashboardAlert {
   id: string;

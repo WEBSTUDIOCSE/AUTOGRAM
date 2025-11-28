@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, XCircle, ExternalLink, RefreshCw } from 'lucide-react';
-import { AutoPostLogService, type AutoPostLog } from '@/lib/services/auto-post-log.service';
+import { AutoPostLogService, type AutoPostLog } from '@/lib/services/module3/auto-post-log.service';
 
 export function RecentPostsList({ userId }: { userId: string }) {
   const [posts, setPosts] = useState<AutoPostLog[]>([]);

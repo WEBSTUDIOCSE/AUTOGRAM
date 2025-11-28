@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Image, Users, Instagram } from 'lucide-react';
-import { AutoPostLogService } from '@/lib/services/auto-post-log.service';
+import { AutoPostLogService } from '@/lib/services/module3/auto-post-log.service';
 import { CharacterService } from '@/lib/services/character.service';
 import { InstagramService } from '@/lib/services/instagram.service';
 

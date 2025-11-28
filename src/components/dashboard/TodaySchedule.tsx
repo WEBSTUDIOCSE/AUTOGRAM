@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock } from 'lucide-react';
-import { AutoPostConfigService } from '@/lib/services/auto-post-config.service';
+import { AutoPostConfigService } from '@/lib/services/module3/auto-post-config.service';
 import { CharacterService } from '@/lib/services/character.service';
 import { InstagramService } from '@/lib/services/instagram.service';
 

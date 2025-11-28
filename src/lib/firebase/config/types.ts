@@ -116,10 +116,13 @@ export interface AutoPostConfig {
   minCharacters: number; // Minimum characters required to enable auto-posting
   promptVariationSettings?: {
     enabled: boolean;
-    preferredCategories: ('festival' | 'event' | 'seasonal' | 'travel' | 'lifestyle' | 'trending' | 'daily')[];
     tone: 'casual' | 'professional' | 'fun' | 'elegant';
+    allowTrending?: boolean; // Allow viral/trending topics
     avoidTopics?: string[];
     includeLocation?: boolean;
+    trackHistory?: boolean; // Track and avoid recent themes
+    avoidRepetitionDays?: number; // How many days back to check
+    creativityLevel?: 'low' | 'medium' | 'high'; // How creative to be
   };
   createdAt: string;
   updatedAt: string;

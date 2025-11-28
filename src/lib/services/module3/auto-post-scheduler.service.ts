@@ -1,12 +1,12 @@
 import { AutoPostConfigService } from './auto-post-config.service';
-import { PromptLibraryService } from './prompt-library.service';
+import { PromptLibraryService } from '../prompt-library.service';
 import { PromptVariationService } from './prompt-variation.service';
 import { AutoPostLogService } from './auto-post-log.service';
-import { CharacterService } from './character.service';
-import { CharacterAIService } from './character-ai.service';
-import { StorageService } from './storage.service';
-import { InstagramService } from './instagram.service';
-import { ErrorNotificationService } from './error-notification.service';
+import { CharacterService } from '../character.service';
+import { CharacterAIService } from '../character-ai.service';
+import { StorageService } from '../storage.service';
+import { InstagramService } from '../instagram.service';
+import { ErrorNotificationService } from '../error-notification.service';
 import type { Character, AutoPostConfig, PromptTemplate } from '@/lib/firebase/config/types';
 
 /**
@@ -173,10 +173,14 @@ export class AutoPostSchedulerService {
           const generatedPrompt = promptResult.prompt;
           
           stepTimer.steps.push({ step: 6, name: 'Generate Contextual Variation', duration: Date.now() - step6Start });
+          console.log(`[AutoPost] ✅ Opportunity: ${promptResult.opportunity.title}`);
+          console.log(`[AutoPost] ✅ Relevance Score: ${promptResult.opportunity.relevanceScore}/10`);
+          console.log(`[AutoPost] ✅ Tags: ${promptResult.opportunity.tags.join(', ')}`);
           console.log(`[AutoPost] ✅ Context: ${promptResult.contextUsed}`);
-          console.log(`[AutoPost] ✅ Category: ${promptResult.category}`);
-          console.log(`[AutoPost] ✅ Variation: "${generatedPrompt.substring(0, 50)}..."`);
+          console.log(`[AutoPost] ✅ Variation: "${generatedPrompt.substring(0, 80)}..."`);
 
+          // TODO: Track this opportunity in post history
+          // await PostHistoryService.addToHistory(userId, selectedCharacter.id, generatedPrompt, promptResult.opportunity.id, promptResult.opportunity.tags);
           // Step 7: Generate image with character
           console.log(`[AutoPost] STEP 7: Generating image with AI...`);
           const step7Start = Date.now();

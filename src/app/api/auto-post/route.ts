@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AutoPostSchedulerService } from '@/lib/services/auto-post-scheduler.service';
+import { AutoPostSchedulerService } from '@/lib/services/module3/auto-post-scheduler.service';
 
 /**
  * API endpoint for Cloud Function to trigger auto-posting
