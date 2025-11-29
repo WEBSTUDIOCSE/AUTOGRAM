@@ -79,7 +79,7 @@ export interface Character {
 /**
  * Module types for organizing images and posts
  */
-export type ModuleType = 'module1' | 'module2' | 'module3';
+export type ModuleType = 'module1' | 'module2' | 'module3' | 'module4';
 
 /**
  * Character post data for Module 2

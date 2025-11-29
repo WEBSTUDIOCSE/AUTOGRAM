@@ -41,6 +41,7 @@ interface MemberInput {
   gender: Gender | '';
   age: string;
   imageUrl: string;
+  imageBase64?: string;
   imageFile?: File;
 }
 
@@ -121,7 +122,7 @@ export function FamilyProfileForm({
         const base64Data = base64String.split(',')[1];
         
         // Upload to Firebase Storage
-        const imageUrl = await StorageService.uploadImage(base64Data, userId, 'module4' as any);
+        const imageUrl = await StorageService.uploadImage(base64Data, userId, 'module4');
         
         // Update member with both imageUrl and imageBase64 (for AI generation)
         setMembers(
@@ -168,18 +169,21 @@ export function FamilyProfileForm({
       }
 
       const membersData = members.map((m) => {
-        const memberData: any = {
+        const memberData: Omit<FamilyMember, 'id'> = {
           name: m.name.trim(),
           role: m.role,
         };
-        if (m.gender) {
-          memberData.gender = m.gender;
+        if (m.gender !== '') {
+          memberData.gender = m.gender as Gender;
         }
         if (m.age && m.age.trim()) {
           memberData.age = parseInt(m.age, 10);
         }
         if (m.imageUrl) {
           memberData.imageUrl = m.imageUrl;
+        }
+        if (m.imageBase64) {
+          memberData.imageBase64 = m.imageBase64;
         }
         return memberData;
       });
@@ -402,7 +406,7 @@ export function FamilyProfileForm({
 
               {members.length === 0 && (
                 <p className="text-center text-sm text-muted-foreground py-8">
-                  No family members added. Click "Add Member" to start.
+                  No family members added. Click &quot;Add Member&quot; to start.
                 </p>
               )}
             </div>

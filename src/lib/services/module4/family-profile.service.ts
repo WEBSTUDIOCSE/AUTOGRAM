@@ -105,7 +105,7 @@ export class FamilyProfileService {
       
       // Add IDs to members and clean undefined fields
       const membersWithIds: FamilyMember[] = members.map(member => {
-        const cleanMember: any = {
+        const cleanMember: Partial<FamilyMember> & { id: string; name: string; role: FamilyMember['role'] } = {
           id: this.generateMemberId(),
           name: member.name,
           role: member.role,
@@ -118,6 +118,9 @@ export class FamilyProfileService {
         }
         if (member.imageUrl) {
           cleanMember.imageUrl = member.imageUrl;
+        }
+        if (member.imageBase64) {
+          cleanMember.imageBase64 = member.imageBase64;
         }
         if (member.customRole) {
           cleanMember.customRole = member.customRole;
@@ -175,9 +178,9 @@ export class FamilyProfileService {
       const profileRef = doc(db, COLLECTION_NAME, profileId);
       
       // Clean undefined fields from updates
-      const cleanUpdates: any = { updatedAt: serverTimestamp() };
+      const cleanUpdates: Record<string, unknown> = { updatedAt: serverTimestamp() };
       Object.keys(updates).forEach(key => {
-        const value = (updates as any)[key];
+        const value = updates[key as keyof typeof updates];
         if (value !== undefined) {
           cleanUpdates[key] = value;
         }
@@ -333,7 +336,7 @@ export class FamilyProfileService {
    */
   static getMembersByCategory(
     members: FamilyMember[],
-    category: 'couple' | 'family' | 'kids'
+    category: 'couple' | 'family' | 'kids' | 'custom'
   ): FamilyMember[] {
     switch (category) {
       case 'couple':

@@ -273,7 +273,7 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
       const imageUrl = await StorageService.uploadImage(
         base64Data,
         userId,
-        'module3' as any
+        'module4'
       );
       console.log(`[FamilyAutoPost] ✅ Image uploaded: ${imageUrl}`);
 
