@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LogOut, Home, KeyRound, User, Sparkles, UserCircle, Zap } from 'lucide-react';
+import { LogOut, Home, KeyRound, User, Sparkles, UserCircle, Zap, Users } from 'lucide-react';
 
 import {
   Sidebar,
@@ -46,6 +46,11 @@ const navItems = [
     title: 'Auto-Poster',
     url: '/dashboard/auto-poster',
     icon: Zap,
+  },
+  {
+    title: 'Family Auto Poster',
+    url: '/family-auto-poster',
+    icon: Users,
   },
 ];
 

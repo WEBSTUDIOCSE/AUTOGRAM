@@ -26,11 +26,33 @@ export function InstagramAccountSelector({
       try {
         setLoading(true);
         const availableAccounts = APIBook.instagram.getAccounts();
-        setAccounts(availableAccounts);
+        
+        // Fetch real usernames from Instagram API
+        const accountsWithUsernames = await Promise.all(
+          availableAccounts.map(async (account) => {
+            try {
+              const response = await fetch(
+                `https://graph.facebook.com/v18.0/${account.accountId}?fields=username,name&access_token=${account.accessToken}`
+              );
+              const data = await response.json();
+              
+              return {
+                ...account,
+                username: data.username || account.username,
+                name: data.name || account.name
+              };
+            } catch (err) {
+              console.error(`Failed to fetch username for account ${account.accountId}:`, err);
+              return account;
+            }
+          })
+        );
+        
+        setAccounts(accountsWithUsernames);
         
         // Auto-select first account if none selected
-        if (availableAccounts.length > 0 && !selectedAccountId) {
-          onSelectAccount(availableAccounts[0].id);
+        if (accountsWithUsernames.length > 0 && !selectedAccountId) {
+          onSelectAccount(accountsWithUsernames[0].id);
         }
       } catch (err) {
         console.error('Failed to fetch Instagram accounts:', err);

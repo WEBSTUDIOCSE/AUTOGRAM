@@ -165,3 +165,97 @@ export interface AutoPostLog {
   status: 'success' | 'failed' | 'skipped';
   error?: string;
 }
+
+/**
+ * Family Member for Module 4 - Family Auto Poster
+ */
+export interface FamilyMember {
+  id: string;
+  name: string;
+  role: 'person1' | 'person2' | 'child' | 'mother' | 'father' | 'grandmother' | 'grandfather';
+  gender?: 'male' | 'female';
+  age?: number;
+  imageUrl?: string;
+  imageBase64?: string; // Store base64 for AI generation (like Character)
+  customRole?: string; // For custom roles beyond predefined ones
+}
+
+/**
+ * Family Profile for Module 4 - Family Auto Poster
+ */
+export interface FamilyProfile {
+  id: string;
+  userId: string;
+  profileName: string; // e.g., "Johnson Family", "My Parents"
+  members: FamilyMember[];
+  instagramAccountId: string; // Single Instagram account per family profile
+  instagramAccountName: string;
+  postingTimes: string[]; // Profile-specific posting times in HH:mm format ['10:00', '14:00']
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Prompt Category for Module 4
+ */
+export type FamilyPromptCategory = 'couple' | 'family' | 'kids' | 'custom';
+
+/**
+ * Family Prompt Template for Module 4
+ */
+export interface FamilyPromptTemplate {
+  id: string;
+  userId: string;
+  familyProfileId: string;
+  category: FamilyPromptCategory;
+  basePrompt: string;
+  usageCount: number;
+  lastUsedAt: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Family Auto-Post Schedule for Module 4
+ */
+export interface FamilyAutoPostSchedule {
+  id: string;
+  userId: string;
+  familyProfileId: string;
+  promptTemplateId: string;
+  category: FamilyPromptCategory;
+  frequency: 'daily' | 'weekly';
+  time: string; // HH:mm format
+  dayOfWeek?: number; // 0-6 for weekly (0 = Sunday)
+  isEnabled: boolean;
+  timezone: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Family Auto-Post Log for Module 4
+ */
+export interface FamilyAutoPostLog {
+  id: string;
+  userId: string;
+  familyProfileId: string;
+  familyProfileName: string;
+  scheduleId?: string; // Optional - kept for backwards compatibility
+  category: FamilyPromptCategory;
+  basePrompt: string;
+  generatedPrompt: string;
+  familyContext: string; // "Sarah and John with their daughter Emma"
+  generatedImageUrl: string;
+  caption: string;
+  hashtags: string;
+  instagramPostId?: string;
+  instagramAccountId: string;
+  instagramAccountName: string;
+  scheduledTime: string;
+  executedAt: string;
+  status: 'success' | 'failed' | 'skipped';
+  error?: string;
+}
