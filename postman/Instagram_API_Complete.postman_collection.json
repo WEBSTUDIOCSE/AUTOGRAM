@@ -1,0 +1,470 @@
+{
+  "info": {
+    "name": "Instagram API - Complete Testing Suite",
+    "description": "Complete Instagram Graph API testing with both accounts from environments.ts",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Account 1 (EMILY) - 17841478413044591",
+      "item": [
+        {
+          "name": "1. Debug Access Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://graph.facebook.com/v18.0/debug_token?input_token={{ACCOUNT_1_TOKEN}}&access_token={{ACCOUNT_1_APP_ID}}|{{ACCOUNT_1_APP_SECRET}}",
+              "protocol": "https",
+              "host": ["graph", "facebook", "com"],
+              "path": ["v18.0", "debug_token"],
+              "query": [
+                {
+                  "key": "input_token",
+                  "value": "{{ACCOUNT_1_TOKEN}}",
+                  "description": "The access token to debug"
+                },
+                {
+                  "key": "access_token",
+                  "value": "{{ACCOUNT_1_APP_ID}}|{{ACCOUNT_1_APP_SECRET}}",
+                  "description": "App access token"
+                }
+              ]
+            },
+            "description": "Check if access token is valid, view expiration and permissions"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Get Instagram Account Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://graph.facebook.com/v18.0/{{ACCOUNT_1_ID}}?fields=id,username,name,profile_picture_url,followers_count,follows_count,media_count,biography&access_token={{ACCOUNT_1_TOKEN}}",
+              "protocol": "https",
+              "host": ["graph", "facebook", "com"],
+              "path": ["v18.0", "{{ACCOUNT_1_ID}}"],
+              "query": [
+                {
+                  "key": "fields",
+                  "value": "id,username,name,profile_picture_url,followers_count,follows_count,media_count,biography",
+                  "description": "Account fields to retrieve"
+                },
+                {
+                  "key": "access_token",
+                  "value": "{{ACCOUNT_1_TOKEN}}"
+                }
+              ]
+            },
+            "description": "Get complete Instagram account information"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Get Account Permissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://graph.facebook.com/v18.0/me/permissions?access_token={{ACCOUNT_1_TOKEN}}",
+              "protocol": "https",
+              "host": ["graph", "facebook", "com"],
+              "path": ["v18.0", "me", "permissions"],
+              "query": [
+                {
+                  "key": "access_token",
+                  "value": "{{ACCOUNT_1_TOKEN}}"
+                }
+              ]
+            },
+            "description": "List all granted permissions - Check for instagram_basic, instagram_content_publish, pages_read_engagement"
+          },
+          "response": []
+        },
+        {
+          "name": "4. Get Recent Media",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://graph.facebook.com/v18.0/{{ACCOUNT_1_ID}}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count&limit=10&access_token={{ACCOUNT_1_TOKEN}}",
+              "protocol": "https",
+              "host": ["graph", "facebook", "com"],
+              "path": ["v18.0", "{{ACCOUNT_1_ID}}", "media"],
+              "query": [
+                {
+                  "key": "fields",
+                  "value": "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "access_token",
+                  "value": "{{ACCOUNT_1_TOKEN}}"
+                }
+              ]
+            },
+            "description": "Get last 10 posts from this account"
+          },
+          "response": []
+        },
+        {
+          "name": "5. Create Media Container (TEST - No Publish)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "image_url",
+                  "value": "{{TEST_IMAGE_URL}}",
+                  "description": "Public image URL (must be accessible)",
+                  "type": "text"
+                },
+                {
+                  "key": "caption",
+                  "value": "🧪 Test post from Postman - Account 1 (EMILY)\n\n#testing #api #instagram",
+                  "description": "Caption with hashtags",
+                  "type": "text"
+                },
+                {
+                  "key": "access_token",
+                  "value": "{{ACCOUNT_1_TOKEN}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://graph.facebook.com/v18.0/{{ACCOUNT_1_ID}}/media",
+              "protocol": "https",
+              "host": ["graph", "facebook", "com"],
+              "path": ["v18.0", "{{ACCOUNT_1_ID}}", "media"]
+            },
+            "description": "⚠️ Creates media container (does NOT publish). Save the container ID from response if you want to publish."
+          },
+          "response": []
+        },
+        {
+          "name": "6. Publish Media Container",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "creation_id",
+                  "value": "PASTE_CONTAINER_ID_HERE",
+                  "description": "Container ID from previous request",
+                  "type": "text"
+                },
+                {
+                  "key": "access_token",
+                  "value": "{{ACCOUNT_1_TOKEN}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://graph.facebook.com/v18.0/{{ACCOUNT_1_ID}}/media_publish",
+              "protocol": "https",
+              "host": ["graph", "facebook", "com"],
+              "path": ["v18.0", "{{ACCOUNT_1_ID}}", "media_publish"]
+            },
+            "description": "⚠️ WARNING: This WILL publish to Instagram! Replace PASTE_CONTAINER_ID_HERE with actual container ID from previous request."
+          },
+          "response": []
+        },
+        {
+          "name": "7. Exchange for Long-Lived Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://graph.facebook.com/v18.0/oauth/access_token?grant_type=fb_exchange_token&client_id={{ACCOUNT_1_APP_ID}}&client_secret={{ACCOUNT_1_APP_SECRET}}&fb_exchange_token={{ACCOUNT_1_TOKEN}}",
+              "protocol": "https",
+              "host": ["graph", "facebook", "com"],
+              "path": ["v18.0", "oauth", "access_token"],
+              "query": [
+                {
+                  "key": "grant_type",
+                  "value": "fb_exchange_token"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{ACCOUNT_1_APP_ID}}"
+                },
+                {
+                  "key": "client_secret",
+                  "value": "{{ACCOUNT_1_APP_SECRET}}"
+                },
+                {
+                  "key": "fb_exchange_token",
+                  "value": "{{ACCOUNT_1_TOKEN}}"
+                }
+              ]
+            },
+            "description": "Exchange short-lived token for long-lived token (60 days). Copy the new access_token and update environments.ts"
+          },
+          "response": []
+        }
+      ],
+      "description": "All API tests for Account 1 (EMILY) - App ID: 1408513954025673"
+    },
+    {
+      "name": "Account 2 (Angela) - 17841473226055306",
+      "item": [
+        {
+          "name": "1. Debug Access Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://graph.facebook.com/v18.0/debug_token?input_token={{ACCOUNT_2_TOKEN}}&access_token={{ACCOUNT_2_APP_ID}}|{{ACCOUNT_2_APP_SECRET}}",
+              "host": ["https://graph.facebook.com/v18.0"],
+              "path": ["debug_token"],
+              "query": [
+                {
+                  "key": "input_token",
+                  "value": "{{ACCOUNT_2_TOKEN}}"
+                },
+                {
+                  "key": "access_token",
+                  "value": "{{ACCOUNT_2_APP_ID}}|{{ACCOUNT_2_APP_SECRET}}"
+                }
+              ]
+            },
+            "description": "Check if access token is valid, view expiration and permissions"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Get Instagram Account Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://graph.facebook.com/v18.0/{{ACCOUNT_2_ID}}?fields=id,username,name,profile_picture_url,followers_count,follows_count,media_count,biography&access_token={{ACCOUNT_2_TOKEN}}",
+              "host": ["https://graph.facebook.com/v18.0"],
+              "path": ["{{ACCOUNT_2_ID}}"],
+              "query": [
+                {
+                  "key": "fields",
+                  "value": "id,username,name,profile_picture_url,followers_count,follows_count,media_count,biography"
+                },
+                {
+                  "key": "access_token",
+                  "value": "{{ACCOUNT_2_TOKEN}}"
+                }
+              ]
+            },
+            "description": "Get complete Instagram account information"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Get Account Permissions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://graph.facebook.com/v18.0/me/permissions?access_token={{ACCOUNT_2_TOKEN}}",
+              "host": ["https://graph.facebook.com/v18.0"],
+              "path": ["me", "permissions"],
+              "query": [
+                {
+                  "key": "access_token",
+                  "value": "{{ACCOUNT_2_TOKEN}}"
+                }
+              ]
+            },
+            "description": "List all granted permissions"
+          },
+          "response": []
+        },
+        {
+          "name": "4. Get Recent Media",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://graph.facebook.com/v18.0/{{ACCOUNT_2_ID}}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count&limit=10&access_token={{ACCOUNT_2_TOKEN}}",
+              "host": ["https://graph.facebook.com/v18.0"],
+              "path": ["{{ACCOUNT_2_ID}}", "media"],
+              "query": [
+                {
+                  "key": "fields",
+                  "value": "id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "access_token",
+                  "value": "{{ACCOUNT_2_TOKEN}}"
+                }
+              ]
+            },
+            "description": "Get last 10 posts from this account"
+          },
+          "response": []
+        },
+        {
+          "name": "5. Create Media Container (TEST - No Publish)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "image_url",
+                  "value": "{{TEST_IMAGE_URL}}",
+                  "type": "text"
+                },
+                {
+                  "key": "caption",
+                  "value": "🧪 Test post from Postman - Account 2 (Angela)\n\n#testing #api #instagram",
+                  "type": "text"
+                },
+                {
+                  "key": "access_token",
+                  "value": "{{ACCOUNT_2_TOKEN}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://graph.facebook.com/v18.0/{{ACCOUNT_2_ID}}/media",
+              "host": ["https://graph.facebook.com/v18.0"],
+              "path": ["{{ACCOUNT_2_ID}}", "media"]
+            },
+            "description": "⚠️ Creates media container (does NOT publish)"
+          },
+          "response": []
+        },
+        {
+          "name": "6. Publish Media Container",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "creation_id",
+                  "value": "PASTE_CONTAINER_ID_HERE",
+                  "type": "text"
+                },
+                {
+                  "key": "access_token",
+                  "value": "{{ACCOUNT_2_TOKEN}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "https://graph.facebook.com/v18.0/{{ACCOUNT_2_ID}}/media_publish",
+              "host": ["https://graph.facebook.com/v18.0"],
+              "path": ["{{ACCOUNT_2_ID}}", "media_publish"]
+            },
+            "description": "⚠️ WARNING: This WILL publish to Instagram!"
+          },
+          "response": []
+        },
+        {
+          "name": "7. Exchange for Long-Lived Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://graph.facebook.com/v18.0/oauth/access_token?grant_type=fb_exchange_token&client_id={{ACCOUNT_2_APP_ID}}&client_secret={{ACCOUNT_2_APP_SECRET}}&fb_exchange_token={{ACCOUNT_2_TOKEN}}",
+              "host": ["https://graph.facebook.com/v18.0"],
+              "path": ["oauth", "access_token"],
+              "query": [
+                {
+                  "key": "grant_type",
+                  "value": "fb_exchange_token"
+                },
+                {
+                  "key": "client_id",
+                  "value": "{{ACCOUNT_2_APP_ID}}"
+                },
+                {
+                  "key": "client_secret",
+                  "value": "{{ACCOUNT_2_APP_SECRET}}"
+                },
+                {
+                  "key": "fb_exchange_token",
+                  "value": "{{ACCOUNT_2_TOKEN}}"
+                }
+              ]
+            },
+            "description": "Exchange for long-lived token (60 days)"
+          },
+          "response": []
+        }
+      ],
+      "description": "All API tests for Account 2 (Angela) - App ID: 735416536241722"
+    },
+    {
+      "name": "Diagnostics & Troubleshooting",
+      "item": [
+        {
+          "name": "Check Instagram API Rate Limits",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://graph.facebook.com/v18.0/{{ACCOUNT_1_ID}}?metadata=1&access_token={{ACCOUNT_1_TOKEN}}",
+              "host": ["https://graph.facebook.com/v18.0"],
+              "path": ["{{ACCOUNT_1_ID}}"],
+              "query": [
+                {
+                  "key": "metadata",
+                  "value": "1"
+                },
+                {
+                  "key": "access_token",
+                  "value": "{{ACCOUNT_1_TOKEN}}"
+                }
+              ]
+            },
+            "description": "Check rate limit usage"
+          },
+          "response": []
+        },
+        {
+          "name": "Verify App Configuration",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://graph.facebook.com/v18.0/{{ACCOUNT_1_APP_ID}}?fields=name,id,category&access_token={{ACCOUNT_1_APP_ID}}|{{ACCOUNT_1_APP_SECRET}}",
+              "host": ["https://graph.facebook.com/v18.0"],
+              "path": ["{{ACCOUNT_1_APP_ID}}"],
+              "query": [
+                {
+                  "key": "fields",
+                  "value": "name,id,category"
+                },
+                {
+                  "key": "access_token",
+                  "value": "{{ACCOUNT_1_APP_ID}}|{{ACCOUNT_1_APP_SECRET}}"
+                }
+              ]
+            },
+            "description": "Verify app is properly configured"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": []
+}
