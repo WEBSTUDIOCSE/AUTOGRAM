@@ -132,11 +132,11 @@ const MODULES: AutoPostModule[] = [
 /**
  * Unified Scheduled Auto-Post Function
  * Single scheduler that handles ALL modules dynamically
- * TESTING: Runs every minute
+ * Runs at the start of every hour
  */
 export const scheduledUnifiedAutoPost = onSchedule(
   {
-    schedule: "* * * * *", // TESTING: Every minute
+    schedule: "0 * * * *", // Every hour at minute 0
     timeZone: "Asia/Kolkata", // India Standard Time (IST)
   },
   async (event) => {
@@ -349,9 +349,4 @@ export const triggerUnifiedAutoPost = onRequest(async (req, res) => {
     });
   }
 });
-
-// Legacy endpoints (backward compatibility) - Will be removed in future
-// Legacy endpoints (backward compatibility) - Will be removed in future
-export {scheduledAutoPost, triggerAutoPost} from "./legacy/character-auto-post";
-export {scheduledFamilyAutoPost} from "./legacy/family-auto-post";
 
