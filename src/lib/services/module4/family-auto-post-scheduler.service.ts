@@ -184,30 +184,11 @@ export class FamilyAutoPostScheduler {
         console.log(`[FamilyAutoPost] 🎨 Using member image for consistency: ${primaryMember.name}`);
         
         try {
-          // Use stored imageBase64, or convert from imageUrl for legacy profiles
-          let memberImageBase64 = primaryMember.imageBase64 || '';
-          
-          if (!memberImageBase64 && primaryMember.imageUrl) {
-            // Fallback for older profiles: fetch and convert imageUrl
-            console.log(`[FamilyAutoPost] Converting imageUrl to base64 (legacy profile)...`);
-            const response = await fetch(primaryMember.imageUrl);
-            if (!response.ok) {
-              throw new Error(`Failed to fetch image: ${response.status}`);
-            }
-            const blob = await response.blob();
-            memberImageBase64 = await new Promise<string>((resolve, reject) => {
-              const reader = new FileReader();
-              reader.onloadend = () => {
-                const base64 = (reader.result as string).split(',')[1];
-                resolve(base64);
-              };
-              reader.onerror = reject;
-              reader.readAsDataURL(blob);
-            });
-          }
+          // Use stored imageBase64 directly (Module 3 style)
+          const memberImageBase64 = primaryMember.imageBase64;
           
           if (!memberImageBase64) {
-            throw new Error('No member image data available');
+            throw new Error('No member imageBase64 available. Please re-upload family member photos.');
           }
 
           // Build enhanced scene prompt
