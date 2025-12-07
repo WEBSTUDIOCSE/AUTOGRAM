@@ -38,9 +38,11 @@ export const UnifiedImageStorageService = {
     fileName?: string
   ): Promise<ImageUploadResult> {
     try {
-      // Validate base64 format
-      if (!imageBase64 || !imageBase64.startsWith('data:image/')) {
-        throw new Error('Invalid base64 image format');
+      // Normalize base64 format - add data URI prefix if missing
+      let normalizedBase64 = imageBase64;
+      if (!imageBase64.startsWith('data:image/')) {
+        // Assume JPEG if no prefix (most common)
+        normalizedBase64 = `data:image/jpeg;base64,${imageBase64}`;
       }
 
       // Generate unique filename
@@ -53,20 +55,20 @@ export const UnifiedImageStorageService = {
 
       // Upload to Firebase Storage
       const storageRef = ref(storage, storagePath);
-      await uploadString(storageRef, imageBase64, 'data_url');
+      await uploadString(storageRef, normalizedBase64, 'data_url');
 
       // Get download URL
       const imageUrl = await getDownloadURL(storageRef);
 
       // Calculate file size
-      const fileSize = this.getBase64Size(imageBase64);
+      const fileSize = this.getBase64Size(normalizedBase64);
 
       console.log(`✅ Image uploaded successfully: ${imageUrl}`);
       console.log(`📊 File size: ${(fileSize / 1024).toFixed(2)} KB`);
 
       return {
         imageUrl,
-        imageBase64, // Return original base64 for storage in Firestore
+        imageBase64: normalizedBase64, // Return normalized base64 with data URI
         fileName: finalFileName,
         fileSize,
       };
