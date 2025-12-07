@@ -23,13 +23,12 @@ setGlobalOptions({
 });
 
 /**
- * Scheduled function that runs every minute to check for auto-posts (TESTING MODE)
- * Runs at: * * * * * (every minute)
- * TODO: Change back to "0 * * * *" (hourly) for production
+ * Scheduled function that runs every hour to check for auto-posts
+ * Runs at: 0 * * * * (every hour at minute 0)
  */
 export const scheduledAutoPost = onSchedule(
   {
-    schedule: "* * * * *", // Every minute (for testing)
+    schedule: "0 * * * *", // Every hour at minute 0
     timeZone: "Asia/Kolkata", // India Standard Time (IST)
   },
   async (event) => {
@@ -210,12 +209,11 @@ async function executeAutoPost(userId: string, scheduledTime: string, config: an
 
 /**
  * Scheduled function for Family Auto Poster (Module 4)
- * Runs every minute for testing
- * TODO: Change to hourly "0 * * * *" for production
+ * Runs every hour at minute 0
  */
 export const scheduledFamilyAutoPost = onSchedule(
   {
-    schedule: "* * * * *", // Every minute (for testing)
+    schedule: "0 * * * *", // Every hour at minute 0
     timeZone: "Asia/Kolkata", // India Standard Time (IST)
   },
   async (event) => {
