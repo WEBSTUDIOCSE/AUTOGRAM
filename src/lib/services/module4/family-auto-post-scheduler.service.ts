@@ -59,6 +59,16 @@ export class FamilyAutoPostScheduler {
 
       // Get all active family profiles for this user
       const profiles = await FamilyProfileService.getUserProfiles(userId);
+      console.log(`[FamilyAutoPost] Total profiles found: ${profiles.length}`);
+      
+      // Debug each profile
+      profiles.forEach(p => {
+        console.log(`[FamilyAutoPost] Profile: ${p.profileName} (${p.id})`);
+        console.log(`[FamilyAutoPost]   - isActive: ${p.isActive}`);
+        console.log(`[FamilyAutoPost]   - postingTimes: ${JSON.stringify(p.postingTimes)}`);
+        console.log(`[FamilyAutoPost]   - includes ${currentTimeStr}: ${p.postingTimes?.includes(currentTimeStr)}`);
+      });
+      
       const activeProfiles = profiles.filter(p => 
         p.isActive && 
         p.postingTimes && 
