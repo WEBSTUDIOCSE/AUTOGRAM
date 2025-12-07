@@ -1,7 +1,7 @@
 /**
- * Firebase Cloud Functions for Autogram Auto-Posting
- * UNIFIED SCHEDULER - Single function handles all modules dynamically
- * Adding new modules only requires updating MODULES array - no other code changes!
+ * Unified Firebase Cloud Functions for Auto-Posting
+ * Single scheduler that works across all modules dynamically
+ * Eliminates code duplication and makes adding new modules trivial
  */
 
 import {setGlobalOptions} from "firebase-functions/v2";
@@ -350,8 +350,7 @@ export const triggerUnifiedAutoPost = onRequest(async (req, res) => {
   }
 });
 
-// Legacy endpoints (backward compatibility) - Will be removed in future
-// Legacy endpoints (backward compatibility) - Will be removed in future
-export {scheduledAutoPost, triggerAutoPost} from "./legacy/character-auto-post";
+// Keep old endpoints for backward compatibility (deprecated)
+export {scheduledAutoPost} from "./legacy/character-auto-post";
 export {scheduledFamilyAutoPost} from "./legacy/family-auto-post";
-
+export {triggerAutoPost} from "./legacy/character-auto-post";
