@@ -63,7 +63,7 @@ export function FamilyAutoPostSettings({ profile: initialProfile, onBack }: Fami
 
   // Auto-post settings state
   const [isAutoPostEnabled, setIsAutoPostEnabled] = useState(false);
-  const [newPostingTime, setNewPostingTime] = useState('09:00');
+  const [newPostingTime, setNewPostingTime] = useState('00:00');
   const [isAddingTime, setIsAddingTime] = useState(false);
 
   // Prompt generation
@@ -363,7 +363,7 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
       const updatedTimes = [...(profile.postingTimes || []), newPostingTime].sort();
       await FamilyProfileService.updateProfile(profile.id, { postingTimes: updatedTimes });
       setSuccess('Posting time added successfully!');
-      setNewPostingTime('09:00');
+      setNewPostingTime('00:00');
       await loadData();
     } catch (error) {
       console.error('Error adding posting time:', error);
@@ -614,9 +614,10 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <Sparkles className="mb-4 h-16 w-16 text-muted-foreground" />
-                <h3 className="mb-2 text-lg font-semibold">No prompts available</h3>
-                <p className="mb-6 text-center text-sm text-muted-foreground">
-                  Generate prompts to set up auto-posting
+                <h3 className="mb-2 text-lg font-semibold">No Prompts Yet</h3>
+                <p className="mb-6 text-center text-sm text-muted-foreground max-w-md">
+                  Create prompts to describe the type of content you want to generate for your family. 
+                  You can auto-generate AI-powered prompts or add your own custom prompts.
                 </p>
                 <Button onClick={handleAutoGeneratePrompts} disabled={isGeneratingPrompts}>
                   <Wand2 className="mr-2 h-4 w-4" />
