@@ -126,6 +126,7 @@ Consider ALL of these:
 6. TRENDING TOPICS - what's viral/popular right now (general trends, not news)
 7. Lifestyle themes (fitness, fashion, beauty, food, home decor)
 8. Creative angles (behind-the-scenes, day-in-life, transformation, tips)
+9. DIVERSE locations across India (NOT just Goa/beaches - include cities, heritage sites, mountains, markets, cafes, homes)
 
 CRITICAL: Generate DIVERSE opportunities - mix festivals with lifestyle, trending with seasonal, traditional with modern.
 
@@ -158,13 +159,17 @@ IMPORTANT for contentOpportunities:
 - Add unexpected creative ideas
 - Mark viral/trending topics with isViral: true
 - Score relevance 1-10 based on today's context
+- EMPHASIZE diverse Indian settings (urban cafes, heritage sites, local markets, rooftop gardens, home interiors, NOT just beaches/Goa)
+- Focus on REALISTIC, achievable photo scenarios
 
 Example opportunities (for reference, generate NEW ones):
 - "Monsoon street fashion styling"
 - "Festive home decoration DIY"
 - "Weekend brunch aesthetic goals"
 - "Late night city exploration vibes"
-- "Travel packing hacks reveal"
+- "Heritage walk heritage styling"
+- "Cozy home reading corner"
+- "Local market shopping vibes"
 
 Generate the JSON now:`;
 

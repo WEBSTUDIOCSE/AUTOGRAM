@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log(`[FamilyAutoPost API] Request body:`, JSON.stringify(body, null, 2));
     
-    const { userId, authToken } = body;
+    const { userId, profileId, scheduledTime, authToken } = body;
 
     // Validate required fields
     if (!userId) {
@@ -41,10 +41,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`[FamilyAutoPost API] Received request for user ${userId}`);
+    console.log(`[FamilyAutoPost API] Received request for user ${userId}, profile: ${profileId}, time: ${scheduledTime}`);
 
     // Execute family auto-post workflow
     const currentTime = new Date();
+    console.log(`[FamilyAutoPost API] Executing for scheduled time: ${scheduledTime || 'current time'}`);
     await FamilyAutoPostScheduler.executeAutoPost(userId, currentTime);
 
     const duration = Date.now() - startTime;

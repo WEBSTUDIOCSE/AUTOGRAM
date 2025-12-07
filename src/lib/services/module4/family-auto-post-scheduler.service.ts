@@ -14,7 +14,7 @@ export class FamilyAutoPostScheduler {
    */
   static async wasExecutedThisHour(
     userId: string,
-    scheduleId: string,
+    profileId: string,
     scheduledTime: string
   ): Promise<boolean> {
     const logs = await FamilyLogService.getUserLogs(userId, 10);
@@ -25,11 +25,11 @@ export class FamilyAutoPostScheduler {
 
     const currentTime = new Date();
     
-    // Check if any log exists for this schedule in the current hour
+    // Check if any log exists for this profile in the current hour
     return logs.some((log) => {
       const logTime = new Date(log.executedAt);
       return (
-        log.scheduleId === scheduleId &&
+        log.familyProfileId === profileId &&
         log.scheduledTime === scheduledTime &&
         logTime.getHours() === currentTime.getHours() &&
         logTime.getDate() === currentTime.getDate() &&
@@ -50,31 +50,31 @@ export class FamilyAutoPostScheduler {
       console.log(`[FamilyAutoPost] User ID: ${userId}`);
       console.log(`[FamilyAutoPost] Current Time: ${currentTime.toISOString()}`);
 
-      // Get all enabled schedules for the user
-      const schedules = await FamilyScheduleService.getEnabledSchedules(userId);
+      // Get current time in HH:mm format
+      const hours = currentTime.getHours().toString().padStart(2, '0');
+      const minutes = currentTime.getMinutes().toString().padStart(2, '0');
+      const currentTimeStr = `${hours}:${minutes}`;
       
-      if (schedules.length === 0) {
-        console.log(`[FamilyAutoPost] ⚠️ No enabled schedules found for user ${userId}`);
-        return;
-      }
+      console.log(`[FamilyAutoPost] Current Time String: ${currentTimeStr}`);
 
-      console.log(`[FamilyAutoPost] Found ${schedules.length} enabled schedule(s)`);
-
-      // Filter schedules that should run at the current time
-      const schedulesToRun = schedules.filter((schedule) =>
-        FamilyScheduleService.shouldRunSchedule(schedule, currentTime)
+      // Get all active family profiles for this user
+      const profiles = await FamilyProfileService.getUserProfiles(userId);
+      const activeProfiles = profiles.filter(p => 
+        p.isActive && 
+        p.postingTimes && 
+        p.postingTimes.includes(currentTimeStr)
       );
 
-      if (schedulesToRun.length === 0) {
-        console.log(`[FamilyAutoPost] ⚠️ No schedules due to run at this time`);
+      if (activeProfiles.length === 0) {
+        console.log(`[FamilyAutoPost] ⚠️ No active profiles with posting time ${currentTimeStr} for user ${userId}`);
         return;
       }
 
-      console.log(`[FamilyAutoPost] ${schedulesToRun.length} schedule(s) due to run`);
+      console.log(`[FamilyAutoPost] Found ${activeProfiles.length} profile(s) scheduled for ${currentTimeStr}`);
 
-      // Process each schedule
-      for (const schedule of schedulesToRun) {
-        await this.processSchedule(userId, schedule, currentTime);
+      // Process each profile
+      for (const profile of activeProfiles) {
+        await this.processProfile(userId, profile, currentTimeStr);
       }
 
       const duration = Date.now() - startTime;
@@ -89,42 +89,27 @@ export class FamilyAutoPostScheduler {
   }
 
   /**
-   * Process a single schedule
+   * Process a single profile
    */
-  private static async processSchedule(
+  private static async processProfile(
     userId: string,
-    schedule: FamilyAutoPostSchedule,
-    currentTime: Date
+    profile: FamilyProfile,
+    scheduledTime: string
   ): Promise<void> {
     try {
-      console.log(`[FamilyAutoPost] Processing schedule ${schedule.id}...`);
+      console.log(`[FamilyAutoPost] Processing profile: ${profile.profileName} (${profile.id})...`);
 
       // Check if already executed this hour
       const alreadyExecuted = await this.wasExecutedThisHour(
         userId,
-        schedule.id,
-        schedule.time
+        profile.id,
+        scheduledTime
       );
 
       if (alreadyExecuted) {
-        console.log(`[FamilyAutoPost] ⚠️ Schedule already executed this hour - SKIPPING`);
+        console.log(`[FamilyAutoPost] ⚠️ Profile already posted this hour - SKIPPING`);
         return;
       }
-
-      // Get family profile
-      const profile = await FamilyProfileService.getProfile(schedule.familyProfileId);
-      if (!profile || !profile.isActive) {
-        console.error(`[FamilyAutoPost] ❌ Family profile not found or inactive`);
-        await this.logFailure(
-          userId,
-          schedule,
-          'Family profile not found or inactive',
-          profile?.profileName || 'Unknown'
-        );
-        return;
-      }
-
-      console.log(`[FamilyAutoPost] ✅ Profile: ${profile.profileName}`);
 
       // Validate Instagram account
       const instagramAccount = InstagramService.getAccountById(profile.instagramAccountId);
@@ -132,7 +117,8 @@ export class FamilyAutoPostScheduler {
         console.error(`[FamilyAutoPost] ❌ Instagram account not available`);
         await this.logFailure(
           userId,
-          schedule,
+          profile.id,
+          scheduledTime,
           'Instagram account not available or inactive',
           profile.profileName
         );
@@ -141,39 +127,36 @@ export class FamilyAutoPostScheduler {
 
       console.log(`[FamilyAutoPost] ✅ Instagram: @${instagramAccount.username || instagramAccount.name}`);
 
-      // Get prompt template
-      const prompt = await FamilyPromptService.getPrompts(userId, profile.id).then(
-        (prompts) => prompts.find((p) => p.id === schedule.promptTemplateId)
-      );
+      // Get a random prompt (prompts are now dynamic, no schedule needed)
+      const allPrompts = await FamilyPromptService.getPrompts(userId, profile.id);
+      const activePrompts = allPrompts.filter(p => p.isActive);
 
-      if (!prompt || !prompt.isActive) {
-        console.error(`[FamilyAutoPost] ❌ Prompt template not found or inactive`);
+      if (activePrompts.length === 0) {
+        console.error(`[FamilyAutoPost] ❌ No active prompts found`);
         await this.logFailure(
           userId,
-          schedule,
-          'Prompt template not found or inactive',
+          profile.id,
+          scheduledTime,
+          'No active prompts found. Please add prompts in the Family Auto Poster settings.',
           profile.profileName
         );
         return;
       }
 
-      console.log(`[FamilyAutoPost] ✅ Prompt: "${prompt.basePrompt}"`);
+      // Select a random prompt
+      const prompt = activePrompts[Math.floor(Math.random() * activePrompts.length)];
+      console.log(`[FamilyAutoPost] ✅ Selected Prompt: "${prompt.basePrompt}"`);
 
-      // Build family context
-      const membersForCategory = schedule.category === 'custom' 
-        ? profile.members 
-        : FamilyProfileService.getMembersByCategory(
-            profile.members,
-            schedule.category as 'couple' | 'family' | 'kids'
-          );
-      const familyContext = FamilyProfileService.buildFamilyContext(membersForCategory);
+      // Build family context from all members
+      const familyContext = FamilyProfileService.buildFamilyContext(profile.members);
 
       if (!familyContext) {
-        console.error(`[FamilyAutoPost] ❌ No family members for category ${schedule.category}`);
+        console.error(`[FamilyAutoPost] ❌ No family members available`);
         await this.logFailure(
           userId,
-          schedule,
-          `No family members available for category: ${schedule.category}`,
+          profile.id,
+          scheduledTime,
+          'No family members available in profile',
           profile.profileName
         );
         return;
@@ -284,9 +267,11 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
       // Post to Instagram
       console.log(`[FamilyAutoPost] Posting to Instagram...`);
       try {
-        // Instagram posting - placeholder for now
-        // TODO: Implement InstagramService.postToInstagram method
-        const instagramPostId = 'placeholder_' + Date.now();
+        const instagramPostId = await InstagramService.postImage(
+          imageUrl,
+          `${caption}\n\n${hashtags}`,
+          profile.instagramAccountId
+        );
         console.log(`[FamilyAutoPost] ✅ Posted to Instagram: ${instagramPostId}`);
 
         // Update prompt usage
@@ -297,8 +282,8 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
           userId,
           familyProfileId: profile.id,
           familyProfileName: profile.profileName,
-          scheduleId: schedule.id,
-          category: schedule.category,
+          scheduleId: profile.id, // Use profile ID as schedule ID
+          category: prompt.category,
           basePrompt: prompt.basePrompt,
           generatedPrompt,
           familyContext,
@@ -308,17 +293,18 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
           instagramPostId,
           instagramAccountId: instagramAccount.id,
           instagramAccountName: instagramAccount.name,
-          scheduledTime: schedule.time,
+          scheduledTime: scheduledTime,
           status: 'success',
         });
 
-        console.log(`[FamilyAutoPost] ✅ Schedule completed successfully`);
+        console.log(`[FamilyAutoPost] ✅ Profile completed successfully`);
 
       } catch (instagramError) {
         console.error(`[FamilyAutoPost] ❌ Instagram posting failed:`, instagramError);
         await this.logFailure(
           userId,
-          schedule,
+          profile.id,
+          scheduledTime,
           `Instagram posting failed: ${instagramError instanceof Error ? instagramError.message : 'Unknown error'}`,
           profile.profileName,
           generatedPrompt,
@@ -330,12 +316,13 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
       }
 
     } catch (error) {
-      console.error(`[FamilyAutoPost] ❌ Error processing schedule:`, error);
+      console.error(`[FamilyAutoPost] ❌ Error processing profile:`, error);
       await this.logFailure(
         userId,
-        schedule,
+        profile.id,
+        scheduledTime,
         error instanceof Error ? error.message : 'Unknown error occurred',
-        'Unknown'
+        profile.profileName
       );
     }
   }
@@ -376,7 +363,8 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
    */
   private static async logFailure(
     userId: string,
-    schedule: FamilyAutoPostSchedule,
+    profileId: string,
+    scheduledTime: string,
     error: string,
     profileName: string,
     generatedPrompt?: string,
@@ -388,10 +376,10 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
     try {
       await FamilyLogService.createLog({
         userId,
-        familyProfileId: schedule.familyProfileId,
+        familyProfileId: profileId,
         familyProfileName: profileName,
-        scheduleId: schedule.id,
-        category: schedule.category,
+        scheduleId: profileId, // Use profile ID as schedule ID
+        category: 'family', // Default category
         basePrompt: '',
         generatedPrompt: generatedPrompt || '',
         familyContext: familyContext || '',
@@ -400,7 +388,7 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
         hashtags: hashtags || '',
         instagramAccountId: '',
         instagramAccountName: '',
-        scheduledTime: schedule.time,
+        scheduledTime: scheduledTime,
         status: 'failed',
         error,
       });
@@ -408,4 +396,5 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
       console.error('[FamilyAutoPost] Failed to log error:', logError);
     }
   }
+}
 }

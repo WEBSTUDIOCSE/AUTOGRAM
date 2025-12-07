@@ -23,16 +23,17 @@ setGlobalOptions({
 });
 
 /**
- * Scheduled function that runs every hour to check for auto-posts
- * Runs at: 0 * * * * (every hour at :00)
+ * Scheduled function that runs every minute to check for auto-posts (TESTING MODE)
+ * Runs at: * * * * * (every minute)
+ * TODO: Change back to "0 * * * *" (hourly) for production
  */
 export const scheduledAutoPost = onSchedule(
   {
-    schedule: "0 * * * *", // Every hour at :00
+    schedule: "* * * * *", // Every minute (for testing)
     timeZone: "Asia/Kolkata", // India Standard Time (IST)
   },
   async (event) => {
-    logger.info("Starting scheduled auto-post check", {timestamp: event.scheduleTime});
+    logger.info("Starting scheduled auto-post check (Module 3)", {timestamp: event.scheduleTime});
 
     try {
       // Get current time in IST (Asia/Kolkata timezone)
@@ -201,6 +202,139 @@ async function executeAutoPost(userId: string, scheduledTime: string, config: an
       caption: "",
       hashtags: "",
       instagramPostId: "",
+    });
+
+    throw error;
+  }
+}
+
+/**
+ * Scheduled function for Family Auto Poster (Module 4)
+ * Runs every minute for testing
+ * TODO: Change to hourly "0 * * * *" for production
+ */
+export const scheduledFamilyAutoPost = onSchedule(
+  {
+    schedule: "* * * * *", // Every minute (for testing)
+    timeZone: "Asia/Kolkata", // India Standard Time (IST)
+  },
+  async (event) => {
+    logger.info("Starting scheduled family auto-post check (Module 4)", {timestamp: event.scheduleTime});
+
+    try {
+      // Get current time in IST
+      const now = new Date();
+      const istTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+      const currentTime = `${istTime.getHours().toString().padStart(2, "0")}:${istTime.getMinutes().toString().padStart(2, "0")}`;
+      
+      logger.info("Current time (Family):", {currentTime, utcTime: now.toISOString(), istTime: istTime.toISOString()});
+
+      // Get all active family profiles with posting times
+      const profilesSnapshot = await db
+        .collection("family_profiles")
+        .where("isActive", "==", true)
+        .get();
+
+      logger.info(`Found ${profilesSnapshot.size} active family profile(s)`);
+
+      if (profilesSnapshot.empty) {
+        logger.info("No active family profiles found");
+        return;
+      }
+
+      // For each profile, check if it has a posting time matching current time
+      const promises = profilesSnapshot.docs.map(async (doc) => {
+        const profileId = doc.id;
+        const profile = doc.data();
+        const userId = profile.userId;
+
+        logger.info(`Checking family profile: ${profile.profileName} (${profileId}) for time ${currentTime}`);
+
+        try {
+          // Check if this profile has the current time in its posting times
+          const hasMatchingTime = profile.postingTimes?.includes(currentTime);
+
+          if (!hasMatchingTime) {
+            logger.info(`Family profile "${profile.profileName}" has no posting scheduled for ${currentTime}`);
+            return;
+          }
+
+          logger.info(`Family profile "${profile.profileName}" is scheduled for ${currentTime} - triggering post`);
+
+          // Call the family auto-post execution endpoint
+          await executeFamilyAutoPost(userId, profileId, currentTime);
+          logger.info(`Successfully executed family auto-post for profile: ${profile.profileName}`);
+        } catch (error) {
+          logger.error(`Failed to execute family auto-post for profile ${profileId}:`, error);
+        }
+      });
+
+      await Promise.all(promises);
+      logger.info("Completed scheduled family auto-post check");
+    } catch (error) {
+      logger.error("Error in scheduled family auto-post:", error);
+      throw error;
+    }
+  }
+);
+
+/**
+ * Execute family auto-post by calling the Next.js API endpoint
+ */
+async function executeFamilyAutoPost(userId: string, profileId: string, scheduledTime: string) {
+  logger.info(`Executing family auto-post for user ${userId}, profile ${profileId} at ${scheduledTime}`);
+
+  try {
+    // Call the Next.js API endpoint on Vercel
+    const apiUrl = "https://autogram-orpin.vercel.app/api/family-auto-post";
+    const authToken = "autogram-auto-post-secret-2024"; // Should match process.env.AUTO_POST_SECRET_TOKEN
+
+    logger.info(`Calling Family API endpoint: ${apiUrl}`);
+
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId,
+        profileId,
+        scheduledTime,
+        authToken,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`API call failed: ${errorData.error || response.statusText}`);
+    }
+
+    const result = await response.json();
+    logger.info(`Family API response:`, result);
+
+    if (!result.success) {
+      throw new Error(`Family auto-post failed: ${result.error}`);
+    }
+
+    logger.info(`Family auto-post completed successfully for user ${userId}, profile ${profileId}`);
+  } catch (error) {
+    logger.error("Error executing family auto-post:", error);
+    
+    // Save error log
+    await db.collection("family_auto_post_logs").add({
+      userId,
+      familyProfileId: profileId,
+      familyProfileName: "",
+      scheduledTime,
+      executedAt: new Date().toISOString(),
+      status: "failed",
+      error: error instanceof Error ? error.message : "Unknown error",
+      generatedPrompt: "",
+      generatedImageUrl: "",
+      caption: "",
+      hashtags: "",
+      instagramPostId: "",
+      instagramAccountId: "",
     });
 
     throw error;

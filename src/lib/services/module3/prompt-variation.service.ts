@@ -179,7 +179,7 @@ export class PromptVariationService {
 
     const creativityLevel = settings.creativityLevel || 'medium';
 
-    const prompt = `You are creating a UNIQUE, NON-REPETITIVE image generation prompt for Instagram.
+    const prompt = `You are creating a UNIQUE, NON-REPETITIVE image generation prompt for Instagram that will generate PHOTOREALISTIC images.
 
 CHARACTER: "${character.name}"
 BASE VISUAL STYLE: ${basePrompt}
@@ -204,14 +204,26 @@ Task: Create a NEW, SPECIFIC image generation prompt that:
 6. Is appropriate for Instagram
 7. Uses concrete visual elements (lighting, setting, mood, composition)
 
+PHOTOREALISM REQUIREMENTS (CRITICAL):
+- ALWAYS include: "photorealistic, natural lighting, authentic appearance, realistic skin tones"
+- Specify camera details: "shot on professional camera, natural depth of field"
+- Emphasize realism: "genuine expression, realistic textures, natural shadows"
+- Avoid: artificial, cartoon-like, overly edited, fake-looking elements
+
+LOCATION DIVERSITY (IMPORTANT):
+- AVOID overusing: Goa, beaches (unless highly relevant to opportunity)
+- USE DIVERSE Indian locations: Mumbai streets, Delhi markets, Jaipur palaces, Kerala backwaters, Bangalore cafes, Kolkata heritage sites, Udaipur lakes, Varanasi ghats, Himachal mountains, Rajasthan deserts, local parks, home settings, urban cafes, traditional homes
+- Be SPECIFIC with locations (not just "beach" but "quiet fishing village pier" or "rooftop garden overlooking city")
+
 IMPORTANT:
 - Keep character's core appearance/style
-- Be SPECIFIC (not "festive look" but "silver-sequined lehenga with golden zari work, diya decorations")
-- Make it visually rich and detailed
-- Avoid clichés and overused phrases
+- Be SPECIFIC (not "festive look" but "silver-sequined lehenga with golden zari work, diya decorations, shot in natural evening light")
+- Make it visually rich, detailed, and PHOTOREALISTIC
+- Avoid clichés, overused locations (especially Goa), and generic phrases
+- Include realistic lighting description (golden hour, soft window light, evening glow, etc.)
 - Output ONLY the prompt, no explanations or meta-text
 
-Generate the prompt now:`;
+Generate the photorealistic prompt now:`;
 
     const response = await genAI.models.generateContent({
       model: modelName,
