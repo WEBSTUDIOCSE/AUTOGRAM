@@ -1,8 +1,9 @@
 import { FamilyProfileService, FamilyScheduleService, FamilyPromptService, FamilyLogService } from './index';
 import { AIService } from '../ai.service';
 import { CharacterAIService } from '../character-ai.service';
-import { StorageService } from '../storage.service';
+import { UnifiedImageStorageService } from '../unified/image-storage.service';
 import { InstagramService } from '../instagram.service';
+import { CharacterPostService } from '../character-post.service';
 import type { FamilyProfile, FamilyAutoPostSchedule, FamilyPromptTemplate } from '@/lib/firebase/config/types';
 
 /**
@@ -245,14 +246,15 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
         generatedHashtags = await this.generateHashtags(prompt.category);
       }
 
-      // Upload to storage
+      // Upload to storage using UnifiedImageStorageService
       console.log(`[FamilyAutoPost] Uploading image...`);
-      const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
-      const imageUrl = await StorageService.uploadImage(
-        base64Data,
+      const uploadResult = await UnifiedImageStorageService.uploadImage(
+        imageBase64,
         userId,
-        'module4'
+        'module4/family_posts'
       );
+      const imageUrl = uploadResult.imageUrl;
+      const storedImageBase64 = uploadResult.imageBase64;
       console.log(`[FamilyAutoPost] ✅ Image uploaded: ${imageUrl}`);
 
       // Use generated or fallback caption/hashtags
@@ -268,6 +270,25 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
           profile.instagramAccountId
         );
         console.log(`[FamilyAutoPost] ✅ Posted to Instagram: ${instagramPostId}`);
+
+        // Save to character_posts collection for unified post history
+        await CharacterPostService.createPost({
+          userId,
+          moduleType: 'module4',
+          characterId: profile.id,
+          characterName: profile.profileName,
+          prompt: generatedPrompt,
+          generatedImageBase64: storedImageBase64,
+          generatedImageUrl: imageUrl,
+          caption,
+          hashtags,
+          instagramAccountId: instagramAccount.id,
+          instagramAccountName: instagramAccount.name,
+          postedToInstagram: true,
+          instagramPostId: instagramPostId,
+          model: 'gemini-1.5-flash',
+        });
+        console.log(`[FamilyAutoPost] ✅ Saved to post history`);
 
         // Update prompt usage
         await FamilyPromptService.incrementUsage(prompt.id);

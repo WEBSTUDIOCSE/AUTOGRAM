@@ -71,13 +71,19 @@ REMEMBER: This should look like a real photograph taken with a professional came
       console.log('🎨 Generating character scene with Gemini...');
       console.log('📝 Scene prompt:', scenePrompt);
 
+      // Strip data URI prefix if present (Gemini expects raw base64)
+      let rawBase64 = characterBase64;
+      if (characterBase64.includes(',')) {
+        rawBase64 = characterBase64.split(',')[1];
+      }
+
       // Align with Gemini documentation - simpler prompt structure
       const prompt = [
         { text: fullPrompt },
         {
           inlineData: {
             mimeType: 'image/jpeg',
-            data: characterBase64,
+            data: rawBase64,
           },
         },
       ];

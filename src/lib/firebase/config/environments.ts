@@ -51,7 +51,7 @@ const UAT_INSTAGRAM: InstagramConfig = {
             id: "account_17841473226055306",
             name: "Instagram Account 2",
             username: "", // Will be fetched from Instagram API
-            accessToken: "EAAKc24FnljoBQEOueQh30pSRBCTjj5Vwlvzp2AjNP2gyKRh42SR3iER4jDC8oDP3cF17is7Bb0ZBBNNBbIZCXqa6p30fJi0ZCF01WEjiEcri3UAVSk8vPAjUf8TgvO5ghVQjfxkaZAZA8eKh45RHgKMiyOtKC3oK1gNNlcXy7BZAFAuONor8kjRWCo2JN4NvOY1RDN24CA",
+            accessToken: "IGAALfnYsBukdBZAFlRY0x3VVpFY2R0TURjMHFiM1c1dERGN0NnQVhvUWVGVzVLUDlHTXI5SVVlRnFiTXM0NUNPaW9PSG9nZAzhpaWRDbi1YYmhkcFNBTzJ3aXNlMHhVWHcyWmFwajJ0RVBJNzNTT0lCM0FtMGlteU94bXpYdnVPRQZDZD",
             accountId: "17841473226055306",
             appId: "735416536241722",
             appSecret: "fc930595adbf59bdb747f9c93c44dc23",

@@ -4,8 +4,9 @@ import { PromptVariationService } from './prompt-variation.service';
 import { AutoPostLogService } from './auto-post-log.service';
 import { CharacterService } from '../character.service';
 import { CharacterAIService } from '../character-ai.service';
-import { StorageService } from '../storage.service';
+import { UnifiedImageStorageService } from '../unified/image-storage.service';
 import { InstagramService } from '../instagram.service';
+import { CharacterPostService } from '../character-post.service';
 import { ErrorNotificationService } from '../error-notification.service';
 import type { Character, AutoPostConfig, PromptTemplate } from '@/lib/firebase/config/types';
 
@@ -191,16 +192,16 @@ export class AutoPostSchedulerService {
           stepTimer.steps.push({ step: 7, name: 'AI Image Generation', duration: Date.now() - step7Start });
           console.log(`[AutoPost] ✅ Image generated (${result.imageBase64.length} bytes)`);
 
-          // Step 8: Upload to Firebase Storage
+          // Step 8: Upload to Firebase Storage using UnifiedImageStorageService
           console.log(`[AutoPost] STEP 8: Uploading to Firebase Storage...`);
           const step8Start = Date.now();
-          const base64 = result.imageBase64.replace(/^data:image\/\w+;base64,/, '');
-          const imageUrl = await StorageService.uploadImage(
-            base64,
+          const uploadResult = await UnifiedImageStorageService.uploadImage(
+            result.imageBase64,
             userId,
-            'module3',
-            'auto-generated'
+            'module3/auto_posts'
           );
+          const imageUrl = uploadResult.imageUrl;
+          const storedImageBase64 = uploadResult.imageBase64;
           stepTimer.steps.push({ step: 8, name: 'Upload Storage', duration: Date.now() - step8Start });
           console.log(`[AutoPost] ✅ Uploaded: ${imageUrl}`);
 
@@ -219,6 +220,30 @@ export class AutoPostSchedulerService {
           );
           stepTimer.steps.push({ step: 9, name: 'Instagram Post', duration: Date.now() - step9Start });
           console.log(`[AutoPost] ✅ Posted! Instagram ID: ${instagramPostId}`);
+
+          // Save to unified character_posts for post history display
+          try {
+            await CharacterPostService.createPost({
+              userId,
+              moduleType: 'module3',
+              characterId: selectedCharacter.id,
+              characterName: selectedCharacter.name,
+              prompt: generatedPrompt,
+              generatedImageBase64: storedImageBase64,
+              generatedImageUrl: imageUrl,
+              caption: result.caption,
+              hashtags: result.hashtags,
+              instagramAccountId: assignedAccount.accountId,
+              instagramAccountName: assignedAccount.username || assignedAccount.name,
+              postedToInstagram: true,
+              instagramPostId,
+              model: 'gemini-1.5-flash'
+            });
+            console.log(`[AutoPost] ✅ Saved to unified character_posts collection`);
+          } catch (postError) {
+            console.error('[AutoPost] ⚠️ Failed to save to character_posts:', postError);
+            // Don't throw - post was successful, this is just for history display
+          }
 
           // Step 10: Save log
           console.log(`[AutoPost] STEP 10: Saving execution log...`);
