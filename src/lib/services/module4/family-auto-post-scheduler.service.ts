@@ -42,20 +42,14 @@ export class FamilyAutoPostScheduler {
   /**
    * Main function to execute family auto-posts for a user
    */
-  static async executeAutoPost(userId: string, currentTime: Date): Promise<void> {
+  static async executeAutoPost(userId: string, scheduledTime: string): Promise<void> {
     const startTime = Date.now();
     
     try {
       console.log(`[FamilyAutoPost] ━━━━━ STARTING FAMILY AUTO-POST WORKFLOW ━━━━━`);
       console.log(`[FamilyAutoPost] User ID: ${userId}`);
-      console.log(`[FamilyAutoPost] Current Time: ${currentTime.toISOString()}`);
-
-      // Get current time in HH:mm format
-      const hours = currentTime.getHours().toString().padStart(2, '0');
-      const minutes = currentTime.getMinutes().toString().padStart(2, '0');
-      const currentTimeStr = `${hours}:${minutes}`;
-      
-      console.log(`[FamilyAutoPost] Current Time String: ${currentTimeStr}`);
+      console.log(`[FamilyAutoPost] Scheduled Time: ${scheduledTime}`);
+      console.log(`[FamilyAutoPost] Current Time: ${new Date().toISOString()}`);
 
       // Get all active family profiles for this user
       const profiles = await FamilyProfileService.getUserProfiles(userId);
@@ -66,25 +60,25 @@ export class FamilyAutoPostScheduler {
         console.log(`[FamilyAutoPost] Profile: ${p.profileName} (${p.id})`);
         console.log(`[FamilyAutoPost]   - isActive: ${p.isActive}`);
         console.log(`[FamilyAutoPost]   - postingTimes: ${JSON.stringify(p.postingTimes)}`);
-        console.log(`[FamilyAutoPost]   - includes ${currentTimeStr}: ${p.postingTimes?.includes(currentTimeStr)}`);
+        console.log(`[FamilyAutoPost]   - includes ${scheduledTime}: ${p.postingTimes?.includes(scheduledTime)}`);
       });
       
       const activeProfiles = profiles.filter(p => 
         p.isActive && 
         p.postingTimes && 
-        p.postingTimes.includes(currentTimeStr)
+        p.postingTimes.includes(scheduledTime)
       );
 
       if (activeProfiles.length === 0) {
-        console.log(`[FamilyAutoPost] ⚠️ No active profiles with posting time ${currentTimeStr} for user ${userId}`);
+        console.log(`[FamilyAutoPost] ⚠️ No active profiles with posting time ${scheduledTime} for user ${userId}`);
         return;
       }
 
-      console.log(`[FamilyAutoPost] Found ${activeProfiles.length} profile(s) scheduled for ${currentTimeStr}`);
+      console.log(`[FamilyAutoPost] Found ${activeProfiles.length} profile(s) scheduled for ${scheduledTime}`);
 
       // Process each profile
       for (const profile of activeProfiles) {
-        await this.processProfile(userId, profile, currentTimeStr);
+        await this.processProfile(userId, profile, scheduledTime);
       }
 
       const duration = Date.now() - startTime;

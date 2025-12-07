@@ -291,32 +291,47 @@ async function executeFamilyAutoPost(userId: string, profileId: string, schedule
 
     logger.info(`Calling Family API endpoint: ${apiUrl}`);
 
-    const response = await fetch(apiUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId,
-        profileId,
-        scheduledTime,
-        authToken,
-      }),
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 540000); // 9 minutes timeout
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`API call failed: ${errorData.error || response.statusText}`);
+    try {
+      const response = await fetch(apiUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          profileId,
+          scheduledTime,
+          authToken,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      logger.info(`Family API response received - Status: ${response.status}`);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        logger.error(`API error response: ${errorText}`);
+        throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      logger.info(`Family API response status: ${response.status}`);
+      logger.info(`Family API response data:`, JSON.stringify(result, null, 2));
+
+      if (!result.success) {
+        throw new Error(`Family auto-post failed: ${result.error}`);
+      }
+
+      logger.info(`Family auto-post completed successfully for user ${userId}, profile ${profileId}`);
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
     }
-
-    const result = await response.json();
-    logger.info(`Family API response:`, result);
-
-    if (!result.success) {
-      throw new Error(`Family auto-post failed: ${result.error}`);
-    }
-
-    logger.info(`Family auto-post completed successfully for user ${userId}, profile ${profileId}`);
   } catch (error) {
     logger.error("Error executing family auto-post:", error);
     

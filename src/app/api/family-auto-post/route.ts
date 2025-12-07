@@ -44,9 +44,8 @@ export async function POST(request: NextRequest) {
     console.log(`[FamilyAutoPost API] Received request for user ${userId}, profile: ${profileId}, time: ${scheduledTime}`);
 
     // Execute family auto-post workflow
-    const currentTime = new Date();
-    console.log(`[FamilyAutoPost API] Executing for scheduled time: ${scheduledTime || 'current time'}`);
-    await FamilyAutoPostScheduler.executeAutoPost(userId, currentTime);
+    console.log(`[FamilyAutoPost API] Executing for scheduled time: ${scheduledTime}`);
+    await FamilyAutoPostScheduler.executeAutoPost(userId, scheduledTime);
 
     const duration = Date.now() - startTime;
     console.log(`[FamilyAutoPost API] ✅ Successfully completed family auto-post for user ${userId}`);
