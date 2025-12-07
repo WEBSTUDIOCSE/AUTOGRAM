@@ -272,7 +272,7 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
         console.log(`[FamilyAutoPost] ✅ Posted to Instagram: ${instagramPostId}`);
 
         // Save to character_posts collection for unified post history
-        await CharacterPostService.createPost({
+        await CharacterPostService.saveCharacterPost({
           userId,
           moduleType: 'module4',
           characterId: profile.id,
@@ -287,6 +287,7 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
           postedToInstagram: true,
           instagramPostId: instagramPostId,
           model: 'gemini-1.5-flash',
+          timestamp: new Date().toISOString()
         });
         console.log(`[FamilyAutoPost] ✅ Saved to post history`);
 

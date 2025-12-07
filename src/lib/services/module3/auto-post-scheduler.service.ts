@@ -223,7 +223,7 @@ export class AutoPostSchedulerService {
 
           // Save to unified character_posts for post history display
           try {
-            await CharacterPostService.createPost({
+            await CharacterPostService.saveCharacterPost({
               userId,
               moduleType: 'module3',
               characterId: selectedCharacter.id,
@@ -237,7 +237,8 @@ export class AutoPostSchedulerService {
               instagramAccountName: assignedAccount.username || assignedAccount.name,
               postedToInstagram: true,
               instagramPostId,
-              model: 'gemini-1.5-flash'
+              model: 'gemini-1.5-flash',
+              timestamp: new Date().toISOString()
             });
             console.log(`[AutoPost] ✅ Saved to unified character_posts collection`);
           } catch (postError) {
