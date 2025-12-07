@@ -13,66 +13,10 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/firebase';
+import { DailyContextService } from '../prompting';
 import type { FamilyPromptTemplate, FamilyPromptCategory } from '@/lib/firebase/config/types';
 
 const COLLECTION_NAME = 'family_prompt_templates';
-
-/**
- * Pre-defined prompts for different family categories
- */
-export const DEFAULT_COUPLE_PROMPTS = [
-  'Romantic dinner date',
-  'Walking hand in hand in the park',
-  'Watching sunset together',
-  'Cooking together in kitchen',
-  'Dancing under the stars',
-  'Sharing a coffee at a cafe',
-  'Beach walk at sunset',
-  'Reading books together',
-  'Having a picnic',
-  'Celebrating anniversary',
-  'Road trip adventure',
-  'Movie night at home',
-  'Exercising together',
-  'Shopping together',
-  'Cozy evening at home',
-];
-
-export const DEFAULT_FAMILY_PROMPTS = [
-  'Family picnic in the garden',
-  'Celebrating birthday party',
-  'Family game night',
-  'Cooking family dinner together',
-  'Watching a movie together',
-  'Family vacation at the beach',
-  'Decorating for holidays',
-  'Family photo session',
-  'Gardening together',
-  'Baking cookies together',
-  'Family barbecue',
-  'Playing board games',
-  'Visiting amusement park',
-  'Family hiking trip',
-  'Celebrating festival together',
-];
-
-export const DEFAULT_KIDS_PROMPTS = [
-  'Playing in the garden',
-  'Drawing and coloring',
-  'Building with blocks',
-  'Reading bedtime story',
-  'Homework time',
-  'Playing with toys',
-  'Bicycle riding in park',
-  'Playing sports',
-  'Arts and crafts time',
-  'Baking with mom',
-  'Playing in the playground',
-  'Learning to ride a bike',
-  'Making science experiments',
-  'Playing dress-up',
-  'Water play in summer',
-];
 
 /**
  * Service for managing family prompt templates for Module 4
@@ -256,18 +200,101 @@ export class FamilyPromptService {
   }
 
   /**
-   * Get default prompts for a category
+   * Get dynamic prompts for a category using DailyContextService
    */
-  static getDefaultPrompts(category: FamilyPromptCategory): string[] {
+  static async getDefaultPrompts(category: FamilyPromptCategory): Promise<string[]> {
+    // For custom category, return empty array
+    if (category === 'custom') {
+      return [];
+    }
+
+    try {
+      // Get daily context opportunities
+      const opportunities = await DailyContextService.getDefaultOpportunities();
+      
+      // Filter and adapt opportunities based on category
+      const categoryPrompts = opportunities
+        .filter(opp => {
+          const theme = `${opp.title} ${opp.description}`.toLowerCase();
+          switch (category) {
+            case 'couple':
+              return theme.includes('romantic') || 
+                     theme.includes('date') || 
+                     theme.includes('together') ||
+                     theme.includes('intimate') ||
+                     theme.includes('cozy') ||
+                     opp.tags.some(tag => tag.toLowerCase().includes('couple'));
+            case 'family':
+              return theme.includes('family') || 
+                     theme.includes('celebration') || 
+                     theme.includes('gathering') ||
+                     theme.includes('together') ||
+                     opp.tags.some(tag => tag.toLowerCase().includes('family'));
+            case 'kids':
+              return theme.includes('play') || 
+                     theme.includes('learn') || 
+                     theme.includes('fun') ||
+                     theme.includes('activity') ||
+                     opp.tags.some(tag => tag.toLowerCase().includes('children') || tag.toLowerCase().includes('kids'));
+            default:
+              return false;
+          }
+        })
+        .map(opp => opp.description)
+        .slice(0, 15); // Limit to 15 prompts
+
+      // If not enough prompts, add generic category-specific ones
+      if (categoryPrompts.length < 10) {
+        const genericPrompts = this.getGenericPromptsByCategory(category);
+        categoryPrompts.push(...genericPrompts.slice(0, 10 - categoryPrompts.length));
+      }
+
+      return categoryPrompts;
+    } catch (error) {
+      console.error('Error getting default prompts:', error);
+      // Fallback to generic prompts
+      return this.getGenericPromptsByCategory(category);
+    }
+  }
+
+  /**
+   * Get generic fallback prompts when dynamic generation fails
+   */
+  private static getGenericPromptsByCategory(category: FamilyPromptCategory): string[] {
     switch (category) {
       case 'couple':
-        return DEFAULT_COUPLE_PROMPTS;
+        return [
+          'Romantic moment together',
+          'Walking hand in hand',
+          'Sharing a special moment',
+          'Enjoying time together',
+          'Cozy evening at home',
+          'Adventure together',
+          'Celebrating love',
+          'Quality time together',
+        ];
       case 'family':
-        return DEFAULT_FAMILY_PROMPTS;
+        return [
+          'Family time together',
+          'Celebrating special moment',
+          'Fun family activity',
+          'Quality family time',
+          'Family bonding moment',
+          'Creating family memories',
+          'Family celebration',
+          'Enjoying together',
+        ];
       case 'kids':
-        return DEFAULT_KIDS_PROMPTS;
-      case 'custom':
-        return [];
+        return [
+          'Playing and having fun',
+          'Learning and exploring',
+          'Creative playtime',
+          'Outdoor activities',
+          'Fun and games',
+          'Imaginative play',
+          'Learning adventure',
+          'Playful moment',
+        ];
       default:
         return [];
     }
@@ -284,7 +311,7 @@ export class FamilyPromptService {
       const categories: FamilyPromptCategory[] = ['couple', 'family', 'kids'];
       
       for (const category of categories) {
-        const defaultPrompts = this.getDefaultPrompts(category);
+        const defaultPrompts = await this.getDefaultPrompts(category);
         
         // Create first 5 prompts from each category as default
         for (let i = 0; i < Math.min(5, defaultPrompts.length); i++) {
@@ -306,7 +333,7 @@ export class FamilyPromptService {
     category: FamilyPromptCategory
   ): Promise<void> {
     try {
-      const defaultPrompts = this.getDefaultPrompts(category);
+      const defaultPrompts = await this.getDefaultPrompts(category);
       
       // Create all default prompts for the specified category
       for (const promptText of defaultPrompts) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Trash2, Sparkles } from 'lucide-react';
 import type { FamilyPromptCategory } from '@/lib/services/module4';
-import { FamilyPromptService, DEFAULT_COUPLE_PROMPTS, DEFAULT_FAMILY_PROMPTS, DEFAULT_KIDS_PROMPTS } from '@/lib/services/module4';
+import { FamilyPromptService } from '@/lib/services/module4';
 
 interface PromptManagerProps {
   userId: string;
@@ -22,6 +22,15 @@ export function PromptManager({ userId, familyProfileId, onPromptsUpdated }: Pro
   const [customPrompt, setCustomPrompt] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
+  const [defaultPrompts, setDefaultPrompts] = useState<string[]>([]);
+
+  useEffect(() => {
+    const loadDefaults = async () => {
+      const prompts = await FamilyPromptService.getDefaultPrompts(category);
+      setDefaultPrompts(prompts.slice(0, 5));
+    };
+    loadDefaults();
+  }, [category]);
 
   const handleAddCustomPrompt = async () => {
     if (!customPrompt.trim()) {
@@ -59,19 +68,6 @@ export function PromptManager({ userId, familyProfileId, onPromptsUpdated }: Pro
       alert('Failed to initialize default prompts');
     } finally {
       setIsInitializing(false);
-    }
-  };
-
-  const getCategoryDefaults = (cat: FamilyPromptCategory): string[] => {
-    switch (cat) {
-      case 'couple':
-        return DEFAULT_COUPLE_PROMPTS.slice(0, 5);
-      case 'family':
-        return DEFAULT_FAMILY_PROMPTS.slice(0, 5);
-      case 'kids':
-        return DEFAULT_KIDS_PROMPTS.slice(0, 5);
-      default:
-        return [];
     }
   };
 
@@ -137,7 +133,7 @@ export function PromptManager({ userId, familyProfileId, onPromptsUpdated }: Pro
             Example {category} prompts:
           </Label>
           <div className="flex flex-wrap gap-2">
-            {getCategoryDefaults(category).map((prompt, idx) => (
+            {defaultPrompts.map((prompt, idx) => (
               <Badge key={idx} variant="outline" className="text-xs">
                 {prompt}
               </Badge>

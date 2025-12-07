@@ -1,6 +1,6 @@
 import { AutoPostConfigService } from './auto-post-config.service';
 import { PromptLibraryService } from '../prompt-library.service';
-import { PromptVariationService } from './prompt-variation.service';
+import { PromptVariationService, type PromptSubject } from '../prompting';
 import { AutoPostLogService } from './auto-post-log.service';
 import { CharacterService } from '../character.service';
 import { CharacterAIService } from '../character-ai.service';
@@ -165,11 +165,19 @@ export class AutoPostSchedulerService {
           // Get variation settings from config (use defaults if not set)
           const variationSettings = config.promptVariationSettings || PromptVariationService.getDefaultSettings();
           
-          // Generate context-aware prompt
+          // Convert Character to PromptSubject for generic variation service
+          const subject: PromptSubject = {
+            name: selectedCharacter.name,
+            description: selectedCharacter.name,
+            visualStyle: promptTemplate.basePrompt
+          };
+          
+          // Generate context-aware prompt using common service
           const promptResult = await PromptVariationService.generateContextualPrompt(
-            selectedCharacter,
+            subject,
             promptTemplate.basePrompt,
-            variationSettings
+            variationSettings,
+            [] // recentThemes - can be implemented later
           );
           const generatedPrompt = promptResult.prompt;
           

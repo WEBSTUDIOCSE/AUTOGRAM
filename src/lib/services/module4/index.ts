@@ -5,7 +5,7 @@
 
 // Core Family Services
 export { FamilyProfileService } from './family-profile.service';
-export { FamilyPromptService, DEFAULT_COUPLE_PROMPTS, DEFAULT_FAMILY_PROMPTS, DEFAULT_KIDS_PROMPTS } from './family-prompt.service';
+export { FamilyPromptService } from './family-prompt.service';
 export { FamilyScheduleService } from './family-schedule.service';
 export { FamilyLogService } from './family-log.service';
 export { FamilyAutoPostScheduler } from './family-auto-post-scheduler.service';

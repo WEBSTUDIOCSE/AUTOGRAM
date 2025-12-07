@@ -4,6 +4,7 @@ import { CharacterAIService } from '../character-ai.service';
 import { UnifiedImageStorageService } from '../unified/image-storage.service';
 import { InstagramService } from '../instagram.service';
 import { CharacterPostService } from '../character-post.service';
+import { PromptVariationService, type PromptSubject } from '../prompting';
 import type { FamilyProfile, FamilyAutoPostSchedule, FamilyPromptTemplate } from '@/lib/firebase/config/types';
 
 /**
@@ -169,9 +170,30 @@ export class FamilyAutoPostScheduler {
 
       console.log(`[FamilyAutoPost] ✅ Family Context: ${familyContext}`);
 
-      // Generate complete prompt
-      const generatedPrompt = `${familyContext} - ${prompt.basePrompt}`;
+      // Convert family profile to PromptSubject for generic variation service
+      const subject: PromptSubject = {
+        name: profile.profileName,
+        description: familyContext,
+        visualStyle: prompt.basePrompt
+      };
+
+      // Get default variation settings (time-aware, context-aware)
+      const variationSettings = PromptVariationService.getDefaultSettings();
+      
+      // Generate context-aware prompt using common service
+      console.log(`[FamilyAutoPost] 🎨 Generating context-aware prompt...`);
+      const promptResult = await PromptVariationService.generateContextualPrompt(
+        subject,
+        prompt.basePrompt,
+        variationSettings,
+        [] // recentThemes - can be implemented later
+      );
+      
+      const generatedPrompt = promptResult.prompt;
       console.log(`[FamilyAutoPost] ✅ Generated Prompt: "${generatedPrompt}"`);
+      console.log(`[FamilyAutoPost] 📝 Context Applied: ${promptResult.contextApplied.join(', ')}`);
+      console.log(`[FamilyAutoPost] 🎯 Tone: ${promptResult.tone}`);
+      console.log(`[FamilyAutoPost] ⏰ Time Context: ${promptResult.timeContext}`);
 
       // Check if we have member images for character-consistent generation
       const membersWithImages = profile.members.filter(m => m.imageBase64 || m.imageUrl);
