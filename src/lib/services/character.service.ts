@@ -252,18 +252,18 @@ export const CharacterService = {
       // Delete from Firestore
       await deleteDoc(doc(db, 'characters', characterId));
       
-      // Delete images from Storage using StorageService
+      // Delete images from Storage using UnifiedImageStorageService
       try {
         // Construct the storage paths and delete
         const originalPath = `users/${userId}/module2/characters/${characterId}/original.jpg`;
-        await StorageService.deleteImage(originalPath);
+        await UnifiedImageStorageService.deleteImage(originalPath);
       } catch (err) {
         console.warn('⚠️ Could not delete original image:', err);
       }
       
       try {
         const thumbnailPath = `users/${userId}/module2/characters/${characterId}/thumbnail.jpg`;
-        await StorageService.deleteImage(thumbnailPath);
+        await UnifiedImageStorageService.deleteImage(thumbnailPath);
       } catch (err) {
         console.warn('⚠️ Could not delete thumbnail:', err);
       }

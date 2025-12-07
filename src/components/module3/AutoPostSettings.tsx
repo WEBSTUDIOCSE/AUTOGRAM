@@ -22,6 +22,7 @@ interface AutoPostSettingsProps {
 export default function AutoPostSettings({ userId, characters }: AutoPostSettingsProps) {
   const [config, setConfig] = useState<AutoPostConfig | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadingAccounts, setLoadingAccounts] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
