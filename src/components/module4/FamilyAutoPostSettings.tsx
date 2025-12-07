@@ -63,7 +63,7 @@ export function FamilyAutoPostSettings({ profile: initialProfile, onBack }: Fami
 
   // Auto-post settings state
   const [isAutoPostEnabled, setIsAutoPostEnabled] = useState(false);
-  const [newPostingTime, setNewPostingTime] = useState('00:00');
+  const [newPostingTime, setNewPostingTime] = useState('');
   const [isAddingTime, setIsAddingTime] = useState(false);
 
   // Prompt generation
@@ -363,7 +363,7 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
       const updatedTimes = [...(profile.postingTimes || []), newPostingTime].sort();
       await FamilyProfileService.updateProfile(profile.id, { postingTimes: updatedTimes });
       setSuccess('Posting time added successfully!');
-      setNewPostingTime('00:00');
+      setNewPostingTime('');
       await loadData();
     } catch (error) {
       console.error('Error adding posting time:', error);

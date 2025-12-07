@@ -12,8 +12,6 @@ interface InstagramAccountCardProps {
   account: InstagramAccount;
   lastPostTime?: string;
   nextScheduledTime?: string;
-  onReconnect: () => void;
-  onViewAnalytics: () => void;
 }
 
 interface InstagramStats {
@@ -28,8 +26,6 @@ export function InstagramAccountCard({
   account,
   lastPostTime,
   nextScheduledTime,
-  onReconnect,
-  onViewAnalytics,
 }: InstagramAccountCardProps) {
   const [stats, setStats] = useState<InstagramStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);

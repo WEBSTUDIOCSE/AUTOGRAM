@@ -26,9 +26,6 @@ export function InstagramAccountsGrid({ userId }: { userId: string }) {
     try {
       const accounts = InstagramService.getAccounts();
       
-      // Get auto-post config for scheduling info
-      const config = await AutoPostConfigService.getConfig(userId);
-      
       // Get recent posts
       const logs = await AutoPostLogService.getUserLogs(userId, 50);
 
@@ -96,10 +93,6 @@ export function InstagramAccountsGrid({ userId }: { userId: string }) {
 
   const handleViewAnalytics = (accountId: string) => {
     router.push(`/dashboard/analytics?account=${accountId}`);
-  };
-
-  const handleAddAccount = () => {
-    router.push('/dashboard/auto-poster?tab=settings');
   };
 
   if (loading) {
