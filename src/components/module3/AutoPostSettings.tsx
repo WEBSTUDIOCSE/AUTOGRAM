@@ -14,22 +14,6 @@ import type { AutoPostConfig, Character } from '@/lib/firebase/config/types';
 import { APIBook } from '@/lib/firebase/services';
 import { InstagramService, type InstagramAccount } from '@/lib/services/instagram.service';
 
-interface TestResultDetails {
-  character: string;
-  promptTemplate: string;
-  instagramAccount: string;
-  totalCharacters: number;
-  totalPrompts: number;
-  postingTimes: string[];
-  timezone: string;
-}
-
-interface TestResult {
-  success: boolean;
-  message: string;
-  details?: TestResultDetails;
-}
-
 interface AutoPostSettingsProps {
   userId: string;
   characters: Character[];
@@ -39,17 +23,14 @@ export default function AutoPostSettings({ userId, characters }: AutoPostSetting
   const [config, setConfig] = useState<AutoPostConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [testing, setTesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [testResult, setTestResult] = useState<TestResult | null>(null);
 
   // Form state
   const [isEnabled, setIsEnabled] = useState(false);
   const [activeCharacterIds, setActiveCharacterIds] = useState<string[]>([]);
   const [minCharacters, setMinCharacters] = useState(1);
   const [availableAccounts, setAvailableAccounts] = useState<InstagramAccount[]>([]);
-  const [loadingAccounts, setLoadingAccounts] = useState(true);
 
   useEffect(() => {
     loadConfig();
@@ -351,30 +332,6 @@ export default function AutoPostSettings({ userId, characters }: AutoPostSetting
           )}
         </CardContent>
       </Card>
-
-      {/* Test Configuration */}
-      {testResult && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Test Results</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Alert variant={testResult.success ? 'default' : 'destructive'}>
-              <AlertDescription>
-                <p className="font-medium">{testResult.message}</p>
-                {testResult.details && (
-                  <div className="mt-2 space-y-1 text-sm">
-                    <p>Character: {testResult.details.character}</p>
-                    <p>Prompt: {testResult.details.promptTemplate}</p>
-                    <p>Account: {testResult.details.instagramAccount}</p>
-                    <p>Schedule: {testResult.details.postingTimes.join(', ')}</p>
-                  </div>
-                )}
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Action Buttons */}
       <div className="flex gap-4">

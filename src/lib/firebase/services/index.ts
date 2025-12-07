@@ -18,6 +18,10 @@ export { InstagramService } from '@/lib/services/instagram.service';
 // Import Storage service
 export { StorageService } from '@/lib/services/storage.service';
 
+// Import Unified Services (cross-module)
+export { UnifiedImageStorageService } from '@/lib/services/unified/image-storage.service';
+export { AutoPostModuleRegistry } from '@/lib/services/unified/auto-post-module-registry.service';
+
 // Import Image service
 export { ImageService } from '@/lib/services/image.service';
 
@@ -54,6 +58,8 @@ import { PaymentService } from './payment.service';
 import { AIService } from '@/lib/services/ai.service';
 import { InstagramService } from '@/lib/services/instagram.service';
 import { StorageService } from '@/lib/services/storage.service';
+import { UnifiedImageStorageService } from '@/lib/services/unified/image-storage.service';
+import { AutoPostModuleRegistry } from '@/lib/services/unified/auto-post-module-registry.service';
 import { ImageService } from '@/lib/services/image.service';
 import { InstagramPostService } from '@/lib/services/module3/post-history.service';
 import { CharacterService } from '@/lib/services/character.service';
@@ -88,6 +94,8 @@ import { ErrorNotificationService } from '@/lib/services/error-notification.serv
  * const logs = await APIBook.autoPostLog.getUserLogs(userId);
  * await APIBook.autoPostScheduler.executeAutoPost(userId, scheduledTime);
  * const errorInfo = APIBook.errorNotification.formatForDisplay(errorMessage);
+ * const upload = await APIBook.unifiedImage.uploadFromFile(file, userId, 'module3');
+ * const modules = APIBook.moduleRegistry.findScheduledItems(userId, currentTime);
  */
 export const APIBook = {
   auth: AuthService,
@@ -95,6 +103,8 @@ export const APIBook = {
   ai: AIService,
   instagram: InstagramService,
   storage: StorageService,
+  unifiedImage: UnifiedImageStorageService, // ⭐ Unified image uploader for all modules
+  moduleRegistry: AutoPostModuleRegistry,   // ⭐ Cross-module scheduler registry
   image: ImageService,
   instagramPost: InstagramPostService,
   character: CharacterService,

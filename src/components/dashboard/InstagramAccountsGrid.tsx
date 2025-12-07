@@ -4,8 +4,6 @@ import { useEffect, useState } from 'react';
 import { InstagramAccountCard } from './InstagramAccountCard';
 import { InstagramService, type InstagramAccount } from '@/lib/services/instagram.service';
 import { AutoPostLogService } from '@/lib/services/module3/auto-post-log.service';
-import { AutoPostConfigService } from '@/lib/services/module3/auto-post-config.service';
-import { useRouter } from 'next/navigation';
 
 interface AccountWithData {
   account: InstagramAccount;
@@ -16,7 +14,6 @@ interface AccountWithData {
 export function InstagramAccountsGrid({ userId }: { userId: string }) {
   const [accountsData, setAccountsData] = useState<AccountWithData[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     loadAccounts();
@@ -87,14 +84,6 @@ export function InstagramAccountsGrid({ userId }: { userId: string }) {
     }
   };
 
-  const handleReconnect = (accountId: string) => {
-    router.push(`/dashboard/auto-poster?reconnect=${accountId}`);
-  };
-
-  const handleViewAnalytics = (accountId: string) => {
-    router.push(`/dashboard/analytics?account=${accountId}`);
-  };
-
   if (loading) {
     return (
       <div className="space-y-4">
@@ -134,8 +123,6 @@ export function InstagramAccountsGrid({ userId }: { userId: string }) {
               account={account}
               lastPostTime={lastPostTime}
               nextScheduledTime={nextScheduledTime}
-              onReconnect={() => handleReconnect(account.accountId)}
-              onViewAnalytics={() => handleViewAnalytics(account.accountId)}
             />
           ))}
         </div>

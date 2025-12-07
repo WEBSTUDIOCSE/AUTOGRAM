@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Plus, X, Upload, User } from 'lucide-react';
 import type { FamilyProfile, FamilyMember, InstagramAccount } from '@/lib/firebase/config/types';
 import { FamilyProfileService } from '@/lib/services/module4';
-import { StorageService } from '@/lib/services/storage.service';
+import { UnifiedImageStorageService } from '@/lib/services/unified/image-storage.service';
 
 interface FamilyProfileFormProps {
   isOpen: boolean;
@@ -115,21 +115,21 @@ export function FamilyProfileForm({
     }
 
     try {
-      // Convert file to base64
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64String = reader.result as string;
-        const base64Data = base64String.split(',')[1];
-        
-        // Upload to Firebase Storage
-        const imageUrl = await StorageService.uploadImage(base64Data, userId, 'module4');
-        
-        // Update member with both imageUrl and imageBase64 (for AI generation)
-        setMembers(
-          members.map((m) => (m.id === memberId ? { ...m, imageUrl, imageBase64: base64Data, imageFile: file } : m))
-        );
-      };
-      reader.readAsDataURL(file);
+      // Upload using UnifiedImageStorageService (returns both imageUrl AND imageBase64)
+      const uploadResult = await UnifiedImageStorageService.uploadFromFile(
+        file,
+        userId,
+        'module4/family_members'
+      );
+      
+      // Update member with BOTH imageUrl and imageBase64 from unified service
+      setMembers(
+        members.map((m) => 
+          m.id === memberId 
+            ? { ...m, imageUrl: uploadResult.imageUrl, imageBase64: uploadResult.imageBase64, imageFile: file } 
+            : m
+        )
+      );
     } catch (error) {
       console.error('Error uploading image:', error);
       alert('Failed to upload image');

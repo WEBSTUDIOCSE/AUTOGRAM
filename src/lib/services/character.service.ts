@@ -13,7 +13,7 @@ import {
   Timestamp 
 } from 'firebase/firestore';
 import { app } from '@/lib/firebase/firebase';
-import { StorageService } from './storage.service';
+import { UnifiedImageStorageService } from './unified/image-storage.service';
 import type { Character } from '@/lib/firebase/config/types';
 
 const db = getFirestore(app);
@@ -52,20 +52,20 @@ export const CharacterService = {
       // Create thumbnail (120x120)
       const thumbnailBase64 = await this.createThumbnail(file, 120, 120);
       
-      // Upload original image to Storage using StorageService
-      const imageUrl = await StorageService.uploadCharacterImage(
+      // Upload original image using UnifiedImageStorageService (returns both URL and base64)
+      const originalUpload = await UnifiedImageStorageService.uploadImage(
         base64,
         userId,
-        characterId,
-        'original'
+        'module3/characters',
+        `${characterId}_original`
       );
       
-      // Upload thumbnail to Storage using StorageService
-      const thumbnailUrl = await StorageService.uploadCharacterImage(
+      // Upload thumbnail using UnifiedImageStorageService
+      const thumbnailUpload = await UnifiedImageStorageService.uploadImage(
         thumbnailBase64,
         userId,
-        characterId,
-        'thumbnail'
+        'module3/characters',
+        `${characterId}_thumbnail`
       );
       
       // Create character document
@@ -73,9 +73,9 @@ export const CharacterService = {
         id: characterId,
         userId,
         name,
-        imageUrl,
-        thumbnailUrl,
-        imageBase64: base64,
+        imageUrl: originalUpload.imageUrl,
+        thumbnailUrl: thumbnailUpload.imageUrl,
+        imageBase64: originalUpload.imageBase64, // Now always saved from UnifiedImageStorageService!
         assignedAccountId, // Link character to Instagram account
         postingTimes: [], // Default empty, user can set custom times
         uploadedAt: new Date().toISOString(),

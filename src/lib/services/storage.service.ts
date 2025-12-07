@@ -70,52 +70,6 @@ export const StorageService = {
   },
 
   /**
-   * Upload character image with specific organization
-   * @param base64Image - Base64 encoded image
-   * @param userId - User ID
-   * @param characterId - Character ID
-   * @param type - 'original' or 'thumbnail'
-   * @returns Download URL
-   */
-  async uploadCharacterImage(
-    base64Image: string,
-    userId: string,
-    characterId: string,
-    type: 'original' | 'thumbnail'
-  ): Promise<string> {
-    try {
-      const byteString = atob(base64Image);
-      const ab = new ArrayBuffer(byteString.length);
-      const ia = new Uint8Array(ab);
-      for (let i = 0; i < byteString.length; i++) {
-        ia[i] = byteString.charCodeAt(i);
-      }
-      const blob = new Blob([ab], { type: 'image/jpeg' });
-
-      // Structure: users/{userId}/module2/characters/{characterId}/{type}.jpg
-      const storagePath = `users/${userId}/module2/characters/${characterId}/${type}.jpg`;
-      const storageRef = ref(storage, storagePath);
-
-      await uploadBytes(storageRef, blob, {
-        contentType: 'image/jpeg',
-        customMetadata: {
-          uploadedAt: new Date().toISOString(),
-          moduleType: 'module2',
-          characterId: characterId,
-          imageType: type
-        }
-      });
-
-      const downloadURL = await getDownloadURL(storageRef);
-      console.log(`✅ Character ${type} uploaded:`, downloadURL);
-      return downloadURL;
-    } catch (error) {
-      console.error('❌ Character image upload error:', error);
-      throw new Error(`Failed to upload character ${type}`);
-    }
-  },
-
-  /**
    * Delete image from Firebase Storage
    * @param imageUrl - Full Firebase Storage URL
    */
