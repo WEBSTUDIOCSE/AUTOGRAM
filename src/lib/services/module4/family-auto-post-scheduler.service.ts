@@ -174,6 +174,13 @@ export class FamilyAutoPostScheduler {
 
       // Check if we have member images for character-consistent generation
       const membersWithImages = profile.members.filter(m => m.imageBase64 || m.imageUrl);
+      console.log(`[FamilyAutoPost] 📸 Members with images: ${membersWithImages.length}`);
+      membersWithImages.forEach((m, idx) => {
+        console.log(`[FamilyAutoPost]   Member ${idx + 1}: ${m.name}`);
+        console.log(`[FamilyAutoPost]     - Has imageBase64: ${!!m.imageBase64} (${m.imageBase64?.substring(0, 50)}...)`);
+        console.log(`[FamilyAutoPost]     - Has imageUrl: ${!!m.imageUrl}`);
+      });
+      
       let imageBase64: string;
       let generatedCaption: string;
       let generatedHashtags: string;
@@ -188,8 +195,11 @@ export class FamilyAutoPostScheduler {
           const memberImageBase64 = primaryMember.imageBase64;
           
           if (!memberImageBase64) {
-            throw new Error('No member imageBase64 available. Please re-upload family member photos.');
+            throw new Error(`Family member "${primaryMember.name}" has no imageBase64. Please re-upload the family member photo in the profile settings to enable face-consistent generation.`);
           }
+
+          console.log(`[FamilyAutoPost] ✅ Using imageBase64 for ${primaryMember.name} (${memberImageBase64.substring(0, 50)}...)`);
+
 
           // Build enhanced scene prompt
           const enhancedPrompt = `${prompt.basePrompt}
