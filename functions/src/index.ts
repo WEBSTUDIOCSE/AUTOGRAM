@@ -132,11 +132,11 @@ const MODULES: AutoPostModule[] = [
 /**
  * Unified Scheduled Auto-Post Function
  * Single scheduler that handles ALL modules dynamically
- * Runs every hour at minute 0
+ * TESTING: Runs every minute
  */
 export const scheduledUnifiedAutoPost = onSchedule(
   {
-    schedule: "0 * * * *", // Every hour at minute 0
+    schedule: "* * * * *", // TESTING: Every minute
     timeZone: "Asia/Kolkata", // India Standard Time (IST)
   },
   async (event) => {
