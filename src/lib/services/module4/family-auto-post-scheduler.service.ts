@@ -234,7 +234,7 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
           }
           imageBase64 = imageResult.data.imageBase64;
           generatedCaption = await this.generateCaption(generatedPrompt, familyContext);
-          generatedHashtags = await this.generateHashtags(schedule.category);
+          generatedHashtags = await this.generateHashtags(prompt.category);
         }
       } else {
         // Standard generation without member images
@@ -247,7 +247,7 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
         }
         imageBase64 = imageResult.data.imageBase64;
         generatedCaption = await this.generateCaption(generatedPrompt, familyContext);
-        generatedHashtags = await this.generateHashtags(schedule.category);
+        generatedHashtags = await this.generateHashtags(prompt.category);
       }
 
       // Upload to storage
@@ -396,5 +396,4 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
       console.error('[FamilyAutoPost] Failed to log error:', logError);
     }
   }
-}
 }
