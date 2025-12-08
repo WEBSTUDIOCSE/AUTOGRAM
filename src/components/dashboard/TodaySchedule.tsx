@@ -5,6 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock } from 'lucide-react';
 import { AutoPostConfigService } from '@/lib/services/module3/auto-post-config.service';
+import { CharacterService } from '@/lib/services/character.service';
+import { FamilyProfileService } from '@/lib/services/module4/family-profile.service';
+import { InstagramService } from '@/lib/services/instagram.service';
 
 interface ScheduledPost {
   time: string;
@@ -36,61 +39,111 @@ export function TodaySchedule({ userId }: { userId: string }) {
         return;
       }
 
-      // TODO: Update for character-specific posting times
-      // For now, show empty schedule
-      setScheduledPosts([]);
-      setLoading(false);
-      return;
-
-      /*
       const now = new Date();
       const today = new Date(now);
       today.setHours(0, 0, 0, 0);
       const tomorrow = new Date(today);
       tomorrow.setDate(tomorrow.getDate() + 1);
 
-      const accounts = InstagramService.getAccounts();
-      const characters = await CharacterService.getUserCharacters(userId);
-
       const posts: ScheduledPost[] = [];
 
-      // Get posts for today and tomorrow
-      [today, tomorrow].forEach((date, dayIndex) => {
-        config.postingTimes.forEach((time, timeIndex) => {
-          const [hours, minutes] = time.split(':').map(Number);
-          const scheduledDate = new Date(date);
-          scheduledDate.setHours(hours, minutes, 0, 0);
+      // Load Module 3 (Characters) schedule
+      try {
+        const characters = await CharacterService.getUserCharacters(userId);
+        const activeCharacters = characters.filter(char => 
+          config.activeCharacterIds.includes(char.id) &&
+          char.postingTimes && 
+          char.postingTimes.length > 0
+        );
 
-          // Only show future posts
-          if (scheduledDate <= now && dayIndex === 0) return;
+        activeCharacters.forEach(character => {
+          character.postingTimes.forEach(time => {
+            const [hours, minutes] = time.split(':').map(Number);
+            
+            // Check today
+            const todayDate = new Date(today);
+            todayDate.setHours(hours, minutes, 0, 0);
+            if (todayDate > now) {
+              const account = InstagramService.getAccountById(character.assignedAccountId);
+              posts.push({
+                time: todayDate.toISOString(),
+                accountId: character.assignedAccountId,
+                accountName: account?.username || account?.name || 'Unknown',
+                characterName: character.name,
+                timeUntil: getTimeUntil(todayDate),
+                isToday: true,
+              });
+            }
 
-          // Determine which account will be used (rotation logic)
-          const accountIndex = (timeIndex + dayIndex) % config.instagramAccounts.length;
-          const accountId = config.instagramAccounts[accountIndex];
-          const account = accounts.find((a) => a.accountId === accountId);
-
-          // Select a random character (simplified - actual logic is in auto-post service)
-          const character = characters[Math.floor(Math.random() * characters.length)];
-
-          const timeUntil = getTimeUntil(scheduledDate);
-
-          posts.push({
-            time: scheduledDate.toISOString(),
-            accountId,
-            accountName: account?.username || account?.accountId || 'Unknown',
-            characterName: character?.name,
-            timeUntil,
-            isToday: dayIndex === 0,
+            // Check tomorrow
+            const tomorrowDate = new Date(tomorrow);
+            tomorrowDate.setHours(hours, minutes, 0, 0);
+            const account = InstagramService.getAccountById(character.assignedAccountId);
+            posts.push({
+              time: tomorrowDate.toISOString(),
+              accountId: character.assignedAccountId,
+              accountName: account?.username || account?.name || 'Unknown',
+              characterName: character.name,
+              timeUntil: getTimeUntil(tomorrowDate),
+              isToday: false,
+            });
           });
         });
-      });
+      } catch (error) {
+        console.error('Error loading character schedules:', error);
+      }
+
+      // Load Module 4 (Family) schedule
+      try {
+        const familyProfiles = await FamilyProfileService.getUserProfiles(userId);
+        const activeProfiles = familyProfiles.filter(profile => 
+          profile.isActive &&
+          profile.postingTimes && 
+          profile.postingTimes.length > 0
+        );
+
+        activeProfiles.forEach(profile => {
+          profile.postingTimes.forEach(time => {
+            const [hours, minutes] = time.split(':').map(Number);
+            
+            // Check today
+            const todayDate = new Date(today);
+            todayDate.setHours(hours, minutes, 0, 0);
+            if (todayDate > now) {
+              const account = InstagramService.getAccountById(profile.instagramAccountId);
+              posts.push({
+                time: todayDate.toISOString(),
+                accountId: profile.instagramAccountId,
+                accountName: account?.username || account?.name || 'Unknown',
+                characterName: `${profile.profileName} (Family)`,
+                timeUntil: getTimeUntil(todayDate),
+                isToday: true,
+              });
+            }
+
+            // Check tomorrow
+            const tomorrowDate = new Date(tomorrow);
+            tomorrowDate.setHours(hours, minutes, 0, 0);
+            const account = InstagramService.getAccountById(profile.instagramAccountId);
+            posts.push({
+              time: tomorrowDate.toISOString(),
+              accountId: profile.instagramAccountId,
+              accountName: account?.username || account?.name || 'Unknown',
+              characterName: `${profile.profileName} (Family)`,
+              timeUntil: getTimeUntil(tomorrowDate),
+              isToday: false,
+            });
+          });
+        });
+      } catch (error) {
+        console.error('Error loading family schedules:', error);
+      }
 
       // Sort by time
       posts.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
 
       // Limit to next 6 posts
       setScheduledPosts(posts.slice(0, 6));
-      */
     } catch (error) {
       console.error('Error loading schedule:', error);
     } finally {

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Instagram, CheckCircle2, ExternalLink } from 'lucide-react';
+import { Instagram, CheckCircle2, ExternalLink, Users, ImageIcon, Clock, Calendar } from 'lucide-react';
 import type { InstagramAccount } from '@/lib/services/instagram.service';
 
 interface InstagramAccountCardProps {
@@ -96,73 +96,97 @@ export function InstagramAccountCard({
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full hover:shadow-lg transition-all duration-200 overflow-hidden">
       <CardHeader className="pb-3">
-        <div className="flex items-start sm:items-center justify-between gap-2 flex-wrap">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-            <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
+        {/* Top Row - Avatar and Badge */}
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <div className="relative flex-shrink-0">
+            <Avatar className="h-16 w-16 sm:h-20 sm:w-20 border-2 border-border shadow-sm">
               <AvatarImage src={stats?.profilePicUrl || account.profilePictureUrl} alt={stats?.username || account.username || account.accountId} />
-              <AvatarFallback>
-                <Instagram className="h-5 w-5 sm:h-6 sm:w-6" />
+              <AvatarFallback className="bg-muted">
+                <Instagram className="h-8 w-8 sm:h-10 sm:w-10 text-muted-foreground" />
               </AvatarFallback>
             </Avatar>
-            <div className="min-w-0 flex-1">
-              <CardTitle className="text-sm sm:text-base flex items-center gap-1.5 flex-wrap">
-                <span className="truncate">@{stats?.username || (loadingStats ? 'Loading...' : account.username || account.accountId)}</span>
-                {account.isActive && (
-                  <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-500 flex-shrink-0" />
-                )}
-              </CardTitle>
-              <p className="text-xs text-muted-foreground truncate">
-                {stats?.name || (loadingStats ? 'Loading...' : account.name || 'Instagram Account')}
-              </p>
-            </div>
+            {account.isActive && (
+              <div className="absolute -bottom-1 -right-1 bg-primary rounded-full p-1.5 border-2 border-background shadow-sm">
+                <CheckCircle2 className="h-3.5 w-3.5 text-primary-foreground" />
+              </div>
+            )}
           </div>
-          <Badge variant={account.isActive ? 'secondary' : 'destructive'}>
+          <Badge 
+            variant={account.isActive ? 'default' : 'destructive'}
+            className="shrink-0 font-semibold px-3 py-1"
+          >
             {account.isActive ? 'Active' : 'Inactive'}
           </Badge>
+        </div>
+        
+        {/* Account Info */}
+        <div className="space-y-1">
+          <CardTitle className="text-lg sm:text-xl font-bold break-words">
+            @{stats?.username || (loadingStats ? 'Loading...' : account.username || account.accountId)}
+          </CardTitle>
+          <p className="text-sm text-muted-foreground break-words line-clamp-2">
+            {stats?.name || (loadingStats ? 'Loading...' : account.name || 'Instagram Account')}
+          </p>
         </div>
       </CardHeader>
 
       <CardContent className="space-y-3">
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="min-w-0">
-            <p className="text-muted-foreground text-xs mb-0.5">Followers</p>
-            <p className="font-semibold truncate">
-              {loadingStats ? 'Loading...' : stats ? formatNumber(stats.followersCount) : 'N/A'}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-muted/40 rounded-lg p-3 sm:p-4 border hover:bg-muted/60 transition-colors">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Users className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+              <p className="text-muted-foreground text-xs font-medium truncate">Followers</p>
+            </div>
+            <p className="font-bold text-xl sm:text-2xl break-words">
+              {loadingStats ? '...' : stats ? formatNumber(stats.followersCount) : 'N/A'}
             </p>
           </div>
-          <div className="min-w-0">
-            <p className="text-muted-foreground text-xs mb-0.5">Posts</p>
-            <p className="font-semibold truncate">
-              {loadingStats ? 'Loading...' : stats ? stats.mediaCount : 'N/A'}
+          <div className="bg-muted/40 rounded-lg p-3 sm:p-4 border hover:bg-muted/60 transition-colors">
+            <div className="flex items-center gap-1.5 mb-2">
+              <ImageIcon className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+              <p className="text-muted-foreground text-xs font-medium truncate">Posts</p>
+            </div>
+            <p className="font-bold text-xl sm:text-2xl break-words">
+              {loadingStats ? '...' : stats ? stats.mediaCount : 'N/A'}
             </p>
           </div>
         </div>
 
         {/* Last Post */}
-        <div className="text-sm min-w-0">
-          <p className="text-muted-foreground text-xs mb-0.5">Last Auto-Post</p>
-          <p className="font-medium truncate">{getTimeAgo(lastPostTime)}</p>
+        <div className="bg-muted/40 rounded-lg p-3 sm:p-4 border hover:bg-muted/60 transition-colors">
+          <div className="flex items-start gap-2.5">
+            <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <p className="text-muted-foreground text-xs font-medium mb-1">Last Auto-Post</p>
+              <p className="font-bold text-sm sm:text-base break-words">{getTimeAgo(lastPostTime)}</p>
+            </div>
+          </div>
         </div>
 
         {/* Next Scheduled */}
-        <div className="text-sm min-w-0">
-          <p className="text-muted-foreground text-xs mb-0.5">Next Scheduled</p>
-          <p className="font-medium truncate">{formatNextTime(nextScheduledTime)}</p>
+        <div className="bg-muted/40 rounded-lg p-3 sm:p-4 border hover:bg-muted/60 transition-colors">
+          <div className="flex items-start gap-2.5">
+            <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <p className="text-muted-foreground text-xs font-medium mb-1">Next Scheduled</p>
+              <p className="font-bold text-sm sm:text-base break-words">{formatNextTime(nextScheduledTime)}</p>
+            </div>
+          </div>
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2 pt-2">
+        <div className="pt-1">
           <Button
             variant="outline"
-            size="sm"
-            className="flex-1 text-xs sm:text-sm"
+            size="default"
+            className="w-full font-semibold hover:bg-accent"
             onClick={() => window.open(`https://instagram.com/${stats?.username || account.username || account.accountId}`, '_blank')}
           >
-            <ExternalLink className="h-3 w-3 mr-1" />
-            <span className="truncate">Instagram</span>
+            <ExternalLink className="h-4 w-4 mr-2 flex-shrink-0" />
+            <span className="truncate">View on Instagram</span>
           </Button>
         </div>
       </CardContent>

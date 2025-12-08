@@ -191,30 +191,30 @@ export default function AutoPostHistory({ userId }: AutoPostHistoryProps) {
                         <AlertDescription>
                           <div className="space-y-2">
                             <p className="font-semibold text-red-900">⚠️ Error Details:</p>
-                            <p className="text-sm text-red-800">{log.error}</p>
+                            <p className="text-sm text-red-800 break-words">{log.error}</p>
                             {log.error.includes('character') && (
-                              <p className="text-xs text-red-700 mt-2">
+                              <p className="text-xs text-red-700 mt-2 break-words">
                                 💡 Tip: Make sure you have uploaded at least {log.error.match(/\d+/)?.[0] || '3'} characters in the Generate tab.
                               </p>
                             )}
                             {log.error.includes('prompt') && (
-                              <p className="text-xs text-red-700 mt-2">
-                                💡 Tip: Make sure you have at least one active prompt template. Generate an image first to save a prompt.
+                              <p className="text-xs text-red-700 mt-2 break-words">
+                                💡 Tip: Make sure you have at least one active prompt template.
                               </p>
                             )}
                             {log.error.includes('Instagram') && (
-                              <p className="text-xs text-red-700 mt-2">
-                                💡 Tip: Check your Instagram account connection and make sure the account is selected in Settings.
+                              <p className="text-xs text-red-700 mt-2 break-words">
+                                💡 Tip: Check your Instagram account connection in Settings.
                               </p>
                             )}
                             {log.error.includes('disabled') && (
-                              <p className="text-xs text-red-700 mt-2">
-                                💡 Tip: Auto-posting was disabled. Enable it in the Settings tab to resume.
+                              <p className="text-xs text-red-700 mt-2 break-words">
+                                💡 Tip: Enable auto-posting in the Settings tab.
                               </p>
                             )}
                             {log.error.includes('API') && (
-                              <p className="text-xs text-red-700 mt-2">
-                                💡 Tip: This may be a temporary API issue. The system will retry at the next scheduled time.
+                              <p className="text-xs text-red-700 mt-2 break-words">
+                                💡 Tip: Temporary API issue. Will retry at next scheduled time.
                               </p>
                             )}
                           </div>

@@ -1,9 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Instagram } from 'lucide-react';
 import { InstagramAccountCard } from './InstagramAccountCard';
 import { InstagramService, type InstagramAccount } from '@/lib/services/instagram.service';
 import { AutoPostLogService } from '@/lib/services/module3/auto-post-log.service';
+import { CharacterService } from '@/lib/services/character.service';
+import { FamilyProfileService } from '@/lib/services/module4/family-profile.service';
 
 interface AccountWithData {
   account: InstagramAccount;
@@ -26,48 +29,68 @@ export function InstagramAccountsGrid({ userId }: { userId: string }) {
       // Get recent posts
       const logs = await AutoPostLogService.getUserLogs(userId, 50);
 
+      // Load characters and family profiles to calculate next scheduled times
+      const characters = await CharacterService.getUserCharacters(userId);
+      const familyProfiles = await FamilyProfileService.getUserProfiles(userId);
+
       const accountsWithData: AccountWithData[] = accounts.map((account) => {
         // Find last successful post for this account
         const lastPost = logs.find(
           (log) => log.instagramAccountId === account.accountId && log.status === 'success'
         );
 
-        // Calculate next scheduled time
-        // TODO: Update this to work with character-specific posting times
+        // Calculate next scheduled time from characters and family profiles
         let nextScheduledTime: string | undefined;
-        /*
-        if (config && config.isEnabled && config.postingTimes.length > 0) {
-          const now = new Date();
-          const today = new Date(now);
-          today.setHours(0, 0, 0, 0);
+        const now = new Date();
+        const allPostingTimes: Date[] = [];
 
-          // Check if this account is in rotation
-          if (config.instagramAccounts.includes(account.accountId)) {
-            // Find next posting time
-            const sortedTimes = [...config.postingTimes].sort();
-            
-            for (const time of sortedTimes) {
+        // Collect posting times from characters assigned to this account
+        characters.forEach((char) => {
+          if (char.assignedAccountId === account.accountId && char.postingTimes && char.postingTimes.length > 0) {
+            char.postingTimes.forEach((time) => {
               const [hours, minutes] = time.split(':').map(Number);
-              const scheduledDate = new Date(today);
+              const scheduledDate = new Date();
               scheduledDate.setHours(hours, minutes, 0, 0);
-
+              
+              // Add today's time if it's in the future
               if (scheduledDate > now) {
-                nextScheduledTime = scheduledDate.toISOString();
-                break;
+                allPostingTimes.push(new Date(scheduledDate));
               }
-            }
-
-            // If no time found today, use first time tomorrow
-            if (!nextScheduledTime && sortedTimes.length > 0) {
-              const tomorrow = new Date(today);
-              tomorrow.setDate(tomorrow.getDate() + 1);
-              const [hours, minutes] = sortedTimes[0].split(':').map(Number);
-              tomorrow.setHours(hours, minutes, 0, 0);
-              nextScheduledTime = tomorrow.toISOString();
-            }
+              
+              // Also add tomorrow's time
+              const tomorrowDate = new Date(scheduledDate);
+              tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+              allPostingTimes.push(tomorrowDate);
+            });
           }
+        });
+
+        // Collect posting times from family profiles assigned to this account
+        familyProfiles.forEach((profile) => {
+          if (profile.isActive && profile.instagramAccountId === account.accountId && profile.postingTimes && profile.postingTimes.length > 0) {
+            profile.postingTimes.forEach((time) => {
+              const [hours, minutes] = time.split(':').map(Number);
+              const scheduledDate = new Date();
+              scheduledDate.setHours(hours, minutes, 0, 0);
+              
+              // Add today's time if it's in the future
+              if (scheduledDate > now) {
+                allPostingTimes.push(new Date(scheduledDate));
+              }
+              
+              // Also add tomorrow's time
+              const tomorrowDate = new Date(scheduledDate);
+              tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+              allPostingTimes.push(tomorrowDate);
+            });
+          }
+        });
+
+        // Find the earliest scheduled time
+        if (allPostingTimes.length > 0) {
+          allPostingTimes.sort((a, b) => a.getTime() - b.getTime());
+          nextScheduledTime = allPostingTimes[0].toISOString();
         }
-        */
 
         return {
           account,
@@ -87,12 +110,15 @@ export function InstagramAccountsGrid({ userId }: { userId: string }) {
   if (loading) {
     return (
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Instagram Accounts</h3>
+        <div className="flex items-start justify-between">
+          <div className="space-y-1">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Instagram Accounts</h2>
+            <p className="text-sm text-muted-foreground">Loading your connected accounts...</p>
+          </div>
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-64 rounded-lg border bg-muted animate-pulse" />
+        <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3">
+          {[1, 2].map((i) => (
+            <div key={i} className="h-[400px] rounded-lg border bg-muted animate-pulse" />
           ))}
         </div>
       </div>
@@ -100,23 +126,24 @@ export function InstagramAccountsGrid({ userId }: { userId: string }) {
   }
 
   return (
-    <div className="space-y-3 sm:space-y-4 w-full min-w-0">
-      <div className="flex items-center justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <h3 className="text-base sm:text-lg font-semibold truncate">Instagram Accounts</h3>
-          <p className="text-xs sm:text-sm text-muted-foreground">
+    <div className="space-y-4 w-full">
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-1">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Instagram Accounts</h2>
+          <p className="text-sm text-muted-foreground">
             {accountsData.length} account{accountsData.length !== 1 ? 's' : ''} connected
           </p>
         </div>
       </div>
 
       {accountsData.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-8 sm:p-12 text-center">
-          <p className="text-sm sm:text-base text-muted-foreground">No Instagram accounts connected yet</p>
-          <p className="text-xs text-muted-foreground mt-2">Connect your Instagram account in settings to get started</p>
+        <div className="rounded-lg border-2 border-dashed p-12 text-center bg-muted/30">
+          <Instagram className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+          <p className="text-base font-medium text-muted-foreground">No Instagram accounts connected yet</p>
+          <p className="text-sm text-muted-foreground mt-2">Connect your Instagram account in settings to get started</p>
         </div>
       ) : (
-        <div className="grid gap-3 sm:gap-4 grid-cols-1">
+        <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3">
           {accountsData.map(({ account, lastPostTime, nextScheduledTime }) => (
             <InstagramAccountCard
               key={account.accountId}
