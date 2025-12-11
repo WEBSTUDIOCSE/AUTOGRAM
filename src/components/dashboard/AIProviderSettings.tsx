@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { AlertCircle, CheckCircle2, RefreshCw, Zap, DollarSign } from 'lucide-react';
 import { AIService } from '@/lib/services/ai.service';
-import type { ProviderType } from '@/lib/services/image-generation';
 import { UserPreferencesService } from '@/lib/firebase/services';
 
 interface ProviderInfo {
@@ -37,7 +36,7 @@ const PROVIDERS: Record<string, ProviderInfo> = {
 };
 
 export function AIProviderSettings() {
-  const [selectedProvider, setSelectedProvider] = useState<ProviderType>('gemini');
+  const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'kieai'>('gemini');
   const [loading, setLoading] = useState(false);
   const [testing, setTesting] = useState(false);
   const [credits, setCredits] = useState<Record<string, { remaining: number; total?: number; used?: number }>>({});
@@ -166,7 +165,7 @@ export function AIProviderSettings() {
 
       <CardContent className="space-y-6">
         {/* Provider Selection */}
-        <RadioGroup value={selectedProvider} onValueChange={(value) => setSelectedProvider(value as ProviderType)}>
+        <RadioGroup value={selectedProvider} onValueChange={(value) => setSelectedProvider(value as 'gemini' | 'kieai')}>
           <div className="space-y-3">
             {Object.entries(PROVIDERS).map(([key, provider]) => (
               <div key={key} className="flex items-start space-x-3 rounded-lg border p-4 hover:bg-muted/50 transition-colors">

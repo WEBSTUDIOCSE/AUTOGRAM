@@ -3,7 +3,7 @@
  * Handles storing and retrieving user preferences in Firestore
  */
 
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { firebaseHandler, type ApiResponse } from '../handler';
 
@@ -13,7 +13,7 @@ export interface UserPreferences {
   geminiTextModel?: string;
   kieaiModel?: string;
   theme?: 'light' | 'dark' | 'system';
-  updatedAt?: any;
+  updatedAt?: Timestamp;
 }
 
 /**
