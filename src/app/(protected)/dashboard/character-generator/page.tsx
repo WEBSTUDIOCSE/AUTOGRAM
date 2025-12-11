@@ -140,7 +140,8 @@ export default function CharacterGeneratorPage() {
       // Generate image with character
       const result = await APIBook.characterAI.generateWithCharacter(
         selectedCharacter.imageBase64,
-        scenePrompt
+        scenePrompt,
+        selectedCharacter.imageUrl // Pass Firebase Storage URL for Kie.ai
       );
       
       setGeneratedImage(result.imageBase64);

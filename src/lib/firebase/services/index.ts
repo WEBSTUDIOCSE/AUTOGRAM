@@ -9,6 +9,10 @@ export { AuthService } from './auth.service';
 // Import payment service
 export { PaymentService } from './payment.service';
 
+// Import user preferences service
+export { UserPreferencesService } from './user-preferences.service';
+export type { UserPreferences } from './user-preferences.service';
+
 // Import AI service
 export { AIService } from '@/lib/services/ai.service';
 

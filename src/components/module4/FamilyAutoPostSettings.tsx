@@ -221,7 +221,8 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
       // Generate image with character AI service (maintains face consistency)
       const result = await APIBook.characterAI.generateWithCharacter(
         memberImageBase64,
-        enhancedPrompt
+        enhancedPrompt,
+        primaryMember.imageUrl // Pass Firebase Storage URL for Kie.ai
       );
       
       setGeneratedImage(result.imageBase64);

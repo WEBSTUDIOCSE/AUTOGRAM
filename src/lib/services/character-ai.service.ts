@@ -1,19 +1,22 @@
 import { genAI, getImageModelName, getTextModelName } from '@/lib/ai/gemini';
+import { unifiedImageGeneration } from './image-generation';
 
 /**
  * Character AI Service
- * Handles AI image generation with character models using Gemini
+ * Handles AI image generation with character models using unified provider (respects user's AI provider selection)
  */
 export const CharacterAIService = {
   /**
    * Generate image with character in a custom scene
    * @param characterBase64 - Base64 encoded character image
    * @param scenePrompt - Scene description prompt
+   * @param characterUrl - Optional: Firebase Storage URL (used by Kie.ai)
    * @returns Generated image data with caption and hashtags
    */
   async generateWithCharacter(
     characterBase64: string,
-    scenePrompt: string
+    scenePrompt: string,
+    characterUrl?: string
   ): Promise<{
     imageBase64: string;
     caption: string;
@@ -68,60 +71,22 @@ export const CharacterAIService = {
 
 REMEMBER: This should look like a real photograph taken with a professional camera, featuring the exact same person from the reference image in a new setting.`;
 
-      console.log('🎨 Generating character scene with Gemini...');
+      console.log('🎨 Generating character scene with selected AI provider...');
       console.log('📝 Scene prompt:', scenePrompt);
 
-      // Strip data URI prefix if present (Gemini expects raw base64)
+      // Strip data URI prefix if present
       let rawBase64 = characterBase64;
       if (characterBase64.includes(',')) {
         rawBase64 = characterBase64.split(',')[1];
       }
 
-      // Align with Gemini documentation - simpler prompt structure
-      const prompt = [
-        { text: fullPrompt },
-        {
-          inlineData: {
-            mimeType: 'image/jpeg',
-            data: rawBase64,
-          },
-        },
-      ];
-
-      const response = await genAI.models.generateContent({
-        model: imageModelName,
-        contents: prompt,
-      });
-
-      // Use response.candidates[0].content.parts as per Gemini structure
-      if (!response.candidates || !response.candidates[0]?.content?.parts) {
-        throw new Error('No response parts received from Gemini');
-      }
-
-      const parts = response.candidates[0].content.parts;
-      let generatedImageBase64 = '';
-
-      // Iterate through parts to find image or check for rejection
-      for (const part of parts) {
-        if (part.text) {
-          const text = part.text.toLowerCase();
-          // Check for content rejection
-          if (text.includes('cannot fulfill') || 
-              text.includes('programmed to avoid') || 
-              text.includes('sorry') ||
-              text.includes('inappropriate')) {
-            throw new Error('⚠️ Content rejected by AI: Your scene description may contain inappropriate or sensitive content. Please modify your prompt to be more appropriate.');
-          }
-          console.log('📄 Text response:', part.text);
-        } else if (part.inlineData && part.inlineData.data) {
-          generatedImageBase64 = part.inlineData.data;
-          console.log('✅ Image data received');
-        }
-      }
-
-      if (!generatedImageBase64) {
-        throw new Error('No image generated in response');
-      }
+      // Use unified image generation service (respects user's provider selection in Firebase)
+      const result = await unifiedImageGeneration.generateWithReference(
+        { prompt: fullPrompt, quality: 'high', imageSize: 'square_hd' },
+        rawBase64,
+        undefined, // Provider parameter omitted - will load from Firebase preferences
+        characterUrl // Pass character URL for providers that need it (Kie.ai)
+      );
 
       console.log('✅ Character scene generated successfully');
 
@@ -130,13 +95,11 @@ REMEMBER: This should look like a real photograph taken with a professional came
         scenePrompt
       );
 
-      const imageDataUrl = 'data:image/png;base64,' + generatedImageBase64;
-
       return {
-        imageBase64: imageDataUrl,
+        imageBase64: result.imageBase64,
         caption,
         hashtags,
-        model: imageModelName,
+        model: result.model,
       };
     } catch (error) {
       console.error('❌ Character AI generation error:', error);

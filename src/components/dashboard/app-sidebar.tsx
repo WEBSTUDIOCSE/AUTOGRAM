@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LogOut, Home, KeyRound, User, Sparkles, UserCircle, Zap, Users } from 'lucide-react';
+import { LogOut, Home, KeyRound, User, Sparkles, UserCircle, Zap, Users, Settings } from 'lucide-react';
 
 import {
   Sidebar,
@@ -151,6 +151,12 @@ export function AppSidebar({ user }: AppSidebarProps) {
                   <Link href="/profile">
                     <User className="mr-2 h-4 w-4" />
                     Profile
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/ai-settings">
+                    <Settings className="mr-2 h-4 w-4" />
+                    AI Settings
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>

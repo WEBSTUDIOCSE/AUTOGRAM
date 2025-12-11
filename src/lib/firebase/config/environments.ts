@@ -1,4 +1,4 @@
-import type { FirebaseConfig, EnvironmentConfig, GeminiConfig, InstagramConfig } from './types';
+import type { FirebaseConfig, EnvironmentConfig, GeminiConfig, KieAIConfig, InstagramConfig } from './types';
 
 /**
  * UAT Environment Configuration
@@ -17,13 +17,21 @@ const UAT_CONFIG: FirebaseConfig = {
 /**
  * UAT Gemini Configuration
  */
-/**
- * UAT Gemini Configuration
- */
 const UAT_GEMINI: GeminiConfig = {
     apiKey: process.env.NEXT_PUBLIC_UAT || "",
     imageModel: "gemini-2.5-flash-image",
     textModel: "gemini-2.0-flash-exp"
+};
+
+/**
+ * UAT Kie.ai Configuration
+ */
+const UAT_KIEAI: KieAIConfig = {
+    apiKey: process.env.NEXT_PUBLIC_KIEAI_API_KEY || "",
+    baseUrl: "https://api.kie.ai/api/v1",
+    defaultModel: "bytedance/seedream",
+    editModel: "bytedance/seedream-v4-edit",
+    enabled: true
 };
 
 /**
@@ -93,6 +101,17 @@ const PROD_GEMINI: GeminiConfig = {
 };
 
 /**
+ * PROD Kie.ai Configuration
+ */
+const PROD_KIEAI: KieAIConfig = {
+    apiKey: process.env.NEXT_PUBLIC_KIEAI_API_KEY_PROD || "",
+    baseUrl: "https://api.kie.ai/api/v1",
+    defaultModel: "bytedance/seedream",
+    editModel: "bytedance/seedream-v4-edit",
+    enabled: true
+};
+
+/**
  * PROD Instagram Configuration
  */
 const PROD_INSTAGRAM: InstagramConfig = {
@@ -119,12 +138,14 @@ export const ENVIRONMENTS: Record<'UAT' | 'PROD', EnvironmentConfig> = {
     name: 'UAT',
     config: UAT_CONFIG,
     gemini: UAT_GEMINI,
+    kieai: UAT_KIEAI,
     instagram: UAT_INSTAGRAM
   },
   PROD: {
     name: 'PROD',
     config: PROD_CONFIG,
     gemini: PROD_GEMINI,
+    kieai: PROD_KIEAI,
     instagram: PROD_INSTAGRAM
   }
 };
@@ -154,6 +175,13 @@ export const getCurrentFirebaseConfig = (): FirebaseConfig => {
  */
 export const getGeminiConfig = (): GeminiConfig => {
   return getCurrentEnvironment().gemini;
+};
+
+/**
+ * Get current Kie.ai config
+ */
+export const getKieAIConfig = (): KieAIConfig => {
+  return getCurrentEnvironment().kieai;
 };
 
 /**

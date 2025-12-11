@@ -27,6 +27,17 @@ export interface GeminiConfig {
 }
 
 /**
+ * Kie.ai configuration interface
+ */
+export interface KieAIConfig {
+  apiKey: string;
+  baseUrl: string;
+  defaultModel: string;        // For text-to-image generation
+  editModel: string;           // For image-to-image (with reference)
+  enabled: boolean;
+}
+
+/**
  * Single Instagram Account
  */
 export interface InstagramAccount {
@@ -55,6 +66,7 @@ export interface EnvironmentConfig {
   name: Environment;
   config: FirebaseConfig;
   gemini: GeminiConfig;
+  kieai: KieAIConfig;
   instagram: InstagramConfig;
 }
 
