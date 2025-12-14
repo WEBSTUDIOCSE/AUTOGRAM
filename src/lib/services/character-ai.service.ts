@@ -24,8 +24,6 @@ export const CharacterAIService = {
     model: string;
   }> {
     try {
-      const imageModelName = getImageModelName();
-
       // Prepare ULTRA-CONCISE prompt (API limit: ~300 chars)
       // Most APIs reject prompts over 300-500 characters
       let fullPrompt = `This person: ${scenePrompt}`;

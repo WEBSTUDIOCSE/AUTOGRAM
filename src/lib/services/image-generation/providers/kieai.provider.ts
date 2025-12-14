@@ -5,6 +5,7 @@ import type {
   ProviderCredits
 } from '../base.provider';
 import { getKieAIConfig } from '@/lib/firebase/config/environments';
+import type { KieAIConfig } from '@/lib/firebase/config/types';
 
 interface KieAITaskResponse {
   code: number;
@@ -52,9 +53,9 @@ export class KieAIProvider implements ImageGenerationProvider {
   private baseUrl: string;
   private defaultModel: string;
   private editModel: string;
-  private config: any; // Store config for dynamic model access
+  private config: KieAIConfig; // Store config for dynamic model access
 
-  constructor(apiKey?: string, customConfig?: any) {
+  constructor(apiKey?: string, customConfig?: KieAIConfig) {
     const config = customConfig || getKieAIConfig();
     this.config = config;
     this.apiKey = apiKey || config.apiKey;
@@ -179,7 +180,7 @@ export class KieAIProvider implements ImageGenerationProvider {
       
       // Prepare input based on MODEL TYPE
       // Different models have COMPLETELY different parameter requirements!
-      const inputPayload: any = {};
+      const inputPayload: Record<string, unknown> = {};
 
       // Determine model family
       const isFluxModel = selectedModel.includes('flux');
@@ -474,7 +475,7 @@ export class KieAIProvider implements ImageGenerationProvider {
         }
         
         // Check for failed state - STOP IMMEDIATELY
-        if (state === 'failed' || state === 'fail') {
+        if (state === 'failed') {
           const errorCode = data.data.failCode || 'unknown';
           const errorMsg = data.data.failMsg || 'Task failed';
           console.error(`❌ Task FAILED (Code: ${errorCode}): ${errorMsg}`);

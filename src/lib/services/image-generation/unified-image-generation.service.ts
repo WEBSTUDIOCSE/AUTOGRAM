@@ -208,8 +208,9 @@ export class UnifiedImageGenerationService {
             textToImageModel = 'google/imagen4-fast';
           }
           
+          const { getKieAIConfig } = await import('@/lib/firebase/config/environments');
           const kieaiConfig = {
-            ...require('@/lib/firebase/config/environments').getKieAIConfig(),
+            ...getKieAIConfig(),
             textToImageModel,
             imageToImageModel
           };
