@@ -17,7 +17,6 @@ interface FamilyPostHistoryProps {
 export function FamilyPostHistory({ userId, familyProfileId }: FamilyPostHistoryProps) {
   const [posts, setPosts] = useState<CharacterPost[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedPost, setSelectedPost] = useState<CharacterPost | null>(null);
 
   useEffect(() => {
     loadPosts();
@@ -131,7 +130,10 @@ export function FamilyPostHistory({ userId, familyProfileId }: FamilyPostHistory
                         {getStatusBadge(post.postedToInstagram)}
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        Posted to @{post.instagramAccountName}
+                        Instagram: @{post.instagramAccountName}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Model: {post.model}
                       </p>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -163,13 +165,6 @@ export function FamilyPostHistory({ userId, familyProfileId }: FamilyPostHistory
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedPost(post)}
-                    >
-                      View Details
-                    </Button>
                     {post.instagramPostId && (
                       <Button
                         variant="outline"
@@ -193,68 +188,6 @@ export function FamilyPostHistory({ userId, familyProfileId }: FamilyPostHistory
           </Card>
         ))}
       </div>
-
-      {/* Detail Modal */}
-      {selectedPost && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-          onClick={() => setSelectedPost(null)}
-        >
-          <Card className="w-full max-w-2xl" onClick={(e) => e.stopPropagation()}>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle>{selectedPost.characterName}</CardTitle>
-                  <CardDescription>Posted on {formatDate(selectedPost.timestamp)}</CardDescription>
-                </div>
-                {getStatusBadge(selectedPost.postedToInstagram)}
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {selectedPost.generatedImageUrl && (
-                <div className="relative aspect-square w-full overflow-hidden rounded-lg">
-                  <Image
-                    src={selectedPost.generatedImageUrl}
-                    alt="Generated post"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <div>
-                  <p className="font-semibold">Instagram Account</p>
-                  <p className="mt-1 text-sm text-muted-foreground">@{selectedPost.instagramAccountName}</p>
-                </div>
-
-                <div>
-                  <p className="font-semibold">Prompt</p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {selectedPost.prompt}
-                  </p>
-                </div>
-
-                {selectedPost.caption && (
-                  <div>
-                    <p className="font-semibold">Caption</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{selectedPost.caption}</p>
-                  </div>
-                )}
-
-                {selectedPost.hashtags && (
-                  <div>
-                    <p className="font-semibold">Hashtags</p>
-                    <p className="mt-1 text-sm text-muted-foreground">{selectedPost.hashtags}</p>
-                  </div>
-                )}
-              </div>
-
-              <Button onClick={() => setSelectedPost(null)}>Close</Button>
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </div>
   );
 }

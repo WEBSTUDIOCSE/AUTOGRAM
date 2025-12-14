@@ -41,7 +41,8 @@ export default function GeneratorPage() {
     setAiError('');
 
     try {
-      const refinedPrompt = await APIBook.promptRefiner.refinePrompt(prompt);
+      const { Module1PromptRefiner } = await import('@/lib/services/module1/prompt-refiner.service');
+      const refinedPrompt = await Module1PromptRefiner.refinePrompt(prompt);
       setPrompt(refinedPrompt);
     } catch (error) {
       console.error('Failed to refine prompt:', error);

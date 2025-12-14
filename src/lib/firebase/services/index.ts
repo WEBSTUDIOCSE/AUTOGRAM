@@ -36,12 +36,11 @@ export { InstagramPostService } from '@/lib/services/module3/post-history.servic
 export { CharacterService } from '@/lib/services/character.service';
 export { CharacterAIService } from '@/lib/services/character-ai.service';
 export { CharacterPostService } from '@/lib/services/character-post.service';
-export { PromptRefinerService } from '@/lib/services/prompt-refiner.service';
 
 // Import Auto-Post services (Module 3)
 export { AutoPostConfigService } from '@/lib/services/module3/auto-post-config.service';
 export { PromptLibraryService } from '@/lib/services/prompt-library.service';
-export { PromptVariationService } from '@/lib/services/module3/prompt-variation.service';
+export { Module3PromptGenerator } from '@/lib/services/module3/prompt-generator.service';
 export { AutoPostLogService } from '@/lib/services/module3/auto-post-log.service';
 export { AutoPostSchedulerService } from '@/lib/services/module3/auto-post-scheduler.service';
 export { ErrorNotificationService } from '@/lib/services/error-notification.service';
@@ -69,10 +68,9 @@ import { InstagramPostService } from '@/lib/services/module3/post-history.servic
 import { CharacterService } from '@/lib/services/character.service';
 import { CharacterAIService } from '@/lib/services/character-ai.service';
 import { CharacterPostService } from '@/lib/services/character-post.service';
-import { PromptRefinerService } from '@/lib/services/prompt-refiner.service';
 import { AutoPostConfigService } from '@/lib/services/module3/auto-post-config.service';
 import { PromptLibraryService } from '@/lib/services/prompt-library.service';
-import { PromptVariationService } from '@/lib/services/module3/prompt-variation.service';
+import { Module3PromptGenerator } from '@/lib/services/module3/prompt-generator.service';
 import { AutoPostLogService } from '@/lib/services/module3/auto-post-log.service';
 import { AutoPostSchedulerService } from '@/lib/services/module3/auto-post-scheduler.service';
 import { ErrorNotificationService } from '@/lib/services/error-notification.service';
@@ -114,10 +112,9 @@ export const APIBook = {
   character: CharacterService,
   characterAI: CharacterAIService,
   characterPost: CharacterPostService,
-  promptRefiner: PromptRefinerService,
   autoPostConfig: AutoPostConfigService,
   promptLibrary: PromptLibraryService,
-  promptVariation: PromptVariationService,
+  module3PromptGenerator: Module3PromptGenerator,
   autoPostLog: AutoPostLogService,
   autoPostScheduler: AutoPostSchedulerService,
   errorNotification: ErrorNotificationService,

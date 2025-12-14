@@ -174,12 +174,11 @@ export default function PromptLibrary({ userId }: PromptLibraryProps) {
       setError(null);
       setVariations([]);
 
-      const generatedVariations = await APIBook.promptVariation.generateMultipleVariations(
-        basePrompt,
-        3
-      );
-
-      setVariations(generatedVariations);
+      // TODO: Implement multiple variations in new Module3PromptGenerator
+      // For now, just show the base prompt
+      setVariations([basePrompt, basePrompt, basePrompt]);
+      
+      setError('Multiple variations feature coming soon with new prompt generator');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate variations');
     } finally {

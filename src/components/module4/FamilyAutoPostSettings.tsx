@@ -144,7 +144,9 @@ export function FamilyAutoPostSettings({ profile: initialProfile, onBack }: Fami
     setIsRefining(true);
     setError(null);
     try {
-      const refinedPrompt = await APIBook.promptRefiner.refinePrompt(manualPrompt);
+      const { Module4PromptRefiner } = await import('@/lib/services/module4/prompt-refiner.service');
+      const familyContext = `${profile.members.map(m => m.name).join(', ')}`;
+      const refinedPrompt = await Module4PromptRefiner.refinePrompt(manualPrompt, familyContext);
       setManualPrompt(refinedPrompt);
       setSuccess('Prompt refined successfully!');
     } catch (error) {

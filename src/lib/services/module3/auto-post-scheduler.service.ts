@@ -1,6 +1,6 @@
 import { AutoPostConfigService } from './auto-post-config.service';
 import { PromptLibraryService } from '../prompt-library.service';
-import { PromptVariationService, type PromptSubject } from '../prompting';
+import { Module3PromptGenerator } from './prompt-generator.service';
 import { AutoPostLogService } from './auto-post-log.service';
 import { CharacterService } from '../character.service';
 import { CharacterAIService } from '../character-ai.service';
@@ -158,38 +158,30 @@ export class AutoPostSchedulerService {
           }
           console.log(`[AutoPost] ✅ Selected: "${promptTemplate.basePrompt.substring(0, 50)}..."`);
 
-          // Step 6: Generate context-aware prompt variation
-          console.log(`[AutoPost] STEP 6: Generating contextual prompt variation...`);
+          // Step 6: Generate unique prompt variation
+          console.log(`[AutoPost] STEP 6: Generating unique prompt variation...`);
           const step6Start = Date.now();
           
-          // Get variation settings from config (use defaults if not set)
-          const variationSettings = config.promptVariationSettings || PromptVariationService.getDefaultSettings();
+          // Get recent posts to avoid repetition
+          const recentPosts = await CharacterPostService.getRecentPosts(userId, 10);
+          const previousPrompts = recentPosts
+            .filter(p => p.characterId === selectedCharacter.id && p.moduleType === 'module3')
+            .map(p => p.prompt);
           
-          // Convert Character to PromptSubject for generic variation service
-          const subject: PromptSubject = {
-            name: selectedCharacter.name,
-            description: selectedCharacter.name,
-            visualStyle: promptTemplate.basePrompt
-          };
+          console.log(`[AutoPost] 📜 Found ${previousPrompts.length} previous prompts to avoid`);
           
-          // Generate context-aware prompt using common service
-          const promptResult = await PromptVariationService.generateContextualPrompt(
-            subject,
+          // Generate varied prompt using new generator
+          const context = Module3PromptGenerator.getGenerationContext(previousPrompts);
+          const generatedPrompt = await Module3PromptGenerator.generateUniquePrompt(
+            selectedCharacter,
             promptTemplate.basePrompt,
-            variationSettings,
-            [] // recentThemes - can be implemented later
+            context
           );
-          const generatedPrompt = promptResult.prompt;
           
-          stepTimer.steps.push({ step: 6, name: 'Generate Contextual Variation', duration: Date.now() - step6Start });
-          console.log(`[AutoPost] ✅ Opportunity: ${promptResult.opportunity.title}`);
-          console.log(`[AutoPost] ✅ Relevance Score: ${promptResult.opportunity.relevanceScore}/10`);
-          console.log(`[AutoPost] ✅ Tags: ${promptResult.opportunity.tags.join(', ')}`);
-          console.log(`[AutoPost] ✅ Context: ${promptResult.contextUsed}`);
-          console.log(`[AutoPost] ✅ Variation: "${generatedPrompt.substring(0, 80)}..."`);
-
-          // TODO: Track this opportunity in post history
-          // await PostHistoryService.addToHistory(userId, selectedCharacter.id, generatedPrompt, promptResult.opportunity.id, promptResult.opportunity.tags);
+          stepTimer.steps.push({ step: 6, name: 'Generate Unique Variation', duration: Date.now() - step6Start });
+          console.log(`[AutoPost] ✅ Generated Prompt: "${generatedPrompt.substring(0, 80)}..."`);
+          console.log(`[AutoPost] ✅ Character: ${selectedCharacter.name}`);
+          console.log(`[AutoPost] ✅ Avoided ${previousPrompts.length} previous themes`);
           // Step 7: Generate image with character
           console.log(`[AutoPost] STEP 7: Generating image with AI...`);
           const step7Start = Date.now();

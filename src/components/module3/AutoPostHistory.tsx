@@ -13,15 +13,15 @@ import {
   ExternalLink,
   Calendar,
 } from 'lucide-react';
-import type { AutoPostLog } from '@/lib/firebase/config/types';
-import { APIBook } from '@/lib/firebase/services';
+import type { CharacterPost } from '@/lib/firebase/config/types';
+import { CharacterPostService } from '@/lib/services/character-post.service';
 
 interface AutoPostHistoryProps {
   userId: string;
 }
 
 export default function AutoPostHistory({ userId }: AutoPostHistoryProps) {
-  const [logs, setLogs] = useState<AutoPostLog[]>([]);
+  const [posts, setPosts] = useState<CharacterPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statistics, setStatistics] = useState({
@@ -37,8 +37,11 @@ export default function AutoPostHistory({ userId }: AutoPostHistoryProps) {
     try {
       setLoading(true);
       setError(null);
-      const userLogs = await APIBook.autoPostLog.getUserLogs(userId, 50);
-      setLogs(userLogs);
+      const allPosts = await CharacterPostService.getRecentPosts(userId, 50);
+      // Filter for module3 posts only
+      const module3Posts = allPosts.filter((post: CharacterPost) => post.moduleType === 'module3');
+      setPosts(module3Posts);
+      setStatistics({ total: module3Posts.length });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load history');
     } finally {
@@ -47,12 +50,7 @@ export default function AutoPostHistory({ userId }: AutoPostHistoryProps) {
   };
 
   const loadStatistics = async () => {
-    try {
-      const stats = await APIBook.autoPostLog.getStatistics(userId);
-      setStatistics({ total: stats.total });
-    } catch (err) {
-      console.error('Failed to load statistics:', err);
-    }
+    // Statistics now loaded in loadHistory
   };
 
   const formatDate = (dateString: string) => {
@@ -116,7 +114,7 @@ export default function AutoPostHistory({ userId }: AutoPostHistoryProps) {
       )}
 
       {/* History List */}
-      {logs.length === 0 ? (
+      {posts.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Clock className="h-12 w-12 text-muted-foreground mb-4" />
@@ -125,15 +123,15 @@ export default function AutoPostHistory({ userId }: AutoPostHistoryProps) {
         </Card>
       ) : (
         <div className="space-y-4">
-          {logs.map((log) => (
-            <Card key={log.id} className="hover:shadow-lg transition-shadow">
+          {posts.map((post) => (
+            <Card key={post.id} className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="flex gap-6">
                   {/* Generated Image */}
-                  {log.generatedImageUrl && (
+                  {post.generatedImageUrl && (
                     <div className="relative w-80 h-80 rounded-lg overflow-hidden bg-muted flex-shrink-0 shadow-md">
                       <img
-                        src={log.generatedImageUrl}
+                        src={post.generatedImageUrl}
                         alt="Generated post"
                         className="w-full h-full object-cover"
                       />
@@ -146,14 +144,13 @@ export default function AutoPostHistory({ userId }: AutoPostHistoryProps) {
                     <div className="flex items-start justify-between">
                       <div>
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-lg">{formatDate(log.executedAt)}</h3>
-                          {log.status === 'success' && (
+                          <h3 className="font-semibold text-lg">{formatDate(post.timestamp)}</h3>
+                          {post.postedToInstagram ? (
                             <Badge variant="default" className="bg-green-600">
                               <CheckCircle2 className="h-3 w-3 mr-1" />
                               Posted
                             </Badge>
-                          )}
-                          {log.status === 'failed' && (
+                          ) : (
                             <Badge variant="destructive">
                               <span className="mr-1">✕</span>
                               Failed
@@ -161,75 +158,55 @@ export default function AutoPostHistory({ userId }: AutoPostHistoryProps) {
                           )}
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          {log.characterName || 'No character'} • {log.instagramAccountName || 'No account'}
+                          {post.characterName} • @{post.instagramAccountName}
                         </p>
-                        {log.scheduledTime && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Scheduled for: {log.scheduledTime}
-                          </p>
-                        )}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Model: {post.model}
+                        </p>
                       </div>
                     </div>
 
                     {/* Prompt */}
                     <div>
                       <p className="text-sm font-medium text-muted-foreground mb-1">Prompt:</p>
-                      <p className="text-sm leading-relaxed">{log.generatedPrompt}</p>
+                      <p className="text-sm leading-relaxed">{post.prompt}</p>
                     </div>
 
                     {/* Caption */}
-                    {log.caption && (
+                    {post.caption && (
                       <div>
                         <p className="text-sm font-medium text-muted-foreground mb-1">Caption:</p>
-                        <p className="text-sm whitespace-pre-wrap leading-relaxed">{log.caption}</p>
+                        <p className="text-sm whitespace-pre-wrap leading-relaxed">{post.caption}</p>
                       </div>
                     )}
 
-                    {/* Error Message */}
-                    {log.error && (
+                    {/* Hashtags */}
+                    {post.hashtags && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground mb-1">Hashtags:</p>
+                        <p className="text-sm text-muted-foreground">{post.hashtags}</p>
+                      </div>
+                    )}
+
+                    {/* Error Message - Only show if post failed */}
+                    {!post.postedToInstagram && (
                       <Alert variant="destructive" className="border-red-200 bg-red-50">
                         <AlertDescription>
-                          <div className="space-y-2">
-                            <p className="font-semibold text-red-900">⚠️ Error Details:</p>
-                            <p className="text-sm text-red-800 break-words">{log.error}</p>
-                            {log.error.includes('character') && (
-                              <p className="text-xs text-red-700 mt-2 break-words">
-                                💡 Tip: Make sure you have uploaded at least {log.error.match(/\d+/)?.[0] || '3'} characters in the Generate tab.
-                              </p>
-                            )}
-                            {log.error.includes('prompt') && (
-                              <p className="text-xs text-red-700 mt-2 break-words">
-                                💡 Tip: Make sure you have at least one active prompt template.
-                              </p>
-                            )}
-                            {log.error.includes('Instagram') && (
-                              <p className="text-xs text-red-700 mt-2 break-words">
-                                💡 Tip: Check your Instagram account connection in Settings.
-                              </p>
-                            )}
-                            {log.error.includes('disabled') && (
-                              <p className="text-xs text-red-700 mt-2 break-words">
-                                💡 Tip: Enable auto-posting in the Settings tab.
-                              </p>
-                            )}
-                            {log.error.includes('API') && (
-                              <p className="text-xs text-red-700 mt-2 break-words">
-                                💡 Tip: Temporary API issue. Will retry at next scheduled time.
-                              </p>
-                            )}
-                          </div>
+                          <p className="text-sm text-red-800 break-words overflow-hidden">
+                            Post failed to publish to Instagram
+                          </p>
                         </AlertDescription>
                       </Alert>
                     )}
 
                     {/* Actions */}
-                    {log.instagramPostId && log.status === 'success' && (
+                    {post.instagramPostId && post.postedToInstagram && (
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => {
                           window.open(
-                            `https://www.instagram.com/p/${log.instagramPostId}/`,
+                            `https://www.instagram.com/p/${post.instagramPostId}/`,
                             '_blank'
                           );
                         }}
@@ -248,7 +225,7 @@ export default function AutoPostHistory({ userId }: AutoPostHistoryProps) {
       )}
 
       {/* Load More */}
-      {logs.length >= 50 && (
+      {posts.length >= 50 && (
         <div className="flex justify-center">
           <Button variant="outline" onClick={loadHistory}>
             Load More

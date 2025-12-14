@@ -9,8 +9,9 @@ export { AutoPostConfigService } from './auto-post-config.service';
 export { AutoPostLogService, type AutoPostLog } from './auto-post-log.service';
 
 // Content Generation Services
-export { DailyContextService, type DailyContext, type ContentOpportunity } from './daily-context.service';
-export { PromptVariationService, type PromptVariationSettings, type GeneratedPrompt } from './prompt-variation.service';
+// Note: DailyContextService moved to shared services/daily-context.service.ts
+export { Module3PromptRefiner } from './prompt-refiner.service';
+export { Module3PromptGenerator } from './prompt-generator.service';
 
 // History & Tracking Services
 export { InstagramPostService, type InstagramPost } from './post-history.service';

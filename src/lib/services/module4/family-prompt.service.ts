@@ -13,7 +13,7 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase/firebase';
-import { DailyContextService } from '../prompting';
+import { DailyContextService } from '../daily-context.service';
 import type { FamilyPromptTemplate, FamilyPromptCategory } from '@/lib/firebase/config/types';
 
 const COLLECTION_NAME = 'family_prompt_templates';
@@ -209,47 +209,52 @@ export class FamilyPromptService {
     }
 
     try {
-      // Get daily context opportunities
-      const opportunities = await DailyContextService.getDefaultOpportunities();
+      // Get daily context for time-aware suggestions
+      const context = DailyContextService.getContext();
+      const mood = context.mood;
+      const timeOfDay = context.timeOfDay;
       
-      // Filter and adapt opportunities based on category
-      const categoryPrompts = opportunities
-        .filter(opp => {
-          const theme = `${opp.title} ${opp.description}`.toLowerCase();
-          switch (category) {
-            case 'couple':
-              return theme.includes('romantic') || 
-                     theme.includes('date') || 
-                     theme.includes('together') ||
-                     theme.includes('intimate') ||
-                     theme.includes('cozy') ||
-                     opp.tags.some(tag => tag.toLowerCase().includes('couple'));
-            case 'family':
-              return theme.includes('family') || 
-                     theme.includes('celebration') || 
-                     theme.includes('gathering') ||
-                     theme.includes('together') ||
-                     opp.tags.some(tag => tag.toLowerCase().includes('family'));
-            case 'kids':
-              return theme.includes('play') || 
-                     theme.includes('learn') || 
-                     theme.includes('fun') ||
-                     theme.includes('activity') ||
-                     opp.tags.some(tag => tag.toLowerCase().includes('children') || tag.toLowerCase().includes('kids'));
-            default:
-              return false;
-          }
-        })
-        .map(opp => opp.description)
-        .slice(0, 15); // Limit to 15 prompts
-
-      // If not enough prompts, add generic category-specific ones
-      if (categoryPrompts.length < 10) {
-        const genericPrompts = this.getGenericPromptsByCategory(category);
-        categoryPrompts.push(...genericPrompts.slice(0, 10 - categoryPrompts.length));
+      // Generate category-specific prompts with context
+      let categoryPrompts: string[] = [];
+      
+      switch (category) {
+        case 'couple':
+          categoryPrompts = [
+            `A couple enjoying a ${mood} ${timeOfDay} together`,
+            'A romantic moment between two people',
+            'A couple sharing a special moment',
+            'Two people in an intimate setting',
+            'A cozy scene with a couple',
+          ];
+          break;
+        case 'family':
+          categoryPrompts = [
+            `A family gathering during ${timeOfDay}`,
+            'A joyful family moment together',
+            'Family members celebrating together',
+            'A warm family scene',
+            'Family bonding time',
+          ];
+          break;
+        case 'kids':
+          categoryPrompts = [
+            `Children playing during ${timeOfDay}`,
+            'Kids enjoying a fun activity',
+            'Children learning and exploring',
+            'A playful moment with kids',
+            'Kids having fun together',
+          ];
+          break;
+        default:
+          return [];
       }
 
-      return categoryPrompts;
+      // Add context-based variations
+      const contextualPrompts = categoryPrompts.map(prompt => 
+        `${prompt}, ${mood} atmosphere, photorealistic`
+      );
+
+      return contextualPrompts.slice(0, 15);
     } catch (error) {
       console.error('Error getting default prompts:', error);
       // Fallback to generic prompts

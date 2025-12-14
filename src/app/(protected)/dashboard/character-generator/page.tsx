@@ -114,7 +114,8 @@ export default function CharacterGeneratorPage() {
       setIsRefining(true);
       setError(null);
 
-      const refinedPrompt = await APIBook.promptRefiner.refinePrompt(scenePrompt);
+      const { Module2PromptRefiner } = await import('@/lib/services/module2/prompt-refiner.service');
+      const refinedPrompt = await Module2PromptRefiner.refineCharacterPrompt(scenePrompt);
       setScenePrompt(refinedPrompt);
       
       // Show success feedback briefly

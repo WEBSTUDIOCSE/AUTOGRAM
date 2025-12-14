@@ -127,11 +127,18 @@ export default function AutoPosterPage() {
       return;
     }
 
+    if (!selectedCharacter) {
+      setError("Please select a character first");
+      return;
+    }
+
     try {
       setIsRefining(true);
       setError(null);
 
-      const refinedPrompt = await APIBook.promptRefiner.refinePrompt(scenePrompt);
+      // Use Module3 prompt refiner
+      const { Module3PromptRefiner } = await import('@/lib/services/module3/prompt-refiner.service');
+      const refinedPrompt = await Module3PromptRefiner.refinePrompt(scenePrompt);
       setScenePrompt(refinedPrompt);
       
       // Show success feedback briefly

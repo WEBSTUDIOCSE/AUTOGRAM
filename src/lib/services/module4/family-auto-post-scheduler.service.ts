@@ -4,7 +4,7 @@ import { CharacterAIService } from '../character-ai.service';
 import { UnifiedImageStorageService } from '../unified/image-storage.service';
 import { InstagramService } from '../instagram.service';
 import { CharacterPostService } from '../character-post.service';
-import { PromptVariationService, type PromptSubject } from '../prompting';
+import { Module4PromptGenerator } from './prompt-generator.service';
 import type { FamilyProfile, FamilyAutoPostSchedule, FamilyPromptTemplate } from '@/lib/firebase/config/types';
 
 /**
@@ -170,30 +170,26 @@ export class FamilyAutoPostScheduler {
 
       console.log(`[FamilyAutoPost] ✅ Family Context: ${familyContext}`);
 
-      // Convert family profile to PromptSubject for generic variation service
-      const subject: PromptSubject = {
-        name: profile.profileName,
-        description: familyContext,
-        visualStyle: prompt.basePrompt
-      };
-
-      // Get default variation settings (time-aware, context-aware)
-      const variationSettings = PromptVariationService.getDefaultSettings();
+      // Get recent posts to avoid repetition
+      const recentPosts = await CharacterPostService.getRecentPosts(userId, 10);
+      const previousPrompts = recentPosts
+        .filter(p => p.characterId === profile.id && p.moduleType === 'module4')
+        .map(p => p.prompt);
       
-      // Generate context-aware prompt using common service
-      console.log(`[FamilyAutoPost] 🎨 Generating context-aware prompt...`);
-      const promptResult = await PromptVariationService.generateContextualPrompt(
-        subject,
+      console.log(`[FamilyAutoPost] 📜 Found ${previousPrompts.length} previous prompts to avoid`);
+      
+      // Generate unique family prompt using new generator
+      console.log(`[FamilyAutoPost] 🎨 Generating unique family prompt...`);
+      const context = Module4PromptGenerator.getGenerationContext(profile, previousPrompts);
+      const generatedPrompt = await Module4PromptGenerator.generateUniquePrompt(
+        profile,
         prompt.basePrompt,
-        variationSettings,
-        [] // recentThemes - can be implemented later
+        context
       );
       
-      const generatedPrompt = promptResult.prompt;
       console.log(`[FamilyAutoPost] ✅ Generated Prompt: "${generatedPrompt}"`);
-      console.log(`[FamilyAutoPost] 📝 Context Applied: ${promptResult.contextApplied.join(', ')}`);
-      console.log(`[FamilyAutoPost] 🎯 Tone: ${promptResult.tone}`);
-      console.log(`[FamilyAutoPost] ⏰ Time Context: ${promptResult.timeContext}`);
+      console.log(`[FamilyAutoPost] ✅ Family: ${profile.profileName}`);
+      console.log(`[FamilyAutoPost] ✅ Avoided ${previousPrompts.length} previous scenarios`);
 
       // Check if we have member images for character-consistent generation
       const membersWithImages = profile.members.filter(m => m.imageBase64 || m.imageUrl);
