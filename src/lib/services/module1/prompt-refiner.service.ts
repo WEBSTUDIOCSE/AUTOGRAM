@@ -18,12 +18,9 @@ export const Module1PromptRefiner = {
 
 USER PROMPT: "${userPrompt}"
 
-Add ONLY essential photography details:
-- Lighting (natural/studio/golden hour)
-- Camera angle (eye-level/low angle/bird's eye)
-- Basic composition
+Photorealistic, ultra‑realistic: ${userPrompt}, natural soft lighting, subtle shadows, 50mm lens, eye‑level angle, shallow depth of field, sharp focus on subject, background bokeh, realistic textures and skin tones, balanced composition, professional photography style.
 
-Keep it under 200 characters. Output refined prompt only.`;
+Keep it under 500 characters. Output refined prompt only.`;
 
       console.log('🎨 [Module 1] Refining prompt...');
 

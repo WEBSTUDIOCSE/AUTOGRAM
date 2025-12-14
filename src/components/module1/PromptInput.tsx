@@ -25,7 +25,7 @@ export function PromptInput({ value, onChange, maxLength = 1000 }: PromptInputPr
           <Textarea
             value={value}
             onChange={(e) => onChange(e.target.value)}
-            placeholder="Describe the image you want to create... (e.g., 'A serene beach at sunset with palm trees, golden hour lighting, professional photography style, square 1:1 aspect ratio, warm orange and purple colors, highly detailed, sharp focus, professional composition, soft bokeh reflection, finely detailed foliage.')"
+            placeholder="Describe the image you want to create with specific details (location, style, mood, lighting, composition)..."
             className="min-h-[100px] md:min-h-[120px] resize-none text-sm break-words whitespace-pre-wrap"
             maxLength={maxLength}
           />

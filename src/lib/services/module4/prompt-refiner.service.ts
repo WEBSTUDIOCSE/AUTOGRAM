@@ -20,9 +20,8 @@ FAMILY CONTEXT: ${familyContext}
 
 Requirements:
 - Include family relationship naturally
-- Add basic scene details
+- Add scene details naturally
 - Under 200 characters
-- Natural language
 
 Output refined prompt only.`;
 

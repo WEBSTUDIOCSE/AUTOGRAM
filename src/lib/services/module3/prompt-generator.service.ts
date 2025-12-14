@@ -46,11 +46,7 @@ YOUR TASK: Create a NEW, SPECIFIC scene that:
 5. Under 200 characters
 6. Photorealistic style
 
-EXAMPLES OF GOOD VARIATIONS:
-- "this person reading in a cozy bookshop corner, warm afternoon light through vintage windows"
-- "this person walking through a bustling street market at golden hour, colorful stalls around"
-- "this person sitting at a minimalist rooftop cafe, city skyline at sunset, soft evening glow"
-
+Create a unique scenario that stands out from recent posts.
 Be CREATIVE and SPECIFIC. Avoid generic descriptions.
 Output the prompt only, no explanations.`;
 
@@ -102,32 +98,11 @@ Output the prompt only, no explanations.`;
   },
 
   /**
-   * Fallback: Create simple random variation if AI fails
+   * Fallback: Use base prompt with minimal variation if AI fails
    */
   createSimpleVariation(basePrompt: string, context: GenerationContext): string {
-    const settings = [
-      'cozy cafe',
-      'city street',
-      'park bench',
-      'rooftop terrace',
-      'bookshop',
-      'art gallery',
-      'beach',
-      'mountain trail',
-    ];
-
-    const lightings = [
-      'golden hour light',
-      'soft morning light',
-      'evening glow',
-      'natural window light',
-      'sunset backdrop',
-    ];
-
-    const randomSetting = settings[Math.floor(Math.random() * settings.length)];
-    const randomLighting = lightings[Math.floor(Math.random() * lightings.length)];
-
-    return `this person ${basePrompt} at ${randomSetting}, ${randomLighting}`;
+    // Use base prompt with time context - no hardcoded content
+    return `this person ${basePrompt}, ${context.timeOfDay}, ${context.season}, photorealistic`;
   },
 
   /**

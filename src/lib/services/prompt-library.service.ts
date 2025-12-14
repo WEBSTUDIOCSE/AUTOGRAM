@@ -275,23 +275,10 @@ export class PromptLibraryService {
 
   /**
    * Create default prompts for new users
+   * No default prompts - users should create their own authentic prompts
    */
   static async createDefaultPrompts(userId: string): Promise<void> {
-    const defaultPrompts = [
-      { prompt: 'wearing elegant dress in a modern cafe', category: 'fashion' },
-      { prompt: 'standing by the beach at golden sunset', category: 'outdoor' },
-      { prompt: 'in professional studio with dramatic lighting', category: 'studio' },
-      { prompt: 'walking through city streets at night', category: 'urban' },
-      { prompt: 'relaxing in a cozy home environment', category: 'lifestyle' },
-    ];
-
-    try {
-      for (const { prompt, category } of defaultPrompts) {
-        await this.createPrompt(userId, prompt, category);
-      }
-    } catch (error) {
-      console.error('Error creating default prompts:', error);
-      // Don't throw error, just log it
-    }
+    console.log(`No default prompts created - user ${userId} should create custom prompts`);
+    // Users create their own authentic prompts
   }
 }

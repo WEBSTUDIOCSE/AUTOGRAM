@@ -168,32 +168,11 @@ Remember: If the caption could work for ANY photo, it's too generic. Make it SPE
 
       // If parsing failed or caption too short, generate a simple dynamic caption from the scene
       if (!captionMatch || !captionMatch[1] || captionMatch[1].trim().length < 5) {
-        console.log('⚠️ Caption parsing failed, generating specific scene-based caption');
+        console.log('⚠️ Caption parsing failed, using simple fallback');
         
-        // Extract detailed words from scene to make caption VERY specific
-        const words = scenePrompt.toLowerCase().split(/\s+/);
-        const timeWords = words.filter(w => ['morning', 'evening', 'night', 'sunset', 'sunrise', 'afternoon', 'dawn', 'dusk'].includes(w));
-        const placeWords = words.filter(w => ['beach', 'mountain', 'city', 'park', 'cafe', 'restaurant', 'rooftop', 'street', 'garden', 'forest', 'lake', 'ocean', 'downtown'].includes(w));
-        const activityWords = words.filter(w => ['walking', 'hiking', 'running', 'coffee', 'breakfast', 'lunch', 'dinner', 'reading', 'working', 'shopping', 'exploring'].includes(w));
-        const colorWords = words.filter(w => ['red', 'blue', 'white', 'black', 'green', 'yellow', 'pink', 'golden'].includes(w));
-        
-        // Build SPECIFIC caption from scene details (NO generic phrases)
-        let simpleCap = '';
-        if (activityWords.length > 0 && placeWords.length > 0) {
-          simpleCap = `${activityWords[0].charAt(0).toUpperCase() + activityWords[0].slice(1)} at ${placeWords[0]} rn`;
-        } else if (timeWords.length > 0 && placeWords.length > 0) {
-          simpleCap = `${timeWords[0].charAt(0).toUpperCase() + timeWords[0].slice(1)} ${placeWords[0]} 📸`;
-        } else if (colorWords.length > 0) {
-          simpleCap = `${colorWords[0].charAt(0).toUpperCase() + colorWords[0].slice(1)} day`;
-        } else if (placeWords.length > 0) {
-          simpleCap = `At ${placeWords[0]} today`;
-        } else if (activityWords.length > 0) {
-          simpleCap = `${activityWords[0].charAt(0).toUpperCase() + activityWords[0].slice(1)} rn`;
-        } else {
-          // Use current time to ensure uniqueness
-          const hour = new Date().getHours();
-          simpleCap = hour < 12 ? 'Out here this morning' : hour < 17 ? 'Afternoon break' : 'Tonight 🌙';
-        }
+        // Simple fallback - just use a timestamp-based unique caption
+        const hour = new Date().getHours();
+        const simpleCap = hour < 12 ? '✨' : hour < 17 ? '☀️' : '🌙';
         
         return {
           caption: simpleCap,
@@ -224,36 +203,11 @@ Remember: If the caption could work for ANY photo, it's too generic. Make it SPE
       const hasBannedPhrase = bannedPhrases.some(phrase => captionLower.includes(phrase));
       
       if (hasBannedPhrase) {
-        console.log('⚠️ AI generated banned phrase, creating unique scene-based caption');
+        console.log('⚠️ AI generated banned phrase, using simple fallback');
         
-        // Extract specific details from scene prompt
-        const words = scenePrompt.toLowerCase().split(/\s+/);
-        
-        // More specific word lists
-        const timeWords = words.filter(w => ['morning', 'evening', 'night', 'sunset', 'sunrise', 'afternoon', 'dawn', 'dusk', 'noon', 'midnight'].includes(w));
-        const placeWords = words.filter(w => ['beach', 'mountain', 'city', 'park', 'cafe', 'restaurant', 'street', 'rooftop', 'garden', 'forest', 'lake', 'river', 'ocean', 'downtown', 'urban', 'countryside'].includes(w));
-        const activityWords = words.filter(w => ['walking', 'hiking', 'running', 'sitting', 'coffee', 'breakfast', 'lunch', 'dinner', 'reading', 'working', 'dancing', 'shopping', 'exploring'].includes(w));
-        const weatherWords = words.filter(w => ['sunny', 'cloudy', 'rainy', 'windy', 'foggy', 'clear', 'overcast'].includes(w));
-        const colorWords = words.filter(w => ['red', 'blue', 'white', 'black', 'green', 'yellow', 'pink', 'purple', 'golden', 'silver'].includes(w));
-        
-        // Build unique caption from actual scene details
-        if (activityWords.length > 0 && placeWords.length > 0) {
-          caption = `${activityWords[0].charAt(0).toUpperCase() + activityWords[0].slice(1)} at ${placeWords[0]} today`;
-        } else if (timeWords.length > 0 && placeWords.length > 0) {
-          caption = `${timeWords[0].charAt(0).toUpperCase() + timeWords[0].slice(1)} ${placeWords[0]} 📸`;
-        } else if (colorWords.length > 0 && placeWords.length > 0) {
-          caption = `${colorWords[0].charAt(0).toUpperCase() + colorWords[0].slice(1)} ${placeWords[0]} kind of day`;
-        } else if (weatherWords.length > 0) {
-          caption = `${weatherWords[0].charAt(0).toUpperCase() + weatherWords[0].slice(1)} day out here`;
-        } else if (placeWords.length > 0) {
-          caption = `Found this spot at ${placeWords[0]} 🌟`;
-        } else if (activityWords.length > 0) {
-          caption = `${activityWords[0].charAt(0).toUpperCase() + activityWords[0].slice(1)} right now`;
-        } else {
-          // Last resort: use timestamp to ensure uniqueness
-          const hour = new Date().getHours();
-          caption = hour < 12 ? 'Morning out here ☀️' : hour < 17 ? 'Afternoon break 🌤️' : 'Evening scenes 🌆';
-        }
+        // Simple emoji-only fallback
+        const hour = new Date().getHours();
+        caption = hour < 12 ? '✨' : hour < 17 ? '☀️' : '🌙';
       }
 
       console.log('✅ Generated caption and hashtags');
@@ -265,39 +219,12 @@ Remember: If the caption could work for ANY photo, it's too generic. Make it SPE
     } catch (error) {
       console.error('❌ Caption generation error:', error);
       
-      // On error, create SPECIFIC scene-based caption (NO generic phrases)
-      console.log('⚠️ Using specific scene-based caption due to error');
+      // On error, use simple emoji fallback
+      console.log('⚠️ Using simple fallback due to error');
       
-      // Extract detailed words from scene to make caption specific
-      const words = scenePrompt.toLowerCase().split(/\s+/);
-      const timeWords = words.filter(w => ['morning', 'evening', 'night', 'sunset', 'sunrise', 'afternoon', 'dawn', 'dusk'].includes(w));
-      const placeWords = words.filter(w => ['beach', 'mountain', 'city', 'park', 'cafe', 'restaurant', 'rooftop', 'street', 'garden', 'forest', 'lake', 'ocean', 'downtown', 'home', 'studio'].includes(w));
-      const activityWords = words.filter(w => ['walking', 'hiking', 'running', 'coffee', 'breakfast', 'lunch', 'dinner', 'reading', 'working', 'shopping', 'exploring', 'sitting', 'standing'].includes(w));
-      const colorWords = words.filter(w => ['red', 'blue', 'white', 'black', 'green', 'yellow', 'pink', 'golden', 'silver'].includes(w));
-      const weatherWords = words.filter(w => ['sunny', 'cloudy', 'rainy', 'foggy', 'clear'].includes(w));
-      
-      // Build SPECIFIC caption from actual scene details (NO generic words)
-      let caption = '';
-      
-      if (activityWords.length > 0 && placeWords.length > 0) {
-        caption = `${activityWords[0].charAt(0).toUpperCase() + activityWords[0].slice(1)} at ${placeWords[0]} rn`;
-      } else if (timeWords.length > 0 && placeWords.length > 0) {
-        caption = `${timeWords[0].charAt(0).toUpperCase() + timeWords[0].slice(1)} ${placeWords[0]} 📸`;
-      } else if (colorWords.length > 0 && placeWords.length > 0) {
-        caption = `${colorWords[0].charAt(0).toUpperCase() + colorWords[0].slice(1)} ${placeWords[0]}`;
-      } else if (weatherWords.length > 0) {
-        caption = `${weatherWords[0].charAt(0).toUpperCase() + weatherWords[0].slice(1)} day out`;
-      } else if (placeWords.length > 0) {
-        caption = `At ${placeWords[0]} today`;
-      } else if (activityWords.length > 0) {
-        caption = `${activityWords[0].charAt(0).toUpperCase() + activityWords[0].slice(1)} rn`;
-      } else {
-        // Last resort: use timestamp to ensure complete uniqueness
-        const now = new Date();
-        const hour = now.getHours();
-        const day = now.getDate();
-        caption = hour < 12 ? `Out this morning (${day}th)` : hour < 17 ? `This afternoon (${day}th)` : `Tonight (${day}th) 🌙`;
-      }
+      const now = new Date();
+      const hour = now.getHours();
+      const caption = hour < 12 ? '✨' : hour < 17 ? '☀️' : '🌙';
       
       console.log('📝 Error fallback caption:', caption);
       

@@ -51,12 +51,8 @@ YOUR TASK: Create a NEW, SPECIFIC family scene that:
 5. Under 200 characters
 6. Includes all family members naturally
 
-EXAMPLES OF GOOD FAMILY VARIATIONS:
-- "family cooking together in a warm kitchen, golden afternoon light through windows"
-- "parents and kids playing board games on living room floor, cozy evening atmosphere"
-- "family having breakfast on sunny porch, natural morning light, casual and candid"
-
-Be CREATIVE and SPECIFIC. Avoid generic "family portrait" descriptions.
+Be CREATIVE and SPECIFIC with unique scenarios.
+Avoid repeating any elements from recent scenes.
 Output the prompt only, no explanations.`;
 
       console.log('🤖 [Module 4] Generating AI-varied family prompt...');
@@ -107,33 +103,12 @@ Output the prompt only, no explanations.`;
   },
 
   /**
-   * Fallback: Create simple random variation if AI fails
+   * Fallback: Use base prompt with minimal variation if AI fails
    */
   createSimpleVariation(basePrompt: string, context: FamilyGenerationContext): string {
-    const activities = [
-      'cooking together',
-      'playing games',
-      'having breakfast',
-      'reading books',
-      'gardening',
-      'watching movie',
-      'baking cookies',
-      'doing art',
-    ];
-
-    const settings = [
-      'cozy living room',
-      'sunny kitchen',
-      'backyard garden',
-      'dining table',
-      'home porch',
-      'family room',
-    ];
-
-    const randomActivity = activities[Math.floor(Math.random() * activities.length)];
-    const randomSetting = settings[Math.floor(Math.random() * settings.length)];
-
-    return `family ${randomActivity} in ${randomSetting}, natural warm lighting`;
+    // Just use the base prompt - no hardcoded variations
+    const timeContext = `${context.timeOfDay}, ${context.season}`;
+    return `${basePrompt}, ${timeContext}, photorealistic`;
   },
 
   /**

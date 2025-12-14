@@ -19,9 +19,8 @@ SCENE PROMPT: "${scenePrompt}"
 
 Requirements:
 - MUST use "this person" or "this character" for consistency
-- Add photography details: lighting, angle, setting
+- Add photography details naturally
 - Keep under 200 characters
-- Natural language
 
 Output refined prompt only.`;
 

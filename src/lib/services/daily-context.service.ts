@@ -46,57 +46,20 @@ export class DailyContextService {
 
   /**
    * Get contextual mood/atmosphere
+   * Returns empty string - AI generates mood dynamically
    */
   static getMood(): string {
-    const timeOfDay = this.getTimeOfDay();
-    const season = this.getSeason();
-    
-    const moods: Record<string, string[]> = {
-      morning: ['fresh', 'energetic', 'peaceful', 'bright'],
-      afternoon: ['vibrant', 'lively', 'warm', 'active'],
-      evening: ['calm', 'golden', 'serene', 'relaxed'],
-      night: ['cozy', 'intimate', 'quiet', 'mysterious'],
-    };
-
-    const seasonalMoods: Record<string, string[]> = {
-      spring: ['blooming', 'renewal', 'fresh'],
-      summer: ['sunny', 'bright', 'warm'],
-      fall: ['cozy', 'warm-toned', 'harvest'],
-      winter: ['crisp', 'cool', 'serene'],
-    };
-
-    const timeMoods = moods[timeOfDay] || [];
-    const seasonMoods = seasonalMoods[season] || [];
-    
-    const combined = [...timeMoods, ...seasonMoods];
-    return combined[Math.floor(Math.random() * combined.length)];
+    // No hardcoded moods - return empty for AI to generate dynamically
+    return '';
   }
 
   /**
    * Get contextual suggestions
+   * Returns empty array - AI generates suggestions dynamically
    */
   static getSuggestions(): string[] {
-    const timeOfDay = this.getTimeOfDay();
-    const season = this.getSeason();
-    
-    const suggestions: Record<string, string[]> = {
-      morning: ['sunrise lighting', 'soft morning glow', 'breakfast scene', 'early morning activities'],
-      afternoon: ['bright daylight', 'outdoor activities', 'vibrant colors', 'midday sun'],
-      evening: ['golden hour', 'sunset backdrop', 'warm evening light', 'relaxing activities'],
-      night: ['city lights', 'indoor cozy setting', 'nighttime ambiance', 'starry sky'],
-    };
-
-    const seasonalSuggestions: Record<string, string[]> = {
-      spring: ['blooming flowers', 'fresh greenery', 'spring colors', 'outdoor nature'],
-      summer: ['beach vibes', 'tropical setting', 'bright sunshine', 'vacation mood'],
-      fall: ['autumn leaves', 'warm colors', 'cozy atmosphere', 'harvest theme'],
-      winter: ['snow scene', 'winter clothing', 'holiday vibes', 'indoor warmth'],
-    };
-
-    return [
-      ...(suggestions[timeOfDay] || []),
-      ...(seasonalSuggestions[season] || []),
-    ].slice(0, 4);
+    // No hardcoded suggestions - AI generates contextual suggestions dynamically
+    return [];
   }
 
   /**

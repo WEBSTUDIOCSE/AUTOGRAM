@@ -208,58 +208,10 @@ export class FamilyPromptService {
       return [];
     }
 
-    try {
-      // Get daily context for time-aware suggestions
-      const context = DailyContextService.getContext();
-      const mood = context.mood;
-      const timeOfDay = context.timeOfDay;
-      
-      // Generate category-specific prompts with context
-      let categoryPrompts: string[] = [];
-      
-      switch (category) {
-        case 'couple':
-          categoryPrompts = [
-            `A couple enjoying a ${mood} ${timeOfDay} together`,
-            'A romantic moment between two people',
-            'A couple sharing a special moment',
-            'Two people in an intimate setting',
-            'A cozy scene with a couple',
-          ];
-          break;
-        case 'family':
-          categoryPrompts = [
-            `A family gathering during ${timeOfDay}`,
-            'A joyful family moment together',
-            'Family members celebrating together',
-            'A warm family scene',
-            'Family bonding time',
-          ];
-          break;
-        case 'kids':
-          categoryPrompts = [
-            `Children playing during ${timeOfDay}`,
-            'Kids enjoying a fun activity',
-            'Children learning and exploring',
-            'A playful moment with kids',
-            'Kids having fun together',
-          ];
-          break;
-        default:
-          return [];
-      }
-
-      // Add context-based variations
-      const contextualPrompts = categoryPrompts.map(prompt => 
-        `${prompt}, ${mood} atmosphere, photorealistic`
-      );
-
-      return contextualPrompts.slice(0, 15);
-    } catch (error) {
-      console.error('Error getting default prompts:', error);
-      // Fallback to generic prompts
-      return this.getGenericPromptsByCategory(category);
-    }
+    // No hardcoded prompts - users must create their own
+    // This encourages authentic, personalized content
+    console.log(`[FamilyPromptService] No default prompts - user should create custom ${category} prompts`);
+    return [];
   }
 
   /**
