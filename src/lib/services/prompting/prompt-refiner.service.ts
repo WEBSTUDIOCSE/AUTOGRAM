@@ -1,41 +1,44 @@
 import { genAI, getTextModelName } from '@/lib/ai/gemini';
 
 /**
- * Prompt Refiner Service
- * Enhances user prompts with professional photography and artistic terms
+ * World-Class Prompt Refiner Service
+ * Intelligently enhances prompts with context-aware, dynamic improvements
+ * No hardcoded patterns - fully adaptive to user input
  */
 export const PromptRefinerService = {
   /**
-   * Refine a user prompt to generate photorealistic, high-quality images
+   * Refine a user prompt with intelligent, context-aware enhancements
    * @param userPrompt - Original user prompt
-   * @returns Refined prompt with photography details
+   * @returns Refined prompt with dynamic improvements
    */
   async refinePrompt(userPrompt: string): Promise<string> {
     try {
       const modelName = getTextModelName();
 
-      const refinementPrompt = `You are an expert AI image generation prompt engineer. Refine the following prompt to create photorealistic, professional-quality images.
+      const refinementPrompt = `You are a professional photography prompt writer.
 
-Original prompt: "${userPrompt}"
+USER PROMPT: "${userPrompt}"
 
-Enhance this prompt by adding:
-1. **Photography terms**: Camera angles (eye-level, bird's eye, low angle, etc.)
-2. **Lens specifications**: (50mm portrait lens, wide-angle 24mm, telephoto 85mm, etc.)
-3. **Lighting details**: (natural sunlight, golden hour, studio lighting, soft diffused light, dramatic shadows, etc.)
-4. **Fine details**: (sharp focus, bokeh background, texture details, color grading, etc.)
-5. **Composition**: (rule of thirds, centered, symmetrical, leading lines, etc.)
-6. **Quality markers**: (high resolution, 8K, professional photography, cinematic, etc.)
+CRITICAL: Output must be UNDER 200 characters (strict API limit).
 
-IMPORTANT:
-- Keep the CORE subject and action from the original prompt
-- Make it sound natural, not like a list
-- Focus on photorealistic style
-- Keep it under 150 words
-- Don't add unrealistic or fantasy elements unless in original prompt
+TASK: Enhance this prompt for photorealistic images. Be EXTREMELY concise:
 
-Return ONLY the refined prompt, nothing else.`;
+1. Keep core subject exactly as user described
+2. Add 1-2 photography terms only (lighting OR composition OR camera)
+3. Make it sound natural, not robotic
+4. NO generic terms like "golden hour", "bokeh", "rule of thirds" - be creative
+5. ULTRA-CONCISE - every word must matter
 
-      console.log('🎨 Refining prompt with AI...');
+RULES:
+- MAXIMUM 200 CHARACTERS (strict limit)
+- Preserve user's vision completely
+- Add minimal, high-impact enhancements only
+- Natural language, not a checklist
+- If prompt is good, barely change it
+
+OUTPUT: Refined prompt only. NO explanations. UNDER 200 CHARACTERS MANDATORY.`;
+
+      console.log('🎨 Refining prompt with intelligent analysis...');
 
       const response = await genAI.models.generateContent({
         model: modelName,
@@ -57,9 +60,31 @@ Return ONLY the refined prompt, nothing else.`;
         throw new Error('No refined prompt received');
       }
 
+      // Clean up any remaining wrapper text
+      refinedPrompt = refinedPrompt
+        .replace(/^(Refined prompt:|Enhanced prompt:|Here's the refined prompt:)/i, '')
+        .replace(/^["']|["']$/g, '')
+        .trim();
+
+      // Enforce STRICT character limit
+      const MAX_LENGTH = 250; // Safe limit for most APIs
+      if (refinedPrompt.length > MAX_LENGTH) {
+        console.warn(`⚠️ Refined prompt too long (${refinedPrompt.length} chars), truncating to ${MAX_LENGTH}`);
+        // Smart truncation at last complete word
+        refinedPrompt = refinedPrompt.substring(0, MAX_LENGTH).trim();
+        const lastSpace = refinedPrompt.lastIndexOf(' ');
+        if (lastSpace > MAX_LENGTH * 0.8) {
+          refinedPrompt = refinedPrompt.substring(0, lastSpace).trim();
+        }
+        // Add ellipsis if truncated mid-sentence
+        if (!refinedPrompt.endsWith('.') && !refinedPrompt.endsWith(',')) {
+          refinedPrompt += '...';
+        }
+      }
+
       console.log('✅ Prompt refined successfully');
-      console.log('📝 Original:', userPrompt);
-      console.log('✨ Refined:', refinedPrompt);
+      console.log('📝 Original:', userPrompt, `(${userPrompt.length} chars)`);
+      console.log('✨ Refined:', refinedPrompt, `(${refinedPrompt.length} chars)`);
 
       return refinedPrompt;
 
@@ -71,7 +96,7 @@ Return ONLY the refined prompt, nothing else.`;
   },
 
   /**
-   * Refine a character scene prompt for Module 2
+   * Refine a character scene prompt with intelligent context awareness
    * @param characterName - Name of the character
    * @param scenePrompt - Original scene description
    * @returns Refined prompt maintaining character consistency
@@ -80,29 +105,30 @@ Return ONLY the refined prompt, nothing else.`;
     try {
       const modelName = getTextModelName();
 
-      const refinementPrompt = `You are an expert AI image generation prompt engineer specializing in character-consistent scene generation.
+      const refinementPrompt = `You are a professional photography prompt writer for character scenes.
 
-Character: ${characterName}
-Scene prompt: "${scenePrompt}"
+CHARACTER: ${characterName}
+SCENE: "${scenePrompt}"
 
-Enhance this scene prompt by adding:
-1. **Photography terms**: Camera angles, framing, perspective
-2. **Lens details**: Portrait lens (85mm), shallow depth of field, etc.
-3. **Lighting**: Natural light, studio lighting, golden hour, rim lighting, etc.
-4. **Environment details**: Background setting, atmosphere, time of day
-5. **Quality markers**: High resolution, photorealistic, professional photography
+CRITICAL: Output UNDER 200 characters (strict API limit).
 
-CRITICAL REQUIREMENTS:
-- MUST maintain "this character" or "this person" to ensure consistency with reference image
-- Keep the character as the MAIN FOCUS
-- Describe the scene and setting naturally
-- Add photographic/cinematic details
-- Keep under 120 words
-- Sound natural, not robotic
+TASK: Enhance scene while keeping character consistency. Be EXTREMELY concise:
 
-Return ONLY the refined prompt, nothing else.`;
+MANDATORY:
+- ALWAYS use "this character" or "this person" (NEVER character name)
+- Character is MAIN SUBJECT
+- Keep it ULTRA-CONCISE
 
-      console.log('🎨 Refining character scene prompt...');
+RULES:
+1. Add 1-2 photography details only (lighting OR angle OR setting)
+2. Natural language, not a list
+3. NO generic terms - be creative
+4. MAXIMUM 200 CHARACTERS (strict limit)
+5. Preserve scene essence completely
+
+OUTPUT: Refined prompt only. NO explanations. UNDER 200 CHARACTERS MANDATORY.`;
+
+      console.log('🎨 Refining character scene prompt with intelligent analysis...');
 
       const response = await genAI.models.generateContent({
         model: modelName,
@@ -124,9 +150,31 @@ Return ONLY the refined prompt, nothing else.`;
         throw new Error('No refined prompt received');
       }
 
+      // Clean up any remaining wrapper text
+      refinedPrompt = refinedPrompt
+        .replace(/^(Refined prompt:|Enhanced prompt:|Here's the refined prompt:)/i, '')
+        .replace(/^["']|["']$/g, '')
+        .trim();
+
+      // Enforce STRICT character limit
+      const MAX_LENGTH = 250; // Safe limit for most APIs
+      if (refinedPrompt.length > MAX_LENGTH) {
+        console.warn(`⚠️ Refined character prompt too long (${refinedPrompt.length} chars), truncating to ${MAX_LENGTH}`);
+        // Smart truncation at last complete word
+        refinedPrompt = refinedPrompt.substring(0, MAX_LENGTH).trim();
+        const lastSpace = refinedPrompt.lastIndexOf(' ');
+        if (lastSpace > MAX_LENGTH * 0.8) {
+          refinedPrompt = refinedPrompt.substring(0, lastSpace).trim();
+        }
+        // Add ellipsis if truncated mid-sentence
+        if (!refinedPrompt.endsWith('.') && !refinedPrompt.endsWith(',')) {
+          refinedPrompt += '...';
+        }
+      }
+
       console.log('✅ Character prompt refined successfully');
-      console.log('📝 Original:', scenePrompt);
-      console.log('✨ Refined:', refinedPrompt);
+      console.log('📝 Original:', scenePrompt, `(${scenePrompt.length} chars)`);
+      console.log('✨ Refined:', refinedPrompt, `(${refinedPrompt.length} chars)`);
 
       return refinedPrompt;
 

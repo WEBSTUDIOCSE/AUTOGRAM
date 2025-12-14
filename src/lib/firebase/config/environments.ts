@@ -30,7 +30,7 @@ const UAT_KIEAI: KieAIConfig = {
     apiKey: process.env.NEXT_PUBLIC_KIEAI_API_KEY || "",
     baseUrl: "https://api.kie.ai/api/v1",
     defaultModel: "bytedance/seedream",
-    editModel: "bytedance/seedream-v4-edit",
+    editModel: "flux-2/pro-image-to-image",
     enabled: true
 };
 
@@ -107,7 +107,7 @@ const PROD_KIEAI: KieAIConfig = {
     apiKey: process.env.NEXT_PUBLIC_KIEAI_API_KEY_PROD || "",
     baseUrl: "https://api.kie.ai/api/v1",
     defaultModel: "bytedance/seedream",
-    editModel: "bytedance/seedream-v4-edit",
+    editModel: "flux-2/pro-image-to-image",
     enabled: true
 };
 

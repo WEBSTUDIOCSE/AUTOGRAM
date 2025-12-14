@@ -32,9 +32,13 @@ export interface GeminiConfig {
 export interface KieAIConfig {
   apiKey: string;
   baseUrl: string;
-  defaultModel: string;        // For text-to-image generation
-  editModel: string;           // For image-to-image (with reference)
+  defaultModel: string;        // Default for text-to-image (fallback)
+  editModel: string;           // Default for image-to-image (fallback)
   enabled: boolean;
+  
+  // User-selected models (override defaults)
+  textToImageModel?: string;
+  imageToImageModel?: string;
 }
 
 /**

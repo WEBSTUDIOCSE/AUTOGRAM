@@ -52,13 +52,21 @@ export class KieAIProvider implements ImageGenerationProvider {
   private baseUrl: string;
   private defaultModel: string;
   private editModel: string;
+  private config: any; // Store config for dynamic model access
 
-  constructor(apiKey?: string) {
-    const config = getKieAIConfig();
+  constructor(apiKey?: string, customConfig?: any) {
+    const config = customConfig || getKieAIConfig();
+    this.config = config;
     this.apiKey = apiKey || config.apiKey;
     this.baseUrl = config.baseUrl;
-    this.defaultModel = config.defaultModel;
-    this.editModel = config.editModel;
+    
+    // Use user-selected models if available, otherwise use defaults
+    this.defaultModel = config.textToImageModel || config.defaultModel;
+    this.editModel = config.imageToImageModel || config.editModel;
+    
+    console.log(`🔧 KieAI Provider initialized:`);
+    console.log(`   Text-to-Image Model: ${this.defaultModel}`);
+    console.log(`   Image-to-Image Model: ${this.editModel}`);
     
     if (!this.apiKey) {
       console.warn('⚠️ Kie.ai API key not configured. Set NEXT_PUBLIC_KIEAI_API_KEY environment variable.');
@@ -157,7 +165,9 @@ export class KieAIProvider implements ImageGenerationProvider {
     }
 
     try {
-      console.log(`🎨 Kie.ai: Creating image-to-image task with ${this.editModel}...`);
+      // Use options.model if provided, otherwise use configured editModel
+      const selectedModel = options.model || this.editModel;
+      console.log(`🎨 Kie.ai: Creating image-to-image task with ${selectedModel}...`);
       
       // Kie.ai expects image_urls as an array of actual URLs (Firebase Storage URLs)
       // NOT base64 data URLs
@@ -167,6 +177,59 @@ export class KieAIProvider implements ImageGenerationProvider {
       
       console.log(`📸 Using character image URL: ${imageUrl}`);
       
+      // Prepare input based on MODEL TYPE
+      // Different models have COMPLETELY different parameter requirements!
+      const inputPayload: any = {};
+
+      // Determine model family
+      const isFluxModel = selectedModel.includes('flux');
+      const isQwenModel = selectedModel.includes('qwen');
+      const isSeeDreamModel = selectedModel.includes('seedream');
+      const isGoogleEdit = selectedModel.includes('nano-banana-edit');
+
+      if (isFluxModel) {
+        // Flux models use aspect_ratio and resolution
+        inputPayload.prompt = prompt;
+        inputPayload.image_url = imageUrl; // Singular, not array
+        inputPayload.aspect_ratio = '1:1'; // Flux uses aspect_ratio not image_size
+        inputPayload.resolution = '1K';
+        inputPayload.strength = options.strength || 0.75;
+      } else if (isQwenModel) {
+        // Qwen model parameters (from docs)
+        inputPayload.prompt = prompt;
+        inputPayload.image_url = imageUrl; // Singular
+        inputPayload.strength = options.strength || 0.8;
+        inputPayload.output_format = 'png';
+        inputPayload.acceleration = 'none';
+        inputPayload.num_inference_steps = 30;
+        inputPayload.guidance_scale = guidanceScale;
+      } else if (isSeeDreamModel) {
+        // SeeDream models - ByteDance models may not be fully supported via API
+        // Try with aspect_ratio like Flux models
+        console.warn('⚠️ SeeDream model detected - may have limited API support');
+        inputPayload.prompt = prompt;
+        inputPayload.image_url = imageUrl;
+        inputPayload.aspect_ratio = '1:1'; // Try aspect_ratio instead of image_size
+        inputPayload.strength = options.strength || 0.75;
+      } else if (isGoogleEdit) {
+        // Google Nano Banana Edit - expects image_urls (PLURAL, ARRAY)
+        inputPayload.prompt = prompt;
+        inputPayload.image_urls = [imageUrl]; // Google expects array!
+        inputPayload.output_format = 'png';
+        inputPayload.image_size = '1:1';
+      } else {
+        // Fallback - generic pattern (try array format for safety)
+        inputPayload.prompt = prompt;
+        inputPayload.image_urls = [imageUrl]; // Use array format as fallback
+        inputPayload.strength = options.strength || 0.75;
+        inputPayload.guidance_scale = guidanceScale;
+      }
+
+      console.log(`📦 Request payload for ${selectedModel}:`, JSON.stringify({
+        model: selectedModel,
+        input: inputPayload
+      }, null, 2));
+      
       // Create task with reference image
       const taskResponse = await fetch(`${this.baseUrl}/jobs/createTask`, {
         method: 'POST',
@@ -175,27 +238,27 @@ export class KieAIProvider implements ImageGenerationProvider {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: this.editModel,
-          input: {
-            prompt: prompt,
-            image_urls: [imageUrl], // Array of actual image URLs (Firebase Storage)
-            image_size: imageSize,
-            image_resolution: '1K',
-            guidance_scale: guidanceScale,
-            max_images: 1
-          }
+          model: selectedModel,
+          input: inputPayload
         })
       });
 
       if (!taskResponse.ok) {
         const error = await taskResponse.json();
+        console.error('❌ Kie.ai API HTTP Error:', error);
         throw new Error(`Kie.ai API error: ${error.msg || taskResponse.statusText}`);
       }
 
       const taskData: KieAITaskResponse = await taskResponse.json();
+      console.log('📥 Kie.ai API Response:', taskData);
       
       if (taskData.code !== 200 || !taskData.data?.taskId) {
-        throw new Error(`Failed to create task: ${taskData.msg}`);
+        console.error('❌ Task creation failed. Full response:', JSON.stringify(taskData, null, 2));
+        console.error('❌ Request was:', JSON.stringify({
+          model: selectedModel,
+          input: inputPayload
+        }, null, 2));
+        throw new Error(`Failed to create task: ${taskData.msg || 'Unknown error'}`);
       }
 
       const taskId = taskData.data.taskId;
@@ -215,7 +278,7 @@ export class KieAIProvider implements ImageGenerationProvider {
         imageBase64,
         imageUrl: result.imageUrl,
         prompt,
-        model: this.editModel,
+        model: options.model || this.editModel,
         provider: 'kieai',
         timestamp: Date.now(),
         caption,
@@ -410,11 +473,19 @@ export class KieAIProvider implements ImageGenerationProvider {
           }
         }
         
-        // Check for failed state
-        if (state === 'failed') {
+        // Check for failed state - STOP IMMEDIATELY
+        if (state === 'failed' || state === 'fail') {
+          const errorCode = data.data.failCode || 'unknown';
           const errorMsg = data.data.failMsg || 'Task failed';
-          console.error(`❌ Task failed: ${errorMsg}`);
-          throw new Error(errorMsg);
+          console.error(`❌ Task FAILED (Code: ${errorCode}): ${errorMsg}`);
+          console.error(`📋 Failed task details:`, {
+            taskId,
+            model: data.data.model,
+            failCode: errorCode,
+            failMsg: errorMsg,
+            costTime: data.data.costTime
+          });
+          throw new Error(`Image generation failed: ${errorMsg} (Error Code: ${errorCode})`);
         }
         
         // Log progress every 3 attempts to reduce noise
@@ -423,15 +494,28 @@ export class KieAIProvider implements ImageGenerationProvider {
         }
         
       } catch (error) {
-        // Stop on critical errors
-        if (error instanceof Error && (
-          error.message.includes('API error') || 
-          error.message.includes('No image') ||
-          error.message.includes('Failed to parse')
-        )) {
-          throw error;
+        // If error is thrown intentionally (failed state, parse error, API error), stop immediately
+        if (error instanceof Error) {
+          // These are terminal errors - don't retry
+          const terminalErrors = [
+            'Task failed',
+            'Image generation failed',
+            'API error',
+            'No image',
+            'Failed to parse',
+            'No resultUrls',
+            'No resultJson'
+          ];
+          
+          const isTerminalError = terminalErrors.some(msg => error.message.includes(msg));
+          if (isTerminalError) {
+            console.error(`🛑 Terminal error detected, stopping poll:`, error.message);
+            throw error;
+          }
         }
-        console.error(`⚠️ Network error, retrying...`, error);
+        
+        // Only retry on network/connection errors
+        console.error(`⚠️ Network error on attempt ${i + 1}, retrying...`, error);
       }
     }
     

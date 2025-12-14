@@ -26,53 +26,21 @@ export const CharacterAIService = {
     try {
       const imageModelName = getImageModelName();
 
-      // Prepare the prompt for image-to-image generation
-      const fullPrompt = `CRITICAL INSTRUCTION: Using the EXACT SAME PERSON from the reference image, create an ultra-realistic photograph in this scene:
-
-"${scenePrompt}"
-
-🎯 PERSON REQUIREMENTS (HIGHEST PRIORITY):
-- This MUST be the IDENTICAL person from the reference image
-- EXACT same face structure, features, expressions
-- EXACT same skin tone, hair color, hair style
-- EXACT same eye color, eye shape, nose, mouth
-- Maintain all unique facial characteristics and beauty marks
-- Same body type, proportions, and physical attributes
-- This is face-swapping/identity preservation - NOT creating a new person
-
-📸 PHOTOGRAPHY REQUIREMENTS:
-- Ultra-high definition, photorealistic quality
-- Professional photography standards
-- Natural, realistic lighting (avoid artificial/CGI look)
-- Proper depth of field and bokeh
-- Realistic shadows, highlights, and reflections
-- Natural color grading (not oversaturated)
-- Sharp focus on the person, natural background blur
-- Realistic proportions and perspective
-
-🎬 SCENE & COMPOSITION:
-- Follow the scene description accurately: ${scenePrompt}
-- Natural, candid pose (not posed/artificial)
-- Person should be main subject, clearly visible
-- Authentic setting and environment
-- Contextually appropriate clothing and styling
-- Realistic interaction with environment
-- Natural body language and positioning
-
-❌ AVOID:
-- Artificial/CGI/rendered look
-- Oversaturated or unrealistic colors
-- Unnatural lighting or shadows
-- Distorted proportions or features
-- Blurry or low-quality results
-- Cartoonish or illustrated style
-- Changing the person's identity/face
-- Adding unrealistic elements
-
-REMEMBER: This should look like a real photograph taken with a professional camera, featuring the exact same person from the reference image in a new setting.`;
+      // Prepare ULTRA-CONCISE prompt (API limit: ~300 chars)
+      // Most APIs reject prompts over 300-500 characters
+      let fullPrompt = `This person: ${scenePrompt}`;
+      
+      // Enforce strict 250 character limit (safe buffer)
+      const MAX_PROMPT_LENGTH = 250;
+      if (fullPrompt.length > MAX_PROMPT_LENGTH) {
+        console.warn(`⚠️ Prompt too long (${fullPrompt.length} chars), truncating to ${MAX_PROMPT_LENGTH}`);
+        fullPrompt = fullPrompt.substring(0, MAX_PROMPT_LENGTH).trim();
+      }
 
       console.log('🎨 Generating character scene with selected AI provider...');
       console.log('📝 Scene prompt:', scenePrompt);
+      console.log('📏 Final prompt length:', fullPrompt.length, 'characters');
+      console.log('📝 Final prompt:', fullPrompt);
 
       // Strip data URI prefix if present
       let rawBase64 = characterBase64;

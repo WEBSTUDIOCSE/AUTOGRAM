@@ -11,6 +11,8 @@ export interface ImageGenerationOptions {
   negativePrompt?: string;
   imageSize?: 'square_hd' | 'portrait_4_3' | 'portrait_16_9' | 'landscape_4_3' | 'landscape_16_9';
   guidanceScale?: number;
+  strength?: number; // For image-to-image models (0-1, controls transformation strength)
+  imageResolution?: string; // Optional resolution (e.g., '1K', '2K', '4K')
 }
 
 export interface ImageGenerationResult {

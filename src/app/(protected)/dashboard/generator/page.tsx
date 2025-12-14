@@ -67,9 +67,8 @@ export default function GeneratorPage() {
       const response = await APIBook.ai.generateImage(prompt);
       
       if (response.success && response.data) {
-        // Store base64 for display
-        const imageUrl = `data:image/png;base64,${response.data.imageBase64}`;
-        setGeneratedImageUrl(imageUrl);
+        // imageBase64 already has data URL prefix from provider
+        setGeneratedImageUrl(response.data.imageBase64);
         setHasGeneratedImage(true);
         
         // Step 2: Save to Firestore + Firebase Storage

@@ -173,24 +173,56 @@ export class UnifiedImageGenerationService {
   }
 
   /**
-   * Load provider from Firebase user preferences
-   * Falls back to local defaultProvider if not found
+   * Load provider and model preferences from Firebase
+   * Also reinitialize providers with user-selected models
    */
   private async loadProviderFromPreferences(): Promise<ProviderType> {
     try {
-      console.log('🔍 UnifiedImageGeneration: Loading provider from Firebase preferences...');
+      console.log('🔍 UnifiedImageGeneration: Loading preferences from Firebase...');
       const prefsResponse = await UserPreferencesService.getPreferences();
       console.log('📦 UnifiedImageGeneration: Firebase response:', { 
         success: prefsResponse.success, 
-        provider: prefsResponse.data?.aiProvider 
+        provider: prefsResponse.data?.aiProvider,
+        textToImageModel: prefsResponse.data?.textToImageModel,
+        imageToImageModel: prefsResponse.data?.imageToImageModel
       });
       
-      if (prefsResponse.success && prefsResponse.data?.aiProvider) {
-        const provider = prefsResponse.data.aiProvider;
-        // Validate it's a valid provider
-        if (provider === 'gemini' || provider === 'kieai') {
-          console.log(`✅ UnifiedImageGeneration: Using provider from Firebase: ${provider}`);
-          return provider;
+      if (prefsResponse.success && prefsResponse.data) {
+        const prefs = prefsResponse.data;
+        
+        // Reinitialize KieAI provider with user-selected models if available
+        if (prefs.textToImageModel || prefs.imageToImageModel) {
+          console.log('🔧 Reinitializing KieAI provider with custom models...');
+          
+          // Validate and fix SeeDream models (not supported by API)
+          let textToImageModel = prefs.textToImageModel;
+          let imageToImageModel = prefs.imageToImageModel;
+          
+          // Replace unsupported SeeDream models with Flux alternatives
+          if (imageToImageModel?.includes('seedream')) {
+            console.warn('⚠️ SeeDream model detected (not supported by API), switching to Flux Pro');
+            imageToImageModel = 'flux-2/pro-image-to-image';
+          }
+          if (textToImageModel?.includes('seedream')) {
+            console.warn('⚠️ SeeDream model detected (not supported by API), switching to Google Imagen4');
+            textToImageModel = 'google/imagen4-fast';
+          }
+          
+          const kieaiConfig = {
+            ...require('@/lib/firebase/config/environments').getKieAIConfig(),
+            textToImageModel,
+            imageToImageModel
+          };
+          this.providers.set('kieai', new KieAIProvider(undefined, kieaiConfig));
+        }
+        
+        if (prefs.aiProvider) {
+          const provider = prefs.aiProvider;
+          // Validate it's a valid provider
+          if (provider === 'gemini' || provider === 'kieai') {
+            console.log(`✅ UnifiedImageGeneration: Using provider from Firebase: ${provider}`);
+            return provider;
+          }
         }
       }
       console.log('⚠️ UnifiedImageGeneration: No valid provider in Firebase, using fallback');

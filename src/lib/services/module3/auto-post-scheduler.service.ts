@@ -199,6 +199,7 @@ export class AutoPostSchedulerService {
           );
           stepTimer.steps.push({ step: 7, name: 'AI Image Generation', duration: Date.now() - step7Start });
           console.log(`[AutoPost] ✅ Image generated (${result.imageBase64.length} bytes)`);
+          console.log(`[AutoPost] 🤖 Model used: ${result.model}`);
 
           // Step 8: Upload to Firebase Storage using UnifiedImageStorageService
           console.log(`[AutoPost] STEP 8: Uploading to Firebase Storage...`);
@@ -245,7 +246,7 @@ export class AutoPostSchedulerService {
               instagramAccountName: assignedAccount.username || assignedAccount.name,
               postedToInstagram: true,
               instagramPostId,
-              model: 'gemini-1.5-flash',
+              model: result.model,
               timestamp: new Date().toISOString()
             });
             console.log(`[AutoPost] ✅ Saved to unified character_posts collection`);

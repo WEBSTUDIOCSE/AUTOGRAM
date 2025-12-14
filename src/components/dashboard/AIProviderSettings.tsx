@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { AlertCircle, CheckCircle2, RefreshCw, Zap, DollarSign } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertCircle, CheckCircle2, RefreshCw, Zap, DollarSign, Layers, Image as ImageIcon } from 'lucide-react';
 import { AIService } from '@/lib/services/ai.service';
 import { UserPreferencesService } from '@/lib/firebase/services';
+import { getModelsByType, type ModelMetadata } from '@/lib/services/image-generation/model-registry';
 
 interface ProviderInfo {
   name: string;
@@ -37,6 +39,8 @@ const PROVIDERS: Record<string, ProviderInfo> = {
 
 export function AIProviderSettings() {
   const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'kieai'>('gemini');
+  const [textToImageModel, setTextToImageModel] = useState<string>('');
+  const [imageToImageModel, setImageToImageModel] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [testing, setTesting] = useState(false);
   const [credits, setCredits] = useState<Record<string, { remaining: number; total?: number; used?: number }>>({});
@@ -52,12 +56,33 @@ export function AIProviderSettings() {
     setLoading(true);
     try {
       console.log('🔍 Loading provider preferences from Firebase...');
-      // Get saved provider from Firebase or default to gemini
+      // Get saved preferences from Firebase
       const prefsResponse = await UserPreferencesService.getPreferences();
-      const currentProvider = prefsResponse.data?.aiProvider || 'gemini';
+      const prefs = prefsResponse.data;
+      
+      const currentProvider = prefs?.aiProvider || 'gemini';
       console.log('✅ Provider loaded from Firebase:', currentProvider);
       setSelectedProvider(currentProvider);
       AIService.setDefaultProvider(currentProvider);
+      
+      // Load model selections
+      if (prefs?.textToImageModel) {
+        console.log('🎨 Text-to-Image Model:', prefs.textToImageModel);
+        setTextToImageModel(prefs.textToImageModel);
+      } else {
+        // Set default based on provider
+        const defaultModel = currentProvider === 'gemini' ? 'gemini-2.5-flash-image' : 'google/imagen4-fast';
+        setTextToImageModel(defaultModel);
+      }
+      
+      if (prefs?.imageToImageModel) {
+        console.log('🖼️ Image-to-Image Model:', prefs.imageToImageModel);
+        setImageToImageModel(prefs.imageToImageModel);
+      } else {
+        // Set default based on provider
+        const defaultModel = currentProvider === 'gemini' ? 'gemini-2.5-flash-reference' : 'seedream/4.5-edit';
+        setImageToImageModel(defaultModel);
+      }
 
       // Load credits
       const creditsResponse = await AIService.getAllCredits();
@@ -97,18 +122,34 @@ export function AIProviderSettings() {
   const handleSaveProvider = async () => {
     setSaving(true);
     try {
-      console.log(`💾 Saving provider to Firebase: ${selectedProvider}`);
+      console.log(`💾 Saving settings to Firebase:`);
+      console.log(`   Provider: ${selectedProvider}`);
+      console.log(`   Text-to-Image Model: ${textToImageModel}`);
+      console.log(`   Image-to-Image Model: ${imageToImageModel}`);
+      
+      // Get current preferences
+      const prefsResponse = await UserPreferencesService.getPreferences();
+      const currentPrefs = prefsResponse.data || {};
+      
+      // Update with new values
+      const updatedPrefs = {
+        ...currentPrefs,
+        aiProvider: selectedProvider,
+        textToImageModel,
+        imageToImageModel
+      };
+      
       // Save to Firebase
-      await UserPreferencesService.updateAIProvider(selectedProvider);
+      await UserPreferencesService.savePreferences(updatedPrefs);
       AIService.setDefaultProvider(selectedProvider);
       
-      console.log(`✅ Provider successfully saved to Firebase: ${selectedProvider}`);
+      console.log(`✅ Settings successfully saved to Firebase`);
       
       setTimeout(() => {
         setSaving(false);
       }, 1000);
     } catch (error) {
-      console.error('Failed to save provider:', error);
+      console.error('Failed to save settings:', error);
       setSaving(false);
     }
   };
@@ -214,6 +255,173 @@ export function AIProviderSettings() {
             ))}
           </div>
         </RadioGroup>
+
+        {/* Model Selection */}
+        {selectedProvider === 'kieai' && (
+          <div className="space-y-6 pt-6 border-t">
+            <div className="space-y-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="flex items-center gap-2 text-base font-semibold">
+                    <ImageIcon className="h-5 w-5 text-primary" />
+                    Text-to-Image Model
+                  </Label>
+                  <Badge variant="secondary" className="text-xs">
+                    New Generation
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Select the model for generating new images from text prompts
+                </p>
+                <Select value={textToImageModel} onValueChange={setTextToImageModel}>
+                  <SelectTrigger className="h-auto py-3">
+                    <SelectValue placeholder="Select text-to-image model" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[400px]">
+                    {(() => {
+                      const models = getModelsByType('text-to-image', selectedProvider);
+                      const categories = Array.from(new Set(models.map((m: ModelMetadata) => m.category || 'Other')));
+                      
+                      return categories.map(category => (
+                        <div key={category}>
+                          <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
+                            {category}
+                          </div>
+                          {models
+                            .filter((m: ModelMetadata) => (m.category || 'Other') === category)
+                            .map((model: ModelMetadata) => (
+                              <SelectItem key={model.id} value={model.id} className="py-3">
+                                <div className="flex flex-col gap-1.5">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">{model.name}</span>
+                                    <div className="flex gap-1">
+                                      <Badge variant="outline" className="text-xs font-normal">
+                                        {model.quality}
+                                      </Badge>
+                                      <Badge variant="outline" className="text-xs font-normal">
+                                        {model.speed}
+                                      </Badge>
+                                      <Badge variant="outline" className="text-xs font-normal">
+                                        {model.costLevel}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                  <span className="text-xs text-muted-foreground line-clamp-2">
+                                    {model.description}
+                                  </span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                        </div>
+                      ));
+                    })()}
+                  </SelectContent>
+                </Select>
+                {textToImageModel && (
+                  <div className="rounded-lg bg-muted/50 p-3 space-y-2">
+                    {(() => {
+                      const model = getModelsByType('text-to-image', selectedProvider).find((m: ModelMetadata) => m.id === textToImageModel);
+                      return model ? (
+                        <>
+                          <p className="text-sm">{model.description}</p>
+                          {model.features && model.features.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                              {model.features.map((feature: string) => (
+                                <Badge key={feature} variant="secondary" className="text-xs">
+                                  {feature}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      ) : null;
+                    })()}
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="flex items-center gap-2 text-base font-semibold">
+                    <Layers className="h-5 w-5 text-primary" />
+                    Image-to-Image Model
+                  </Label>
+                  <Badge variant="secondary" className="text-xs">
+                    Character Consistency
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Select the model for maintaining character consistency with reference images
+                </p>
+                <Select value={imageToImageModel} onValueChange={setImageToImageModel}>
+                  <SelectTrigger className="h-auto py-3">
+                    <SelectValue placeholder="Select image-to-image model" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[400px]">
+                    {(() => {
+                      const models = getModelsByType('image-to-image', selectedProvider);
+                      const categories = Array.from(new Set(models.map((m: ModelMetadata) => m.category || 'Other')));
+                      
+                      return categories.map(category => (
+                        <div key={category}>
+                          <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
+                            {category}
+                          </div>
+                          {models
+                            .filter((m: ModelMetadata) => (m.category || 'Other') === category)
+                            .map((model: ModelMetadata) => (
+                              <SelectItem key={model.id} value={model.id} className="py-3">
+                                <div className="flex flex-col gap-1.5">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium">{model.name}</span>
+                                    <div className="flex gap-1">
+                                      <Badge variant="outline" className="text-xs font-normal">
+                                        {model.quality}
+                                      </Badge>
+                                      <Badge variant="outline" className="text-xs font-normal">
+                                        {model.speed}
+                                      </Badge>
+                                      <Badge variant="outline" className="text-xs font-normal">
+                                        {model.costLevel}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                  <span className="text-xs text-muted-foreground line-clamp-2">
+                                    {model.description}
+                                  </span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                        </div>
+                      ));
+                    })()}
+                  </SelectContent>
+                </Select>
+                {imageToImageModel && (
+                  <div className="rounded-lg bg-muted/50 p-3 space-y-2">
+                    {(() => {
+                      const model = getModelsByType('image-to-image', selectedProvider).find((m: ModelMetadata) => m.id === imageToImageModel);
+                      return model ? (
+                        <>
+                          <p className="text-sm">{model.description}</p>
+                          {model.features && model.features.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                              {model.features.map((feature: string) => (
+                                <Badge key={feature} variant="secondary" className="text-xs">
+                                  {feature}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      ) : null;
+                    })()}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Actions */}
         <div className="flex items-center gap-3 pt-4 border-t">

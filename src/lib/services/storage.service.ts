@@ -24,8 +24,14 @@ export const StorageService = {
     subfolder?: string
   ): Promise<string> {
     try {
+      // Strip data URL prefix if present (e.g., "data:image/png;base64,")
+      let base64Data = base64Image;
+      if (base64Image.includes(',')) {
+        base64Data = base64Image.split(',')[1];
+      }
+      
       // Convert base64 to blob
-      const byteString = atob(base64Image);
+      const byteString = atob(base64Data);
       const ab = new ArrayBuffer(byteString.length);
       const ia = new Uint8Array(ab);
       for (let i = 0; i < byteString.length; i++) {

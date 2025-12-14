@@ -9,9 +9,16 @@ import { firebaseHandler, type ApiResponse } from '../handler';
 
 export interface UserPreferences {
   aiProvider?: 'gemini' | 'kieai';
+  
+  // Model selection
+  textToImageModel?: string;    // Model for new image generation
+  imageToImageModel?: string;   // Model for character consistency
+  
+  // Legacy fields (kept for backward compatibility)
   geminiImageModel?: string;
   geminiTextModel?: string;
   kieaiModel?: string;
+  
   theme?: 'light' | 'dark' | 'system';
   updatedAt?: Timestamp;
 }

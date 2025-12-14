@@ -207,6 +207,7 @@ export class FamilyAutoPostScheduler {
       let imageBase64: string;
       let generatedCaption: string;
       let generatedHashtags: string;
+      let generatedModel: string = 'unknown';
 
       if (membersWithImages.length > 0) {
         // Use character AI service with member image for face consistency
@@ -242,7 +243,9 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
           imageBase64 = result.imageBase64;
           generatedCaption = result.caption;
           generatedHashtags = result.hashtags;
+          generatedModel = result.model;
           console.log(`[FamilyAutoPost] ✅ Image generated with character consistency`);
+          console.log(`[FamilyAutoPost] 🤖 Model used: ${result.model}`);
         } catch (charError) {
           console.error(`[FamilyAutoPost] ⚠️ Character AI failed, falling back to standard generation:`, charError);
           // Fallback to standard generation
@@ -251,8 +254,10 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
             throw new Error('Image generation failed - no data returned');
           }
           imageBase64 = imageResult.data.imageBase64;
+          generatedModel = imageResult.data.model;
           generatedCaption = await this.generateCaption(generatedPrompt, familyContext);
           generatedHashtags = await this.generateHashtags(prompt.category);
+          console.log(`[FamilyAutoPost] 🤖 Fallback model used: ${imageResult.data.model}`);
         }
       } else {
         // Standard generation without member images
@@ -264,8 +269,10 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
           throw new Error('Image generation failed - no data returned');
         }
         imageBase64 = imageResult.data.imageBase64;
+        generatedModel = imageResult.data.model;
         generatedCaption = await this.generateCaption(generatedPrompt, familyContext);
         generatedHashtags = await this.generateHashtags(prompt.category);
+        console.log(`[FamilyAutoPost] 🤖 Model used: ${imageResult.data.model}`);
       }
 
       // Upload to storage using UnifiedImageStorageService
@@ -308,7 +315,7 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
           instagramAccountName: instagramAccount.name,
           postedToInstagram: true,
           instagramPostId: instagramPostId,
-          model: 'gemini-1.5-flash',
+          model: generatedModel,
           timestamp: new Date().toISOString()
         });
         console.log(`[FamilyAutoPost] ✅ Saved to post history`);
