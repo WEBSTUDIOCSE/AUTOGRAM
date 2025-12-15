@@ -64,7 +64,9 @@ export function FamilyAutoPostSettings({ profile: initialProfile, onBack }: Fami
   // Auto-post settings state
   const [isAutoPostEnabled, setIsAutoPostEnabled] = useState(false);
   const [newPostingTime, setNewPostingTime] = useState('');
-  const [isAddingTime, setIsAddingTime] = useState(false);
+  const [localPostingTimes, setLocalPostingTimes] = useState<string[]>([]);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isSavingTimes, setIsSavingTimes] = useState(false);
 
   // Prompt generation
   const [isGeneratingPrompts, setIsGeneratingPrompts] = useState(false);
@@ -85,6 +87,8 @@ export function FamilyAutoPostSettings({ profile: initialProfile, onBack }: Fami
       
       if (updatedProfile) {
         setProfile(updatedProfile);
+        setLocalPostingTimes(updatedProfile.postingTimes || []);
+        setHasUnsavedChanges(false);
         setIsAutoPostEnabled(updatedProfile.isActive && (updatedProfile.postingTimes?.length || 0) > 0);
       }
       setPrompts(promptsData.filter((p) => p.isActive));
@@ -349,48 +353,54 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
     }
   };
 
-  const handleAddPostingTime = async () => {
+  const handleAddPostingTime = () => {
     if (!newPostingTime) {
       setError('Please select a time');
       return;
     }
 
-    if (profile.postingTimes?.includes(newPostingTime)) {
+    if (localPostingTimes.includes(newPostingTime)) {
       setError('This time is already added');
       return;
     }
 
-    setIsAddingTime(true);
+    setError(null);
+    const updatedTimes = [...localPostingTimes, newPostingTime].sort();
+    setLocalPostingTimes(updatedTimes);
+    setHasUnsavedChanges(true);
+    setNewPostingTime('');
+    setSuccess('Time added. Click "Save Changes" to apply.');
+  };
+
+  const handleRemovePostingTime = (time: string) => {
+    setError(null);
+    const updatedTimes = localPostingTimes.filter(t => t !== time);
+    setLocalPostingTimes(updatedTimes);
+    setHasUnsavedChanges(true);
+    setSuccess('Time removed. Click "Save Changes" to apply.');
+  };
+
+  const handleSavePostingTimes = async () => {
+    setIsSavingTimes(true);
     setError(null);
     try {
-      const updatedTimes = [...(profile.postingTimes || []), newPostingTime].sort();
-      await FamilyProfileService.updateProfile(profile.id, { postingTimes: updatedTimes });
-      setSuccess('Posting time added successfully!');
-      setNewPostingTime('');
+      await FamilyProfileService.updateProfile(profile.id, { postingTimes: localPostingTimes });
+      setSuccess('Posting times saved successfully!');
+      setHasUnsavedChanges(false);
       await loadData();
     } catch (error) {
-      console.error('Error adding posting time:', error);
-      setError('Failed to add posting time');
+      console.error('Error saving posting times:', error);
+      setError('Failed to save posting times');
     } finally {
-      setIsAddingTime(false);
+      setIsSavingTimes(false);
     }
   };
 
-  const handleRemovePostingTime = async (time: string) => {
-    if (!confirm(`Remove posting time ${time}?`)) {
-      return;
-    }
-
-    try {
-      setError(null);
-      const updatedTimes = (profile.postingTimes || []).filter(t => t !== time);
-      await FamilyProfileService.updateProfile(profile.id, { postingTimes: updatedTimes });
-      setSuccess('Posting time removed successfully!');
-      await loadData();
-    } catch (error) {
-      console.error('Error removing posting time:', error);
-      setError('Failed to remove posting time');
-    }
+  const handleCancelChanges = () => {
+    setLocalPostingTimes(profile.postingTimes || []);
+    setHasUnsavedChanges(false);
+    setSuccess(null);
+    setError(null);
   };
 
   if (loading) {
@@ -652,28 +662,18 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
                       type="time"
                       value={newPostingTime}
                       onChange={(e) => setNewPostingTime(e.target.value)}
-                      disabled={isAddingTime}
                     />
                   </div>
-                  <Button onClick={handleAddPostingTime} disabled={isAddingTime}>
-                    {isAddingTime ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Adding...
-                      </>
-                    ) : (
-                      <>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add Time
-                      </>
-                    )}
+                  <Button onClick={handleAddPostingTime}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Time
                   </Button>
                 </div>
 
                 {/* Posting Times List */}
                 <div className="space-y-2">
-                  <Label>Active Posting Times ({profile.postingTimes?.length || 0})</Label>
-                  {(!profile.postingTimes || profile.postingTimes.length === 0) ? (
+                  <Label>Active Posting Times ({localPostingTimes.length})</Label>
+                  {localPostingTimes.length === 0 ? (
                     <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-8 text-center">
                       <Clock className="mb-2 h-8 w-8 text-muted-foreground" />
                       <p className="text-sm font-medium">No posting times set</p>
@@ -683,7 +683,7 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
                     </div>
                   ) : (
                     <div className="flex flex-wrap gap-2">
-                      {profile.postingTimes.map((time) => (
+                      {localPostingTimes.map((time) => (
                         <Badge
                           key={time}
                           variant="outline"
@@ -704,6 +704,36 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
                     </div>
                   )}
                 </div>
+
+                {/* Save/Cancel Buttons */}
+                {hasUnsavedChanges && (
+                  <div className="flex gap-2 pt-4 border-t">
+                    <Button 
+                      onClick={handleSavePostingTimes} 
+                      disabled={isSavingTimes}
+                      className="flex-1"
+                    >
+                      {isSavingTimes ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="mr-2 h-4 w-4" />
+                          Save Changes
+                        </>
+                      )}
+                    </Button>
+                    <Button 
+                      variant="outline"
+                      onClick={handleCancelChanges}
+                      disabled={isSavingTimes}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                )}
 
                 {/* Info Box */}
                 <Alert>

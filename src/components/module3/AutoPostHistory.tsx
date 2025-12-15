@@ -37,12 +37,18 @@ export default function AutoPostHistory({ userId }: AutoPostHistoryProps) {
     try {
       setLoading(true);
       setError(null);
+      console.log('[AutoPostHistory] Loading posts for user:', userId);
       const allPosts = await CharacterPostService.getRecentPosts(userId, 50);
+      console.log('[AutoPostHistory] Total posts retrieved:', allPosts.length);
+      
       // Filter for module3 posts only
       const module3Posts = allPosts.filter((post: CharacterPost) => post.moduleType === 'module3');
+      console.log('[AutoPostHistory] Module3 posts:', module3Posts.length);
+      
       setPosts(module3Posts);
       setStatistics({ total: module3Posts.length });
     } catch (err) {
+      console.error('[AutoPostHistory] Error loading history:', err);
       setError(err instanceof Error ? err.message : 'Failed to load history');
     } finally {
       setLoading(false);
