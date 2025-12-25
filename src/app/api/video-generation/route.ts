@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { unifiedVideoGeneration } from '@/lib/services/video-generation/unified-video-generation.service';
 import type { VideoGenerationOptions } from '@/lib/services/video-generation/base.provider';
 
-// Increase timeout for video generation (10 minutes)
-export const maxDuration = 600;
+// Maximum timeout for Vercel hobby plan (5 minutes)
+export const maxDuration = 300;
 
 export async function POST(req: NextRequest) {
   try {
