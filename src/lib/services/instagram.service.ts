@@ -153,7 +153,7 @@ export const InstagramService = {
    * @param accountId - Instagram account ID
    * @returns Container status data
    */
-  checkContainerStatus: async (containerId: string, accountId: string): Promise<any> => {
+  checkContainerStatus: async (containerId: string, accountId: string): Promise<{ id: string; status_code: string }> => {
     const account = InstagramService.getAccountById(accountId);
     
     if (!account) {

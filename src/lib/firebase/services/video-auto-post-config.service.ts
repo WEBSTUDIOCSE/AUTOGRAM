@@ -4,7 +4,7 @@
  */
 
 import { db } from '../firebase';
-import { doc, getDoc, setDoc, updateDoc, collection, addDoc, query, where, getDocs, orderBy, limit, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import type { VideoAutoPostConfig } from '../config/types';
 
 const VIDEO_AUTO_POST_CONFIGS_COLLECTION = 'video_auto_post_configs';

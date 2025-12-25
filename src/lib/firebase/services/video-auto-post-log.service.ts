@@ -4,7 +4,7 @@
  */
 
 import { db } from '../firebase';
-import { doc, collection, addDoc, query, where, getDocs, orderBy, limit as firestoreLimit } from 'firebase/firestore';
+import { collection, addDoc, query, where, getDocs, orderBy, limit as firestoreLimit } from 'firebase/firestore';
 import type { VideoAutoPostLog } from '../config/types';
 
 const VIDEO_AUTO_POST_LOGS_COLLECTION = 'video_auto_post_logs';

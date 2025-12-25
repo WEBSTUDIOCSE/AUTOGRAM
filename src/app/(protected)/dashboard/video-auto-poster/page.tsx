@@ -25,7 +25,6 @@ export default function VideoAutoPosterPage() {
   const { user } = useAuth();
 
   // Prompt management
-  const [prompts, setPrompts] = useState<VideoPrompt[]>([]);
   const [textToVideoPrompts, setTextToVideoPrompts] = useState<VideoPrompt[]>([]);
   const [imageToVideoPrompts, setImageToVideoPrompts] = useState<VideoPrompt[]>([]);
   const [loadingPrompts, setLoadingPrompts] = useState(true);
@@ -57,6 +56,7 @@ export default function VideoAutoPosterPage() {
       loadCharacters();
       loadInstagramAccounts();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const loadInstagramAccounts = async () => {
@@ -74,7 +74,6 @@ export default function VideoAutoPosterPage() {
     try {
       setLoadingPrompts(true);
       const loadedPrompts = await APIBook.videoPromptLibrary.getUserPrompts(user.uid);
-      setPrompts(loadedPrompts);
       
       // Separate by type
       setTextToVideoPrompts(loadedPrompts.filter(p => p.videoType === 'text-to-video'));
@@ -90,9 +89,8 @@ export default function VideoAutoPosterPage() {
     if (!user) return;
     
     try {
-      const allCharacters = await APIBook.character.getCharactersByUserId(user.uid);
-      // Filter for Module 7 characters (image-to-video)
-      const module7Characters = allCharacters.filter(char => char.module === 'module7');
+      // Get Module 7 characters (image-to-video)
+      const module7Characters = await APIBook.character.getCharactersByModule(user.uid, 'module7');
       setCharacters(module7Characters);
     } catch (err) {
       console.error('Failed to load characters:', err);
@@ -510,6 +508,7 @@ export default function VideoAutoPosterPage() {
                     />
                     {uploadedImageUrl && (
                       <div className="relative w-full h-40 rounded-lg overflow-hidden border">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img 
                           src={uploadedImageUrl} 
                           alt="Uploaded preview" 
