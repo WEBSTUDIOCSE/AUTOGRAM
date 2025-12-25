@@ -276,3 +276,65 @@ export interface FamilyAutoPostLog {
   status: 'success' | 'failed' | 'skipped';
   error?: string;
 }
+
+/**
+ * Video Auto-Post Configuration for Module 8
+ * Similar to AutoPostConfig but for video generation
+ */
+export interface VideoAutoPostConfig {
+  id: string;
+  userId: string;
+  isEnabled: boolean;
+  timezone: string; // e.g., 'Asia/Kolkata'
+  activeTextToVideoIds: string[]; // Text-to-video prompt IDs enabled
+  activeImageToVideoIds: string[]; // Image-to-video prompt IDs enabled
+  minPrompts: number; // Minimum prompts required to enable auto-posting
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Video Prompt for Module 8 Auto-Posting
+ * Stores video generation prompts and scheduling
+ */
+export interface VideoPrompt {
+  id: string;
+  userId: string;
+  videoType: 'text-to-video' | 'image-to-video';
+  characterId?: string; // Optional character for image-to-video
+  characterName?: string;
+  basePrompt: string; // Base video prompt text
+  category?: string; // Optional category
+  assignedAccountId: string; // Instagram account ID for posting
+  postingTimes: string[]; // Prompt-specific posting times in HH:mm format ['10:00', '14:00']
+  usageCount: number;
+  lastUsedAt: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Video Auto-Post Log for Module 8
+ */
+export interface VideoAutoPostLog {
+  id: string;
+  userId: string;
+  videoPromptId: string;
+  videoType: 'text-to-video' | 'image-to-video';
+  characterId?: string;
+  characterName?: string;
+  basePrompt: string;
+  generatedPrompt: string; // AI-enhanced variation
+  generatedVideoUrl: string;
+  caption: string;
+  hashtags: string;
+  instagramPostId?: string;
+  instagramAccountId: string;
+  instagramAccountName: string;
+  scheduledTime: string; // HH:mm format
+  executedAt: string;
+  status: 'success' | 'failed' | 'skipped';
+  error?: string;
+  model?: string; // Video model used
+}

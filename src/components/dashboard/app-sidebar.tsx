@@ -75,6 +75,11 @@ const automationItems = [
     url: '/dashboard/family-auto-poster',
     icon: Users,
   },
+  {
+    title: 'Video Auto Poster',
+    url: '/dashboard/video-auto-poster',
+    icon: Video,
+  },
 ];
 
 interface AppSidebarProps {

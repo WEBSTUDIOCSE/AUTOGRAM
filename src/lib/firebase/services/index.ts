@@ -45,6 +45,12 @@ export { AutoPostLogService } from '@/lib/services/module3/auto-post-log.service
 export { AutoPostSchedulerService } from '@/lib/services/module3/auto-post-scheduler.service';
 export { ErrorNotificationService } from '@/lib/services/error-notification.service';
 
+// Import Video Auto-Post services (Module 8)
+export { VideoAutoPostConfigService } from './video-auto-post-config.service';
+export { VideoAutoPostLogService } from './video-auto-post-log.service';
+export { VideoPromptLibraryService } from '@/lib/services/module8/video-prompt-library.service';
+export { Module8PromptGenerator } from '@/lib/services/module8/video-prompt-generator.service';
+
 // Import types
 export type { AppUser } from './auth.service';
 export type { PaymentRecord } from './payment.service';
@@ -74,6 +80,10 @@ import { Module3PromptGenerator } from '@/lib/services/module3/prompt-generator.
 import { AutoPostLogService } from '@/lib/services/module3/auto-post-log.service';
 import { AutoPostSchedulerService } from '@/lib/services/module3/auto-post-scheduler.service';
 import { ErrorNotificationService } from '@/lib/services/error-notification.service';
+import { VideoAutoPostConfigService } from './video-auto-post-config.service';
+import { VideoAutoPostLogService } from './video-auto-post-log.service';
+import { VideoPromptLibraryService } from '@/lib/services/module8/video-prompt-library.service';
+import { Module8PromptGenerator } from '@/lib/services/module8/video-prompt-generator.service';
 
 /**
  * Centralized APIBook for Firebase services
@@ -118,6 +128,11 @@ export const APIBook = {
   autoPostLog: AutoPostLogService,
   autoPostScheduler: AutoPostSchedulerService,
   errorNotification: ErrorNotificationService,
+  // Video Auto-Post (Module 8)
+  videoAutoPostConfig: VideoAutoPostConfigService,
+  videoPromptLibrary: VideoPromptLibraryService,
+  module8PromptGenerator: Module8PromptGenerator,
+  videoAutoPostLog: VideoAutoPostLogService,
 } as const;
 
 /**
