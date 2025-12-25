@@ -172,7 +172,10 @@ export default function VideoAutoPosterPage() {
           updateData.category = promptForm.category;
         }
 
-        await APIBook.videoPromptLibrary.updatePrompt(editingPrompt.id, updateData);
+        await APIBook.videoPromptLibrary.updatePrompt(
+          editingPrompt.id, 
+          updateData as Partial<VideoPrompt>
+        );
       } else {
         // Create new prompt
         const createData: Record<string, unknown> = {
@@ -197,7 +200,9 @@ export default function VideoAutoPosterPage() {
           createData.category = promptForm.category;
         }
 
-        await APIBook.videoPromptLibrary.createPrompt(createData);
+        await APIBook.videoPromptLibrary.createPrompt(
+          createData as Omit<VideoPrompt, 'id' | 'createdAt' | 'updatedAt'>
+        );
       }
 
       await loadPrompts();
