@@ -154,7 +154,7 @@ export default function VideoAutoPosterPage() {
 
       if (editingPrompt) {
         // Update existing prompt
-        const updateData: any = {
+        const updateData: Record<string, unknown> = {
           videoType: promptForm.videoType,
           basePrompt: promptForm.basePrompt,
           assignedAccountId: promptForm.assignedAccountId,
@@ -175,7 +175,7 @@ export default function VideoAutoPosterPage() {
         await APIBook.videoPromptLibrary.updatePrompt(editingPrompt.id, updateData);
       } else {
         // Create new prompt
-        const createData: any = {
+        const createData: Record<string, unknown> = {
           userId: user!.uid,
           videoType: promptForm.videoType,
           basePrompt: promptForm.basePrompt,
