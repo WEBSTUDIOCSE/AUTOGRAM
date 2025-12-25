@@ -256,3 +256,274 @@ fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
   .then(res => res.json())
   .then(res => console.log(res))
   .catch(err => console.error(err));
+
+
+/// new models
+  12) Kling - V1 Avatar Standard
+  const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'kling/v1-avatar-standard',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      image_url: 'https://file.aiquickdraw.com/custom-page/akr/section-images/17579268936223zs9l3dt.png',
+      audio_url: 'https://file.aiquickdraw.com/custom-page/akr/section-images/17579258340109gghun47.mp3',
+      prompt: ''
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+  13) Kling - V2.1 Master Image to Video
+
+  const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'kling/v2-1-master-image-to-video',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'A team of paratroopers descends into enemy territory, as they pass through clouds, the camera switches to a slow pan above the battlefield lighting up with',
+      image_url: 'https://file.aiquickdraw.com/custom-page/akr/section-images/1755256297923kmjpynul.png',
+      duration: '5',
+      negative_prompt: 'blur, distort, and low quality',
+      cfg_scale: 0.5
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+  14) Kling - V2.1 Master Text to Video
+
+  const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'kling/v2-1-master-text-to-video',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'First-person view from a soldier jumping from a transport plane — the camera shakes with turbulence, oxygen mask reflections flicker — as the clouds part, the battlefield below pulses with anti-air fire and missile trails.',
+      duration: '5',
+      aspect_ratio: '16:9',
+      negative_prompt: 'blur, distort, and low quality',
+      cfg_scale: 0.5
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+
+15) Kling - V2.1 Pro
+
+const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'kling/v2-1-pro',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'POV shot of a gravity surfer diving between ancient ruins suspended midair, glowing moss lights the path, the board hisses as it carves through thin mist, echoes rise with speed ',
+      image_url: 'https://file.aiquickdraw.com/custom-page/akr/section-images/1754892534386c8wt0qfs.webp',
+      duration: '5',
+      negative_prompt: 'blur, distort, and low quality',
+      cfg_scale: 0.5,
+      tail_image_url: ''
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+  16) Kling - V2.1 Standard
+
+  const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'kling/v2-1-standard',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'Begin with the uploaded image as the first frame. Gradually animate the scene: steam rises and drifts upward from the train; lantern lights flicker subtly; cloaked figures begin to move slowly — walking, turning, adjusting their belongings. Floating dust or magical particles catch the light. The text “KLING 2.1 STANDARD API — Now on Kie.ai” softly pulses with a golden glow. The camera pushes forward slightly, then slowly fades to black.',
+      image_url: 'https://file.aiquickdraw.com/custom-page/akr/section-images/1755256596169mkkwr2ag.webp',
+      duration: '5',
+      negative_prompt: 'blur, distort, and low quality',
+      cfg_scale: 0.5
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+  17) Hailuo - Image to Video
+
+  const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'hailuo/2-3-image-to-video-pro',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'A graceful geisha performs a traditional Japanese dance indoors. She wears a luxurious red kimono with golden floral embroidery, white obi belt, and white tabi socks. Soft and elegant hand movements, expressive pose, sleeves flowing naturally. Scene set in a Japanese tatami room with warm ambient lighting, shoji paper sliding doors, and cherry blossom branches hanging in the foreground. Cinematic, soft depth of field, high detail fabric texture, hyper-realistic, smooth motion.',
+      image_url: 'https://file.aiquickdraw.com/custom-page/akr/section-images/1761736831884xl56xfiw.webp',
+      duration: '6',
+      resolution: '768P'
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+  18) Hailuo - Image to Video
+
+  const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'hailuo/2-3-image-to-video-standard',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'Two armored medieval knights clash in an intense duel at sunset, cinematic lighting.  Metal armor reflects warm golden light from the sun and the glowing swords. Sparks explode as the swords collide. Dynamic camera movement, shallow depth of field, dramatic slow motion. The scene takes place in an open desert battlefield, dust in the air, warm orange sun behind them, epic atmosphere.  Highly detailed armor textures, realistic reflections, volumetric lighting, cinematic quality.',
+      image_url: 'https://file.aiquickdraw.com/custom-page/akr/section-images/1761736401898mpm67du5.webp',
+      duration: '6',
+      resolution: '768P'
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+  19) Hailuo Pro - Text to Video
+
+  const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'hailuo/02-text-to-video-pro',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'High top angle wide mid close-up tracking shot, flying very fast two meters high over prehistoric ferns and moss-covered ground, dominated by a real young boy (pink t-shirt, pink shorts, white shoes, white long socks), with his back to the camera, body stretched out, gliding smoothly forward, flying in the air, casting a clear shadow on the terrain below. His legs and body are high above the surface, his feet not touching the ground, soaring in a Superman pose. The background is a vast Jurassic valley, filled with dense, ancient jungle vegetation and towering cycads. In the distance, rugged volcanic mountains rise with a winding path cutting through. Massive, slow-moving sauropods graze far off on the horizon. Large, fluffy white clouds float in the vibrant blue sky. Strong dynamic motion blur adds a vivid sense of high-speed flight and deep cinematic perspective. Realistic image –raw.',
+      prompt_optimizer: true
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+  20) Hailuo Standard - Text to Video
+
+  const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'hailuo/02-text-to-video-standard',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'A llama and a raccoon battle it out in an intense table tennis match, inside a roaring Olympic stadium. Slow-mo, wild angles, full comedy mode.',
+      duration: '6',
+      prompt_optimizer: true
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+  21) Hailuo Pro - Image to Video
+
+  const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'hailuo/02-image-to-video-pro',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'Cinematic wide shot: A colossal starship drifts silently above the rings of Saturn, its metallic hull reflecting streaks of cosmic light. The camera pushes closer, revealing thousands of illuminated windows like a floating city. Smaller fighter crafts dart across the frame, leaving neon trails as they maneuver through the vastness of space. A sudden burst of thrusters scatters asteroid fragments in slow motion, glowing faintly as they collide and drift apart.',
+      image_url: 'https://file.aiquickdraw.com/custom-page/akr/section-images/17585210783150ispzfo7.png',
+      end_image_url: '',
+      prompt_optimizer: true
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+  22) Hailuo Standard - Image to Video 
+
+  const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'hailuo/02-image-to-video-standard',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'Epic aerial shot: A lone samurai stands atop a jagged mountain peak as a storm of sakura petals is swept across the wind. Behind him, the sky is split in two — half daylight, half night. The shot pulls back to reveal that the mountain is actually the curved back of a sleeping dragon that spans across the horizon. Lightning crackles in the distance as the dragon\'s eye slowly opens, glowing with ancient magic. The samurai doesn’t flinch; he lowers his straw hat and places his hand on the hilt of his blade.',
+      image_url: 'https://file.aiquickdraw.com/custom-page/akr/section-images/17585207681646umf3lz8.png',
+      end_image_url: 'https://file.aiquickdraw.com/custom-page/akr/section-images/1758521423357w8586uq8.png',
+      duration: '10',
+      resolution: '768P',
+      prompt_optimizer: true
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+
+  23) Generate Veo 3.1 AI Video(Fast&Quality)
+  const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    prompt: 'A dog playing in a park',
+    imageUrls: ['http://example.com/image1.jpg', 'http://example.com/image2.jpg'],
+    model: 'veo3_fast',
+    watermark: 'MyBrand',
+    callBackUrl: 'http://your-callback-url.com/complete',
+    aspectRatio: '16:9',
+    seeds: 12345,
+    enableFallback: false,
+    enableTranslation: true,
+    generationType: 'REFERENCE_2_VIDEO'
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/veo/generate', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));

@@ -90,6 +90,7 @@ export interface Character {
   uploadedAt: string;
   lastUsedAt: string | null;
   usageCount: number;
+  module?: 'module2' | 'module3' | 'module7'; // Track which module uploaded this character
 }
 
 /**

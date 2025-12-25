@@ -80,6 +80,11 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
     const selectedModel = model || (imageUrl ? this.defaultImageToVideoModel : this.defaultTextToVideoModel);
     
     try {
+      // Check if it's a Veo model (uses different endpoint)
+      if (selectedModel === 'veo3_fast' || selectedModel === 'veo3_quality') {
+        return this.generateVeoVideo(selectedModel, options);
+      }
+
       // Build input payload based on model type
       const inputPayload = this.buildInputPayload(selectedModel, options);
 
@@ -113,10 +118,10 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
 
       const taskId = taskData.data.taskId;
       console.log(`📋 Video task created: ${taskId}`);
-      console.log(`⏳ Polling for completion (video generation may take 1-5 minutes)...`);
+      console.log(`⏳ Polling for completion (video generation may take 5-10 minutes)...`);
 
       // Poll for completion (video takes longer than images)
-      const result = await this.pollTaskCompletion(taskId, 150); // 5 minutes max
+      const result = await this.pollTaskCompletion(taskId, 280); // ~9 minutes max
 
       return {
         videoUrl: result.videoUrl,
@@ -136,6 +141,67 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
       console.error('❌ Kie.ai video generation failed:', error);
       throw new Error(`Video generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+  }
+
+  private async generateVeoVideo(model: string, options: VideoGenerationOptions): Promise<VideoGenerationResult> {
+    console.log(`🎬 Creating Veo video with ${model}...`);
+    
+    const payload: Record<string, unknown> = {
+      prompt: options.prompt,
+      model: model,
+      aspectRatio: options.aspectRatio || '16:9',
+      enableFallback: false,
+      enableTranslation: true
+    };
+
+    if (options.imageUrl) {
+      payload.imageUrls = [options.imageUrl];
+      payload.generationType = 'REFERENCE_2_VIDEO';
+    } else if (options.imageUrls && options.imageUrls.length > 0) {
+      payload.imageUrls = options.imageUrls;
+      payload.generationType = 'REFERENCE_2_VIDEO';
+    }
+
+    if (options.seed) payload.seeds = options.seed;
+    if (options.callbackUrl) payload.callBackUrl = options.callbackUrl;
+
+    const taskResponse = await fetch(`${this.baseUrl}/veo/generate`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!taskResponse.ok) {
+      const error = await taskResponse.json();
+      throw new Error(`Veo API error: ${error.msg || taskResponse.statusText}`);
+    }
+
+    const taskData: KieAITaskResponse = await taskResponse.json();
+
+    if (taskData.code !== 200) {
+      throw new Error(`Veo error: ${taskData.msg}`);
+    }
+
+    const taskId = taskData.data.taskId;
+    console.log(`📋 Veo video task created: ${taskId}`);
+    console.log(`⏳ Polling for completion (may take 5-10 minutes)...`);
+
+    const result = await this.pollTaskCompletion(taskId, 280);
+
+    return {
+      videoUrl: result.videoUrl,
+      thumbnailUrl: result.thumbnailUrl,
+      prompt: options.prompt,
+      model: model,
+      provider: 'kieai',
+      timestamp: Date.now(),
+      aspectRatio: options.aspectRatio,
+      cost: this.getEstimatedCost(options),
+      taskId
+    };
   }
 
   async generateVideoFromImage(
@@ -233,6 +299,76 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
       payload.audio_url = options.audioUrl;
       payload.prompt = options.prompt || '';
     }
+    // Kling V1 Avatar Standard
+    else if (model === 'kling/v1-avatar-standard') {
+      payload.image_url = options.imageUrl;
+      payload.audio_url = options.audioUrl;
+      payload.prompt = options.prompt || '';
+    }
+    // Kling V2.1 Master Image-to-Video
+    else if (model === 'kling/v2-1-master-image-to-video') {
+      payload.image_url = options.imageUrl;
+      payload.duration = options.duration || '5';
+      payload.negative_prompt = options.negativePrompt || 'blur, distort, and low quality';
+      payload.cfg_scale = options.cfgScale !== undefined ? options.cfgScale : 0.5;
+    }
+    // Kling V2.1 Master Text-to-Video
+    else if (model === 'kling/v2-1-master-text-to-video') {
+      payload.duration = options.duration || '5';
+      payload.aspect_ratio = options.aspectRatio || '16:9';
+      payload.negative_prompt = options.negativePrompt || 'blur, distort, and low quality';
+      payload.cfg_scale = options.cfgScale !== undefined ? options.cfgScale : 0.5;
+    }
+    // Kling V2.1 Pro
+    else if (model === 'kling/v2-1-pro') {
+      payload.image_url = options.imageUrl;
+      payload.duration = options.duration || '5';
+      payload.negative_prompt = options.negativePrompt || 'blur, distort, and low quality';
+      payload.cfg_scale = options.cfgScale !== undefined ? options.cfgScale : 0.5;
+      if (options.tailImageUrl) payload.tail_image_url = options.tailImageUrl;
+    }
+    // Kling V2.1 Standard
+    else if (model === 'kling/v2-1-standard') {
+      payload.image_url = options.imageUrl;
+      payload.duration = options.duration || '5';
+      payload.negative_prompt = options.negativePrompt || 'blur, distort, and low quality';
+      payload.cfg_scale = options.cfgScale !== undefined ? options.cfgScale : 0.5;
+    }
+    // Hailuo 2.3 Image-to-Video Pro
+    else if (model === 'hailuo/2-3-image-to-video-pro') {
+      payload.image_url = options.imageUrl;
+      payload.duration = options.duration || '6';
+      payload.resolution = options.resolution || '768P';
+    }
+    // Hailuo 2.3 Image-to-Video Standard
+    else if (model === 'hailuo/2-3-image-to-video-standard') {
+      payload.image_url = options.imageUrl;
+      payload.duration = options.duration || '6';
+      payload.resolution = options.resolution || '768P';
+    }
+    // Hailuo 02 Text-to-Video Pro
+    else if (model === 'hailuo/02-text-to-video-pro') {
+      payload.prompt_optimizer = options.promptOptimizer !== undefined ? options.promptOptimizer : true;
+    }
+    // Hailuo 02 Text-to-Video Standard
+    else if (model === 'hailuo/02-text-to-video-standard') {
+      payload.duration = options.duration || '6';
+      payload.prompt_optimizer = options.promptOptimizer !== undefined ? options.promptOptimizer : true;
+    }
+    // Hailuo 02 Image-to-Video Pro
+    else if (model === 'hailuo/02-image-to-video-pro') {
+      payload.image_url = options.imageUrl;
+      if (options.endImageUrl) payload.end_image_url = options.endImageUrl;
+      payload.prompt_optimizer = options.promptOptimizer !== undefined ? options.promptOptimizer : true;
+    }
+    // Hailuo 02 Image-to-Video Standard
+    else if (model === 'hailuo/02-image-to-video-standard') {
+      payload.image_url = options.imageUrl;
+      if (options.endImageUrl) payload.end_image_url = options.endImageUrl;
+      payload.duration = options.duration || '10';
+      payload.resolution = options.resolution || '768P';
+      payload.prompt_optimizer = options.promptOptimizer !== undefined ? options.promptOptimizer : true;
+    }
 
     return payload;
   }
@@ -268,11 +404,14 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
 
         const { state, resultJson, failMsg } = data.data;
 
+        console.log(`📊 Task ${taskId} state: ${state} (attempt ${i + 1}/${maxAttempts})`);
+
         if (state === 'success' && resultJson) {
           const result = JSON.parse(resultJson);
           const videoUrl = result.resultUrls?.[0] || result.videoUrl || result.result_urls?.[0];
           
           if (!videoUrl) {
+            console.error('❌ Result JSON:', resultJson);
             throw new Error('No video URL in result');
           }
 
@@ -284,11 +423,14 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
         }
 
         if (state === 'failed') {
+          console.error(`❌ Generation failed: ${failMsg}`);
           throw new Error(failMsg || 'Video generation failed');
         }
 
-        if (state === 'processing') {
-          console.log(`⏳ Processing... (${i + 1}/${maxAttempts})`);
+        if (state === 'processing' || state === 'pending') {
+          if (i % 15 === 0) {
+            console.log(`⏳ Still processing... (${i + 1}/${maxAttempts}, ~${Math.floor((i + 1) * 2 / 60)} minutes elapsed)`);
+          }
         }
 
       } catch (error) {
@@ -312,7 +454,20 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
       'grok-imagine/image-to-video',
       'kling-2.6/text-to-video',
       'kling-2.6/image-to-video',
-      'kling/ai-avatar-v1-pro'
+      'kling/ai-avatar-v1-pro',
+      'kling/v1-avatar-standard',
+      'kling/v2-1-master-image-to-video',
+      'kling/v2-1-master-text-to-video',
+      'kling/v2-1-pro',
+      'kling/v2-1-standard',
+      'hailuo/2-3-image-to-video-pro',
+      'hailuo/2-3-image-to-video-standard',
+      'hailuo/02-text-to-video-pro',
+      'hailuo/02-text-to-video-standard',
+      'hailuo/02-image-to-video-pro',
+      'hailuo/02-image-to-video-standard',
+      'veo3_fast',
+      'veo3_quality'
     ];
   }
 

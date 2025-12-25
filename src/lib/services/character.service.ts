@@ -29,13 +29,15 @@ export const CharacterService = {
    * @param name - Character name
    * @param userId - User ID
    * @param assignedAccountId - Instagram account ID this character will post to
+   * @param module - Optional module identifier (module2, module3, module7)
    * @returns Created character
    */
   async uploadCharacter(
     file: File, 
     name: string, 
     userId: string,
-    assignedAccountId: string
+    assignedAccountId: string,
+    module?: 'module2' | 'module3' | 'module7'
   ): Promise<Character> {
     try {
       // Validate assigned account
@@ -81,6 +83,7 @@ export const CharacterService = {
         uploadedAt: new Date().toISOString(),
         lastUsedAt: null,
         usageCount: 0,
+        module: module, // Track which module uploaded this
       };
       
       // Save to Firestore
@@ -117,6 +120,42 @@ export const CharacterService = {
       });
       
       console.log(`✅ Retrieved ${characters.length} characters for user`);
+      return characters;
+      
+    } catch (error) {
+      console.error('❌ Failed to get user characters:', error);
+      return [];
+    }
+  },
+
+  /**
+   * Get characters for a specific module
+   * @param userId - User ID
+   * @param module - Module identifier
+   * @returns Array of characters for that module
+   */
+  async getCharactersByModule(userId: string, module: 'module2' | 'module3' | 'module7'): Promise<Character[]> {
+    try {
+      // Query by userId and uploadedAt only (doesn't require composite index)
+      // Then filter by module in memory
+      const q = query(
+        collection(db, 'characters'),
+        where('userId', '==', userId),
+        orderBy('uploadedAt', 'desc')
+      );
+      
+      const snapshot = await getDocs(q);
+      const characters: Character[] = [];
+      
+      snapshot.forEach((doc) => {
+        const character = doc.data() as Character;
+        // Filter by module in memory
+        if (character.module === module) {
+          characters.push(character);
+        }
+      });
+      
+      console.log(`✅ Retrieved ${characters.length} characters for module ${module}`);
       return characters;
       
     } catch (error) {

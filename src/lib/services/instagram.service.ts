@@ -94,12 +94,13 @@ export const InstagramService = {
 
   /**
    * Create an Instagram container (step 1 of posting)
-   * @param imageUrl - Public URL of the image
+   * @param imageUrl - Public URL of the image or video
    * @param caption - Post caption with hashtags
    * @param accountId - Instagram account ID to post to
+   * @param isVideo - Whether the media is a video (default: false)
    * @returns Container ID
    */
-  createContainer: async (imageUrl: string, caption: string, accountId: string): Promise<string> => {
+  createContainer: async (imageUrl: string, caption: string, accountId: string, isVideo: boolean = false): Promise<string> => {
     const account = InstagramService.getAccountById(accountId);
     
     if (!account) {
@@ -107,12 +108,22 @@ export const InstagramService = {
     }
     
     const params = new URLSearchParams({
-      image_url: imageUrl,
       caption: caption,
       access_token: account.accessToken
     });
 
+    // Use video_url for videos, image_url for images
+    if (isVideo) {
+      params.append('video_url', imageUrl);
+      params.append('media_type', 'REELS'); // Use REELS instead of VIDEO (VIDEO is deprecated)
+    } else {
+      params.append('image_url', imageUrl);
+    }
+
     try {
+      console.log(`📦 Creating container with ${isVideo ? 'video' : 'image'} URL:`, imageUrl);
+      console.log(`📦 Media type: ${isVideo ? 'REELS' : 'IMAGE'}`);
+      
       const response = await fetch(
         `${INSTAGRAM_API_URL}/${account.accountId}/media`,
         {
@@ -125,13 +136,45 @@ export const InstagramService = {
       
       if (data.error) {
         console.error('❌ Failed to create container:', data.error);
-        throw new Error(data.error.message);
+        throw new Error(JSON.stringify(data.error));
       }
       
       console.log(`✅ Container created for ${account.name}:`, data.id);
       return data.id;
     } catch (error) {
       console.error('Failed to create Instagram container:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Check container status
+   * @param containerId - Container ID from createContainer
+   * @param accountId - Instagram account ID
+   * @returns Container status data
+   */
+  checkContainerStatus: async (containerId: string, accountId: string): Promise<any> => {
+    const account = InstagramService.getAccountById(accountId);
+    
+    if (!account) {
+      throw new Error(`Instagram account ${accountId} not found`);
+    }
+
+    try {
+      const response = await fetch(
+        `${INSTAGRAM_API_URL}/${containerId}?fields=id,status_code&access_token=${account.accessToken}`
+      );
+      
+      const data = await response.json();
+      
+      if (data.error) {
+        console.error('❌ Failed to check container status:', data.error);
+        throw new Error(data.error.message);
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('Failed to check container status:', error);
       throw error;
     }
   },
@@ -179,20 +222,54 @@ export const InstagramService = {
   },
 
   /**
-   * Complete workflow: Upload image and post to Instagram
-   * @param imageUrl - Public URL of the image (must be publicly accessible)
+   * Complete workflow: Upload image/video and post to Instagram
+   * @param imageUrl - Public URL of the image or video (must be publicly accessible)
    * @param caption - Post caption with hashtags
    * @param accountId - Instagram account ID to post to
+   * @param isVideo - Whether the media is a video (default: false)
    * @returns Post ID
    */
-  postImage: async (imageUrl: string, caption: string, accountId: string = 'account1'): Promise<string> => {
+  postImage: async (imageUrl: string, caption: string, accountId: string = 'account1', isVideo: boolean = false): Promise<string> => {
     console.log(`📸 Starting Instagram post workflow for account: ${accountId}...`);
+    console.log(`📦 Media type: ${isVideo ? 'REELS' : 'IMAGE'}`);
     
     // Step 1: Create container
-    const containerId = await InstagramService.createContainer(imageUrl, caption, accountId);
+    const containerId = await InstagramService.createContainer(imageUrl, caption, accountId, isVideo);
     
-    // Step 2: Wait a moment for processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Step 2: Wait for container to be ready (especially important for REELS/videos)
+    if (isVideo) {
+      console.log('⏳ Waiting for REELS video to be processed by Instagram...');
+      const maxAttempts = 60; // 60 attempts × 5 seconds = 5 minutes max
+      let attempts = 0;
+      
+      while (attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds between checks
+        attempts++;
+        
+        try {
+          const status = await InstagramService.checkContainerStatus(containerId, accountId);
+          console.log(`📊 Container status (attempt ${attempts}/${maxAttempts}):`, status.status_code);
+          
+          if (status.status_code === 'FINISHED') {
+            console.log('✅ Container is ready for publishing!');
+            break;
+          } else if (status.status_code === 'ERROR') {
+            throw new Error('Container processing failed on Instagram');
+          }
+          // Continue polling if status is IN_PROGRESS or other intermediate states
+        } catch (error) {
+          console.error('Error checking container status:', error);
+          // Continue polling even on error, might be temporary
+        }
+      }
+      
+      if (attempts >= maxAttempts) {
+        throw new Error('Container processing timeout - Instagram took too long to process the video');
+      }
+    } else {
+      // For images, just wait 2 seconds
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
     
     // Step 3: Publish the post
     const postId = await InstagramService.publishContainer(containerId, accountId);

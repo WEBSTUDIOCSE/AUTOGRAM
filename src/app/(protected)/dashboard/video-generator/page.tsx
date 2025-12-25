@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -24,9 +24,30 @@ export default function VideoGeneratorPage() {
   const [aspectRatio, setAspectRatio] = useState("16:9");
   const [duration, setDuration] = useState("5");
   const [resolution, setResolution] = useState("720p");
+  const [selectedModel, setSelectedModel] = useState<string>('bytedance/v1-pro-text-to-video');
 
   // Error handling
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      loadModelPreference();
+    }
+  }, [user]);
+
+  const loadModelPreference = async () => {
+    try {
+      const { UserPreferencesService } = await import('@/lib/firebase/services');
+      const prefsResponse = await UserPreferencesService.getPreferences();
+      const prefs = prefsResponse.data;
+      if (prefs?.textToVideoModel) {
+        setSelectedModel(prefs.textToVideoModel);
+        console.log('✅ Loaded text-to-video model:', prefs.textToVideoModel);
+      }
+    } catch (err) {
+      console.error('Failed to load model preference:', err);
+    }
+  };
 
   const handleRefinePrompt = async () => {
     if (!prompt.trim()) {
@@ -66,6 +87,7 @@ export default function VideoGeneratorPage() {
         },
         body: JSON.stringify({
           prompt,
+          model: selectedModel,
           aspectRatio,
           duration,
           resolution,

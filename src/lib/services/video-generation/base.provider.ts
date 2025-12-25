@@ -15,8 +15,8 @@ export interface VideoGenerationOptions {
   
   // Video settings
   aspectRatio?: '1:1' | '16:9' | '9:16' | '4:3' | '3:4' | '2:3' | '3:2';
-  resolution?: '720p' | '1080p' | '1K';
-  duration?: '5' | '8' | '10';
+  resolution?: '720p' | '1080p' | '1K' | '768P';
+  duration?: '5' | '6' | '8' | '10';
   
   // Advanced controls
   cameraFixed?: boolean;
@@ -28,6 +28,14 @@ export interface VideoGenerationOptions {
   // Grok-specific
   mode?: 'normal' | 'creative';
   index?: number; // For multiple frame selection
+  
+  // Kling V2.1 specific
+  negativePrompt?: string;
+  cfgScale?: number;
+  tailImageUrl?: string;
+  
+  // Hailuo specific
+  promptOptimizer?: boolean;
   
   // SeeDance specific
   endImageUrl?: string;

@@ -66,7 +66,8 @@ export default function ImageToVideoInstagramPost({
       const instagramPostId = await APIBook.instagram.postImage(
         firebaseVideoUrl,
         `${caption}\n\n${hashtags}`,
-        selectedAccount
+        selectedAccount,
+        true // isVideo flag
       );
 
       // Get account info for display
