@@ -1,13 +1,13 @@
 /**
  * Model Registry
- * Centralized registry for all available AI image generation models
+ * Centralized registry for all available AI image and video generation models
  */
 
 export interface ModelMetadata {
   id: string;
   name: string;
   provider: 'gemini' | 'kieai';
-  type: 'text-to-image' | 'image-to-image';
+  type: 'text-to-image' | 'image-to-image' | 'text-to-video' | 'image-to-video';
   speed: 'very-fast' | 'fast' | 'medium' | 'slow';
   quality: 'basic' | 'good' | 'excellent' | 'ultra';
   costLevel: 'low' | 'medium' | 'high';
@@ -15,6 +15,8 @@ export interface ModelMetadata {
   category?: string;
   aspectRatios?: string[];
   features?: string[];
+  durations?: string[]; // For video models
+  resolutions?: string[]; // For video models
 }
 
 /**
@@ -265,6 +267,168 @@ export const KIEAI_MODELS: Record<string, ModelMetadata> = {
 };
 
 /**
+ * Video Generation Models (Kie.ai)
+ */
+export const VIDEO_MODELS: Record<string, ModelMetadata> = {
+  // === BYTEDANCE VIDEO MODELS ===
+  'bytedance/seedance-1.5-pro': {
+    id: 'bytedance/seedance-1.5-pro',
+    name: 'SeeDance 1.5 Pro',
+    provider: 'kieai',
+    type: 'image-to-video',
+    speed: 'medium',
+    quality: 'ultra',
+    costLevel: 'high',
+    category: 'ByteDance',
+    description: 'Advanced image-to-video with audio generation support',
+    aspectRatios: ['1:1', '16:9', '9:16'],
+    resolutions: ['720p', '1080p'],
+    durations: ['5', '8', '10'],
+    features: ['Audio generation', 'Camera control', 'High quality']
+  },
+  'bytedance/v1-pro-fast-image-to-video': {
+    id: 'bytedance/v1-pro-fast-image-to-video',
+    name: 'V1 Pro Fast (Image)',
+    provider: 'kieai',
+    type: 'image-to-video',
+    speed: 'very-fast',
+    quality: 'excellent',
+    costLevel: 'medium',
+    category: 'ByteDance',
+    description: 'Fast image-to-video generation for quick results',
+    resolutions: ['720p'],
+    durations: ['5'],
+    features: ['Fast generation', 'Good quality', 'Quick turnaround']
+  },
+  'bytedance/v1-pro-image-to-video': {
+    id: 'bytedance/v1-pro-image-to-video',
+    name: 'V1 Pro (Image)',
+    provider: 'kieai',
+    type: 'image-to-video',
+    speed: 'medium',
+    quality: 'ultra',
+    costLevel: 'high',
+    category: 'ByteDance',
+    description: 'Professional image-to-video with camera controls',
+    resolutions: ['720p'],
+    durations: ['5'],
+    features: ['Camera control', 'Safety checker', 'Professional quality']
+  },
+  'bytedance/v1-pro-text-to-video': {
+    id: 'bytedance/v1-pro-text-to-video',
+    name: 'V1 Pro (Text)',
+    provider: 'kieai',
+    type: 'text-to-video',
+    speed: 'medium',
+    quality: 'ultra',
+    costLevel: 'high',
+    category: 'ByteDance',
+    description: 'Professional text-to-video generation',
+    aspectRatios: ['16:9', '9:16', '1:1'],
+    resolutions: ['720p'],
+    durations: ['5'],
+    features: ['Multi-shot support', 'Camera control', 'Safety checker']
+  },
+  'bytedance/v1-lite-image-to-video': {
+    id: 'bytedance/v1-lite-image-to-video',
+    name: 'V1 Lite (Image)',
+    provider: 'kieai',
+    type: 'image-to-video',
+    speed: 'fast',
+    quality: 'good',
+    costLevel: 'low',
+    category: 'ByteDance',
+    description: 'Budget-friendly image-to-video generation',
+    resolutions: ['720p'],
+    durations: ['5'],
+    features: ['Affordable', 'Camera control', 'End frame support']
+  },
+  'bytedance/v1-lite-text-to-video': {
+    id: 'bytedance/v1-lite-text-to-video',
+    name: 'V1 Lite (Text)',
+    provider: 'kieai',
+    type: 'text-to-video',
+    speed: 'fast',
+    quality: 'good',
+    costLevel: 'low',
+    category: 'ByteDance',
+    description: 'Budget-friendly text-to-video generation',
+    aspectRatios: ['16:9', '9:16', '1:1'],
+    resolutions: ['720p'],
+    durations: ['5'],
+    features: ['Affordable', 'Camera control', 'Safety checker']
+  },
+
+  // === GROK IMAGINE VIDEO MODELS ===
+  'grok-imagine/text-to-video': {
+    id: 'grok-imagine/text-to-video',
+    name: 'Grok Imagine (Text)',
+    provider: 'kieai',
+    type: 'text-to-video',
+    speed: 'medium',
+    quality: 'excellent',
+    costLevel: 'medium',
+    category: 'Grok',
+    description: 'X.AI\'s creative text-to-video generation',
+    aspectRatios: ['1:1', '2:3', '3:2', '16:9', '9:16'],
+    features: ['Creative style', 'Multi-aspect support', 'Artistic']
+  },
+  'grok-imagine/image-to-video': {
+    id: 'grok-imagine/image-to-video',
+    name: 'Grok Imagine (Image)',
+    provider: 'kieai',
+    type: 'image-to-video',
+    speed: 'medium',
+    quality: 'excellent',
+    costLevel: 'medium',
+    category: 'Grok',
+    description: 'X.AI\'s creative image-to-video generation',
+    features: ['Creative style', 'Multiple frame support', 'Artistic']
+  },
+
+  // === KLING VIDEO MODELS ===
+  'kling-2.6/text-to-video': {
+    id: 'kling-2.6/text-to-video',
+    name: 'Kling 2.6 (Text)',
+    provider: 'kieai',
+    type: 'text-to-video',
+    speed: 'medium',
+    quality: 'ultra',
+    costLevel: 'high',
+    category: 'Kling',
+    description: 'Advanced text-to-video with dialogue support',
+    aspectRatios: ['1:1', '16:9', '9:16'],
+    durations: ['5', '10'],
+    features: ['Dialogue support', 'Audio generation', 'Ultra quality']
+  },
+  'kling-2.6/image-to-video': {
+    id: 'kling-2.6/image-to-video',
+    name: 'Kling 2.6 (Image)',
+    provider: 'kieai',
+    type: 'image-to-video',
+    speed: 'medium',
+    quality: 'ultra',
+    costLevel: 'high',
+    category: 'Kling',
+    description: 'Advanced image-to-video with audio support',
+    durations: ['5', '10'],
+    features: ['Audio generation', 'Ultra quality', 'Dialogue support']
+  },
+  'kling/ai-avatar-v1-pro': {
+    id: 'kling/ai-avatar-v1-pro',
+    name: 'Kling AI Avatar Pro',
+    provider: 'kieai',
+    type: 'image-to-video',
+    speed: 'medium',
+    quality: 'ultra',
+    costLevel: 'high',
+    category: 'Kling',
+    description: 'AI avatar animation with audio synchronization',
+    features: ['Lip sync', 'Audio sync', 'Avatar animation']
+  }
+};
+
+/**
  * Gemini Models
  */
 export const GEMINI_MODELS: Record<string, ModelMetadata> = {
@@ -295,8 +459,11 @@ export const GEMINI_MODELS: Record<string, ModelMetadata> = {
 /**
  * Get all models by type
  */
-export function getModelsByType(type: 'text-to-image' | 'image-to-image', provider?: 'gemini' | 'kieai'): ModelMetadata[] {
-  const allModels = { ...KIEAI_MODELS, ...GEMINI_MODELS };
+export function getModelsByType(
+  type: 'text-to-image' | 'image-to-image' | 'text-to-video' | 'image-to-video', 
+  provider?: 'gemini' | 'kieai'
+): ModelMetadata[] {
+  const allModels = { ...KIEAI_MODELS, ...GEMINI_MODELS, ...VIDEO_MODELS };
   
   return Object.values(allModels).filter(model => {
     const typeMatch = model.type === type;
@@ -309,7 +476,7 @@ export function getModelsByType(type: 'text-to-image' | 'image-to-image', provid
  * Get model by ID
  */
 export function getModelById(modelId: string): ModelMetadata | undefined {
-  return KIEAI_MODELS[modelId] || GEMINI_MODELS[modelId];
+  return KIEAI_MODELS[modelId] || GEMINI_MODELS[modelId] || VIDEO_MODELS[modelId];
 }
 
 /**

@@ -1,0 +1,258 @@
+1) Bytedance - Seedance 1.5 Pro
+const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'bytedance/seedance-1.5-pro',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'A serene beach at sunset with waves gently crashing on the shore, palm trees swaying in the breeze, and seagulls flying across the orange sky',
+      input_urls: ['https://file.aiquickdraw.com/custom-page/akr/section-images/example1.png'],
+      aspect_ratio: '1:1',
+      resolution: '720p',
+      duration: 8,
+      fixed_lens: false,
+      generate_audio: false
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+
+2) Bytedance - V1 Pro Fast Image to Video
+
+const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'bytedance/v1-pro-fast-image-to-video',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'A cinematic close-up sequence of a single elegant ceramic coffee cup with saucer on a rustic wooden table near a sunlit window, hot rich espresso poured in a thin golden stream from above, gradually filling the cup in distinct stages: empty with faint steam, 1/4 filled with dark crema, half-filled with swirling coffee and rising steam, 3/4 filled nearing the rim, perfectly full just below overflow with glossy surface and soft bokeh highlights; ultra-realistic, warm golden-hour light, shallow depth of field, photorealism, detailed textures, subtle steam wisps, serene inviting atmosphere --ar 16:9 --q 2 --style raw',
+      image_url: 'https://file.aiquickdraw.com/custom-page/akr/section-images/1762340693669m6sey187.webp',
+      resolution: '720p',
+      duration: '5'
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+3) Bytedance - V1 Pro Image to Video
+
+const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'bytedance/v1-pro-image-to-video',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'A golden retriever dashing through shallow surf at the beach, back angle camera low near waterline, splashes frozen in time, blur trails in waves and paws, afternoon sun glinting off wet fur, overcast day, dramatic clouds',
+      image_url: 'https://file.aiquickdraw.com/custom-page/akr/section-images/1755179021328w1nhip18.webp',
+      resolution: '720p',
+      duration: '5',
+      camera_fixed: false,
+      seed: -1,
+      enable_safety_checker: true
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+
+4) Bytedance - V1 Pro Text to Video
+
+const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'bytedance/v1-pro-text-to-video',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'A boy with curly hair and a backpack rides a bike down a golden-lit rural road at sunset.\n[Cut to] He slows down and looks toward a field of tall grass.\n[Wide shot] His silhouette halts in the orange haze.',
+      aspect_ratio: '16:9',
+      resolution: '720p',
+      duration: '5',
+      camera_fixed: false,
+      seed: -1,
+      enable_safety_checker: true
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+5) Bytedance - V1 Lite Image to Video
+
+const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'bytedance/v1-lite-image-to-video',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'Multiple shots. A traveler crosses an endless desert toward a glowing archway. [Cut to] His cloak whips in the wind as he reaches the massive stone threshold. [Wide shot] He steps through — and vanishes into a burst of light',
+      image_url: 'https://file.aiquickdraw.com/custom-page/akr/section-images/17550783375205e9woshz.png',
+      resolution: '720p',
+      duration: '5',
+      camera_fixed: false,
+      seed: -1,
+      enable_safety_checker: true,
+      end_image_url: ''
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+
+6) Bytedance - V1 Lite Text to Video
+
+const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'bytedance/v1-lite-text-to-video',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'Wide-angle shot: A serene sailing boat gently sways in the harbor at dawn, surrounded by soft Impressionist hues of pink and orange with ivory accents. The camera slowly pans across the scene, capturing the delicate reflections on the water and the intricate details of the boat\'s sails as the light gradually brightens.',
+      aspect_ratio: '16:9',
+      resolution: '720p',
+      duration: '5',
+      camera_fixed: false,
+      enable_safety_checker: true
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+
+7) Grok Imagine - Text to Video
+const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'grok-imagine/text-to-video',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'A couple of doors open to the right one by one randomly and stay open, to show the inside, each is either a living room, or a kitchen, or a bedroom or an office, with little people living inside.',
+      aspect_ratio: '2:3',
+      mode: 'normal'
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+8) Grok Imagine - Image to Video
+
+const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'grok-imagine/image-to-video',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      image_urls: [
+        'https://file.aiquickdraw.com/custom-page/akr/section-images/1762247692373tw5di116.png'
+      ],
+      prompt: 'POV hand comes into frame handing the girl a cup of take away coffee, the girl steps out of the screen looking tired, then takes it and she says happily: "thanks! Back to work" she exits the frame and walks right to a different part of the office.',
+      mode: 'normal',
+      index: 0
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+9) Kling-2.6 - Text to Video
+
+const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'kling-2.6/text-to-video',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'Scene: A fashion live-streaming sales setting, with clothes hanging on racks and the host\'s figure reflected in a full-length mirror. Lines: [African female host] turns around to showcase the hoodie\'s cut. [African female host, in a cheerful tone] says: "360-degree flawless tailoring, slimming and versatile." She then [African female host] leans closer to the camera. [African female host, in a lively tone] says: "Double-sided fleece fabric, $30 off immediately when you order now."',
+      sound: false,
+      aspect_ratio: '1:1',
+      duration: '5'
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+10) Kling-2.6 - Image to Video
+
+const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'kling-2.6/image-to-video',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'In a bright rehearsal room, sunlight streams through the windows, and a standing microphone is placed in the center of the room. [Campus band female lead singer] stands in front of the microphone with her eyes closed, and other members stand around her. [Campus band female lead singer, singing loudly] Lead vocal: "I will do my best to heal you, with all my heart and soul..." The background is a cappella harmonies, and the camera slowly pans around the band members.',
+      image_urls: ['https://static.aiquickdraw.com/tools/example/1764851002741_i0lEiI8I.png'],
+      sound: false,
+      duration: '5'
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+11) Kling - AI Avatar V1 Pro
+
+const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'kling/ai-avatar-v1-pro',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      image_url: 'https://file.aiquickdraw.com/custom-page/akr/section-images/175792685809077e8h8k3.png',
+      audio_url: 'https://file.aiquickdraw.com/custom-page/akr/section-images/1757925802302srqfkcqh.mp3',
+      prompt: ''
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));

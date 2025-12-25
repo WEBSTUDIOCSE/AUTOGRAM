@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertCircle, CheckCircle2, RefreshCw, Zap, DollarSign, Layers, Image as ImageIcon } from 'lucide-react';
+import { AlertCircle, CheckCircle2, RefreshCw, Zap, DollarSign, Layers, Image as ImageIcon, Video } from 'lucide-react';
 import { AIService } from '@/lib/services/ai.service';
 import { UserPreferencesService } from '@/lib/firebase/services';
 import { getModelsByType, type ModelMetadata } from '@/lib/services/image-generation/model-registry';
@@ -41,6 +41,8 @@ export function AIProviderSettings() {
   const [selectedProvider, setSelectedProvider] = useState<'gemini' | 'kieai'>('gemini');
   const [textToImageModel, setTextToImageModel] = useState<string>('');
   const [imageToImageModel, setImageToImageModel] = useState<string>('');
+  const [textToVideoModel, setTextToVideoModel] = useState<string>('');
+  const [imageToVideoModel, setImageToVideoModel] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [testing, setTesting] = useState(false);
   const [credits, setCredits] = useState<Record<string, { remaining: number; total?: number; used?: number }>>({});
@@ -82,6 +84,21 @@ export function AIProviderSettings() {
         // Set default based on provider
         const defaultModel = currentProvider === 'gemini' ? 'gemini-2.5-flash-reference' : 'seedream/4.5-edit';
         setImageToImageModel(defaultModel);
+      }
+      
+      // Load video model selections
+      if (prefs?.textToVideoModel) {
+        console.log('🎬 Text-to-Video Model:', prefs.textToVideoModel);
+        setTextToVideoModel(prefs.textToVideoModel);
+      } else {
+        setTextToVideoModel('bytedance/v1-pro-text-to-video');
+      }
+      
+      if (prefs?.imageToVideoModel) {
+        console.log('🎥 Image-to-Video Model:', prefs.imageToVideoModel);
+        setImageToVideoModel(prefs.imageToVideoModel);
+      } else {
+        setImageToVideoModel('bytedance/v1-pro-image-to-video');
       }
 
       // Load credits
@@ -126,6 +143,8 @@ export function AIProviderSettings() {
       console.log(`   Provider: ${selectedProvider}`);
       console.log(`   Text-to-Image Model: ${textToImageModel}`);
       console.log(`   Image-to-Image Model: ${imageToImageModel}`);
+      console.log(`   Text-to-Video Model: ${textToVideoModel}`);
+      console.log(`   Image-to-Video Model: ${imageToVideoModel}`);
       
       // Get current preferences
       const prefsResponse = await UserPreferencesService.getPreferences();
@@ -136,7 +155,9 @@ export function AIProviderSettings() {
         ...currentPrefs,
         aiProvider: selectedProvider,
         textToImageModel,
-        imageToImageModel
+        imageToImageModel,
+        textToVideoModel,
+        imageToVideoModel
       };
       
       // Save to Firebase
@@ -197,10 +218,10 @@ export function AIProviderSettings() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Zap className="h-5 w-5" />
-          AI Image Generation Provider
+          AI Provider Settings
         </CardTitle>
         <CardDescription>
-          Choose which AI service to use for image generation.
+          Configure AI models for image and video generation.
         </CardDescription>
       </CardHeader>
 
@@ -418,6 +439,176 @@ export function AIProviderSettings() {
                     })()}
                   </div>
                 )}
+              </div>
+
+              {/* Video Models Section */}
+              <div className="space-y-3 pt-6 border-t">
+                <div className="flex items-center gap-2 mb-4">
+                  <Video className="h-5 w-5 text-primary" />
+                  <h3 className="text-base font-semibold">Video Generation Models</h3>
+                </div>
+                
+                {/* Text-to-Video Model */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="flex items-center gap-2 text-base font-semibold">
+                      <Video className="h-4 w-4 text-primary" />
+                      Text-to-Video Model
+                    </Label>
+                    <Badge variant="secondary" className="text-xs">
+                      New Video
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Select the model for generating videos from text descriptions
+                  </p>
+                  <Select value={textToVideoModel} onValueChange={setTextToVideoModel}>
+                    <SelectTrigger className="h-auto py-3">
+                      <SelectValue placeholder="Select text-to-video model" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[400px]">
+                      {(() => {
+                        const models = getModelsByType('text-to-video', 'kieai');
+                        const categories = Array.from(new Set(models.map((m: ModelMetadata) => m.category || 'Other')));
+                        
+                        return categories.map(category => (
+                          <div key={category}>
+                            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
+                              {category}
+                            </div>
+                            {models
+                              .filter((m: ModelMetadata) => (m.category || 'Other') === category)
+                              .map((model: ModelMetadata) => (
+                                <SelectItem key={model.id} value={model.id} className="py-3">
+                                  <div className="flex flex-col gap-1.5">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-medium">{model.name}</span>
+                                      <div className="flex gap-1">
+                                        <Badge variant="outline" className="text-xs font-normal">
+                                          {model.quality}
+                                        </Badge>
+                                        <Badge variant="outline" className="text-xs font-normal">
+                                          {model.speed}
+                                        </Badge>
+                                        <Badge variant="outline" className="text-xs font-normal">
+                                          {model.costLevel}
+                                        </Badge>
+                                      </div>
+                                    </div>
+                                    <span className="text-xs text-muted-foreground line-clamp-2">
+                                      {model.description}
+                                    </span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                          </div>
+                        ));
+                      })()}
+                    </SelectContent>
+                  </Select>
+                  {textToVideoModel && (
+                    <div className="rounded-lg bg-muted/50 p-3 space-y-2">
+                      {(() => {
+                        const model = getModelsByType('text-to-video', 'kieai').find((m: ModelMetadata) => m.id === textToVideoModel);
+                        return model ? (
+                          <>
+                            <p className="text-sm">{model.description}</p>
+                            {model.features && model.features.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5">
+                                {model.features.map((feature: string) => (
+                                  <Badge key={feature} variant="secondary" className="text-xs">
+                                    {feature}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        ) : null;
+                      })()}
+                    </div>
+                  )}
+                </div>
+
+                {/* Image-to-Video Model */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label className="flex items-center gap-2 text-base font-semibold">
+                      <Layers className="h-4 w-4 text-primary" />
+                      Image-to-Video Model
+                    </Label>
+                    <Badge variant="secondary" className="text-xs">
+                      Animate Images
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Select the model for animating static images into videos
+                  </p>
+                  <Select value={imageToVideoModel} onValueChange={setImageToVideoModel}>
+                    <SelectTrigger className="h-auto py-3">
+                      <SelectValue placeholder="Select image-to-video model" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[400px]">
+                      {(() => {
+                        const models = getModelsByType('image-to-video', 'kieai');
+                        const categories = Array.from(new Set(models.map((m: ModelMetadata) => m.category || 'Other')));
+                        
+                        return categories.map(category => (
+                          <div key={category}>
+                            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
+                              {category}
+                            </div>
+                            {models
+                              .filter((m: ModelMetadata) => (m.category || 'Other') === category)
+                              .map((model: ModelMetadata) => (
+                                <SelectItem key={model.id} value={model.id} className="py-3">
+                                  <div className="flex flex-col gap-1.5">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-medium">{model.name}</span>
+                                      <div className="flex gap-1">
+                                        <Badge variant="outline" className="text-xs font-normal">
+                                          {model.quality}
+                                        </Badge>
+                                        <Badge variant="outline" className="text-xs font-normal">
+                                          {model.speed}
+                                        </Badge>
+                                        <Badge variant="outline" className="text-xs font-normal">
+                                          {model.costLevel}
+                                        </Badge>
+                                      </div>
+                                    </div>
+                                    <span className="text-xs text-muted-foreground line-clamp-2">
+                                      {model.description}
+                                    </span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                          </div>
+                        ));
+                      })()}
+                    </SelectContent>
+                  </Select>
+                  {imageToVideoModel && (
+                    <div className="rounded-lg bg-muted/50 p-3 space-y-2">
+                      {(() => {
+                        const model = getModelsByType('image-to-video', 'kieai').find((m: ModelMetadata) => m.id === imageToVideoModel);
+                        return model ? (
+                          <>
+                            <p className="text-sm">{model.description}</p>
+                            {model.features && model.features.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5">
+                                {model.features.map((feature: string) => (
+                                  <Badge key={feature} variant="secondary" className="text-xs">
+                                    {feature}
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        ) : null;
+                      })()}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

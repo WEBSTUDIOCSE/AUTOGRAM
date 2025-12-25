@@ -10,9 +10,13 @@ import { firebaseHandler, type ApiResponse } from '../handler';
 export interface UserPreferences {
   aiProvider?: 'gemini' | 'kieai';
   
-  // Model selection
+  // Image Model selection
   textToImageModel?: string;    // Model for new image generation
   imageToImageModel?: string;   // Model for character consistency
+  
+  // Video Model selection
+  textToVideoModel?: string;    // Model for text-to-video generation
+  imageToVideoModel?: string;   // Model for image-to-video generation
   
   // Legacy fields (kept for backward compatibility)
   geminiImageModel?: string;
