@@ -155,11 +155,72 @@ export const KIEAI_MODELS: Record<string, ModelMetadata> = {
     features: ['Fast editing', 'Good consistency', 'Balanced cost']
   },
 
-  // === BYTEDANCE MODELS ===
-  // Note: SeeDream models temporarily disabled - API parameters not documented
-  // 'bytedance/seedream': { ... },
-  // 'bytedance/seedream-v4-edit': { ... },
-  // 'seedream/4.5-edit': { ... },
+  // === BYTEDANCE MODELS (SeeDream) ===
+  'bytedance/seedream': {
+    id: 'bytedance/seedream',
+    name: 'SeeDream 3.0',
+    provider: 'kieai',
+    type: 'text-to-image',
+    speed: 'medium',
+    quality: 'excellent',
+    costLevel: 'medium',
+    category: 'ByteDance',
+    description: 'SeeDream 3.0 - High quality image generation with safety checker',
+    aspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4'],
+    features: ['High quality', 'Safety checker', 'Versatile']
+  },
+  'bytedance/seedream-v4-text-to-image': {
+    id: 'bytedance/seedream-v4-text-to-image',
+    name: 'SeeDream 4.0',
+    provider: 'kieai',
+    type: 'text-to-image',
+    speed: 'medium',
+    quality: 'ultra',
+    costLevel: 'medium',
+    category: 'ByteDance',
+    description: 'SeeDream 4.0 - Enhanced quality for text-to-image generation',
+    aspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4'],
+    features: ['Ultra quality', 'Enhanced details', 'Text rendering']
+  },
+  'bytedance/seedream-v4-edit': {
+    id: 'bytedance/seedream-v4-edit',
+    name: 'SeeDream 4.0 Edit',
+    provider: 'kieai',
+    type: 'image-to-image',
+    speed: 'medium',
+    quality: 'ultra',
+    costLevel: 'medium',
+    category: 'ByteDance',
+    description: 'SeeDream 4.0 - Image editing and transformation with reference',
+    aspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4'],
+    features: ['Image editing', 'Reference support', 'Ultra quality']
+  },
+  'seedream/4.5-text-to-image': {
+    id: 'seedream/4.5-text-to-image',
+    name: 'SeeDream 4.5',
+    provider: 'kieai',
+    type: 'text-to-image',
+    speed: 'fast',
+    quality: 'ultra',
+    costLevel: 'medium',
+    category: 'ByteDance',
+    description: 'SeeDream 4.5 - Latest version with improved quality and speed',
+    aspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4'],
+    features: ['Latest version', 'Ultra quality', 'Fast generation']
+  },
+  'seedream/4.5-edit': {
+    id: 'seedream/4.5-edit',
+    name: 'SeeDream 4.5 Edit',
+    provider: 'kieai',
+    type: 'image-to-image',
+    speed: 'fast',
+    quality: 'ultra',
+    costLevel: 'medium',
+    category: 'ByteDance',
+    description: 'SeeDream 4.5 - Advanced image editing and transformation',
+    aspectRatios: ['1:1', '16:9', '9:16', '4:3', '3:4'],
+    features: ['Advanced editing', 'Reference support', 'Fast processing']
+  },
 
   // === OTHER MODELS ===
   'z-image': {

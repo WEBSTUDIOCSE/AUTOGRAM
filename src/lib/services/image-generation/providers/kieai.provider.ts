@@ -87,6 +87,38 @@ export class KieAIProvider implements ImageGenerationProvider {
     }
 
     try {
+      // Prepare input based on model type
+      const inputPayload: Record<string, unknown> = {};
+      
+      // Determine model family for text-to-image
+      const isSeeDream3 = selectedModel === 'bytedance/seedream';
+      const isSeeDream4 = selectedModel === 'bytedance/seedream-v4-text-to-image';
+      const isSeeDream45 = selectedModel === 'seedream/4.5-text-to-image';
+      
+      if (isSeeDream3) {
+        // SeeDream 3.0 parameters
+        inputPayload.prompt = prompt;
+        inputPayload.image_size = imageSize;
+        inputPayload.guidance_scale = guidanceScale;
+        inputPayload.enable_safety_checker = true;
+      } else if (isSeeDream4) {
+        // SeeDream 4.0 parameters
+        inputPayload.prompt = prompt;
+        inputPayload.image_size = imageSize;
+        inputPayload.image_resolution = '1K';
+        inputPayload.max_images = 1;
+      } else if (isSeeDream45) {
+        // SeeDream 4.5 parameters (uses aspect_ratio instead of image_size)
+        inputPayload.prompt = prompt;
+        inputPayload.aspect_ratio = '1:1'; // SeeDream 4.5 uses aspect_ratio
+        inputPayload.quality = 'basic';
+      } else {
+        // Default parameters for other models
+        inputPayload.prompt = prompt;
+        inputPayload.image_size = imageSize;
+        inputPayload.guidance_scale = guidanceScale;
+      }
+
       // Create task
       const taskResponse = await fetch(`${this.baseUrl}/jobs/createTask`, {
         method: 'POST',
@@ -96,11 +128,7 @@ export class KieAIProvider implements ImageGenerationProvider {
         },
         body: JSON.stringify({
           model: selectedModel,
-          input: {
-            prompt: prompt,
-            image_size: imageSize,
-            guidance_scale: guidanceScale
-          }
+          input: inputPayload
         })
       });
 
@@ -185,7 +213,8 @@ export class KieAIProvider implements ImageGenerationProvider {
       // Determine model family
       const isFluxModel = selectedModel.includes('flux');
       const isQwenModel = selectedModel.includes('qwen');
-      const isSeeDreamModel = selectedModel.includes('seedream');
+      const isSeeDream4Edit = selectedModel === 'bytedance/seedream-v4-edit';
+      const isSeeDream45Edit = selectedModel === 'seedream/4.5-edit';
       const isGoogleEdit = selectedModel.includes('nano-banana-edit');
 
       if (isFluxModel) {
@@ -204,14 +233,21 @@ export class KieAIProvider implements ImageGenerationProvider {
         inputPayload.acceleration = 'none';
         inputPayload.num_inference_steps = 30;
         inputPayload.guidance_scale = guidanceScale;
-      } else if (isSeeDreamModel) {
-        // SeeDream models - ByteDance models may not be fully supported via API
-        // Try with aspect_ratio like Flux models
-        console.warn('⚠️ SeeDream model detected - may have limited API support');
+      } else if (isSeeDream4Edit) {
+        // SeeDream 4.0 Edit - uses image_urls array
+        console.log('🎨 Using SeeDream 4.0 Edit parameters');
         inputPayload.prompt = prompt;
-        inputPayload.image_url = imageUrl;
-        inputPayload.aspect_ratio = '1:1'; // Try aspect_ratio instead of image_size
-        inputPayload.strength = options.strength || 0.75;
+        inputPayload.image_urls = [imageUrl]; // Array format for SeeDream 4.0 Edit
+        inputPayload.image_size = imageSize;
+        inputPayload.image_resolution = '1K';
+        inputPayload.max_images = 1;
+      } else if (isSeeDream45Edit) {
+        // SeeDream 4.5 Edit - uses image_urls array and aspect_ratio
+        console.log('🎨 Using SeeDream 4.5 Edit parameters');
+        inputPayload.prompt = prompt;
+        inputPayload.image_urls = [imageUrl]; // Array format for SeeDream 4.5 Edit
+        inputPayload.aspect_ratio = '1:1'; // SeeDream 4.5 uses aspect_ratio
+        inputPayload.quality = 'basic';
       } else if (isGoogleEdit) {
         // Google Nano Banana Edit - expects image_urls (PLURAL, ARRAY)
         inputPayload.prompt = prompt;

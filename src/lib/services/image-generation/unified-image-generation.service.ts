@@ -194,25 +194,11 @@ export class UnifiedImageGenerationService {
         if (prefs.textToImageModel || prefs.imageToImageModel) {
           console.log('🔧 Reinitializing KieAI provider with custom models...');
           
-          // Validate and fix SeeDream models (not supported by API)
-          let textToImageModel = prefs.textToImageModel;
-          let imageToImageModel = prefs.imageToImageModel;
-          
-          // Replace unsupported SeeDream models with Flux alternatives
-          if (imageToImageModel?.includes('seedream')) {
-            console.warn('⚠️ SeeDream model detected (not supported by API), switching to Flux Pro');
-            imageToImageModel = 'flux-2/pro-image-to-image';
-          }
-          if (textToImageModel?.includes('seedream')) {
-            console.warn('⚠️ SeeDream model detected (not supported by API), switching to Google Imagen4');
-            textToImageModel = 'google/imagen4-fast';
-          }
-          
           const { getKieAIConfig } = await import('@/lib/firebase/config/environments');
           const kieaiConfig = {
             ...getKieAIConfig(),
-            textToImageModel,
-            imageToImageModel
+            textToImageModel: prefs.textToImageModel,
+            imageToImageModel: prefs.imageToImageModel
           };
           this.providers.set('kieai', new KieAIProvider(undefined, kieaiConfig));
         }

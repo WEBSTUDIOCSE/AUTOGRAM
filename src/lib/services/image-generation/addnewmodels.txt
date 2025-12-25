@@ -1,0 +1,109 @@
+Seedream3.0 - Text to Image
+const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'bytedance/seedream',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'A 2D flat art style campsite poster with the text “Kie AI Seedream 3.0 API”. The scene includes mountains, brown tents under a sunny sky, a rabbit, a deer, some birds, green grass, and a flowing river, all illustrated in clean vector art.',
+      image_size: 'square_hd',
+      guidance_scale: 2.5,
+      enable_safety_checker: true
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+
+  Seedream4.0 - Text to Image
+  const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'bytedance/seedream-v4-text-to-image',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'Draw the following system of binary linear equations and the corresponding solution steps on the blackboard: 5x + 2y = 26; 2x -y = 5.',
+      image_size: 'square_hd',
+      image_resolution: '1K',
+      max_images: 1
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+
+  Seedream4.0 - Edit
+  const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'bytedance/seedream-v4-edit',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'Refer to this logo and create a single visual showcase for an outdoor sports brand named ‘KIE AI’. Display five branded items together in one image: a packaging bag, a hat, a carton box, a wristband, and a lanyard. Use blue as the main visual color, with a fun, simple, and modern style.',
+      image_urls: [
+        'https://file.aiquickdraw.com/custom-page/akr/section-images/1757930552966e7f2on7s.png'
+      ],
+      image_size: 'square_hd',
+      image_resolution: '1K',
+      max_images: 1
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+
+  Seedream4.5 - Text to Image
+  const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'seedream/4.5-text-to-image',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'A full-process cafe design tool for entrepreneurs and designers. It covers core needs including store layout, functional zoning, decoration style, equipment selection, and customer group adaptation, supporting integrated planning of "commercial attributes + aesthetic design." Suitable as a promotional image for a cafe design SaaS product, with a 16:9 aspect ratio.',
+      aspect_ratio: '1:1',
+      quality: 'basic'
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+  Seedream4.5 - Edit
+  const options = {
+  method: 'POST',
+  headers: {Authorization: 'Bearer <token>', 'Content-Type': 'application/json'},
+  body: JSON.stringify({
+    model: 'seedream/4.5-edit',
+    callBackUrl: 'https://your-domain.com/api/callback',
+    input: {
+      prompt: 'Keep the model\'s pose and the flowing shape of the liquid dress unchanged. Change the clothing material from silver metal to completely transparent clear water (or glass). Through the liquid water, the model\'s skin details are visible. Lighting changes from reflection to refraction.',
+      image_urls: ['https://static.aiquickdraw.com/tools/example/1764851484363_ScV1s2aq.webp'],
+      aspect_ratio: '1:1',
+      quality: 'basic'
+    }
+  })
+};
+
+fetch('https://api.kie.ai/api/v1/jobs/createTask', options)
+  .then(res => res.json())
+  .then(res => console.log(res))
+  .catch(err => console.error(err));

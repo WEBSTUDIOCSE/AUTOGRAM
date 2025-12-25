@@ -49,7 +49,7 @@ const navItems = [
   },
   {
     title: 'Family Auto Poster',
-    url: '/family-auto-poster',
+    url: '/dashboard/family-auto-poster',
     icon: Users,
   },
 ];

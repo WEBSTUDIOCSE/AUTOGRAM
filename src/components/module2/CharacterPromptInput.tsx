@@ -15,15 +15,15 @@ export default function CharacterPromptInput({
   onChange,
   disabled = false,
 }: CharacterPromptInputProps) {
-  const maxLength = 500;
+  const maxLength = 2000;
   const [charCount, setCharCount] = useState(value.length);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newValue = e.target.value;
-    if (newValue.length <= maxLength) {
-      onChange(newValue);
-      setCharCount(newValue.length);
-    }
+    // Allow full paste but truncate if exceeds max
+    const truncatedValue = newValue.slice(0, maxLength);
+    onChange(truncatedValue);
+    setCharCount(truncatedValue.length);
   };
 
   return (
