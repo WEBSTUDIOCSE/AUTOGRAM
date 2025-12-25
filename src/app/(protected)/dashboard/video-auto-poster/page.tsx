@@ -154,30 +154,50 @@ export default function VideoAutoPosterPage() {
 
       if (editingPrompt) {
         // Update existing prompt
-        await APIBook.videoPromptLibrary.updatePrompt(editingPrompt.id, {
+        const updateData: any = {
           videoType: promptForm.videoType,
           basePrompt: promptForm.basePrompt,
-          characterId: promptForm.characterId || undefined,
-          characterName,
           assignedAccountId: promptForm.assignedAccountId,
           postingTimes: promptForm.postingTimes,
-          category: promptForm.category || undefined,
-        });
+        };
+
+        // Only include optional fields if they have values
+        if (promptForm.characterId) {
+          updateData.characterId = promptForm.characterId;
+        }
+        if (characterName) {
+          updateData.characterName = characterName;
+        }
+        if (promptForm.category) {
+          updateData.category = promptForm.category;
+        }
+
+        await APIBook.videoPromptLibrary.updatePrompt(editingPrompt.id, updateData);
       } else {
         // Create new prompt
-        await APIBook.videoPromptLibrary.createPrompt({
+        const createData: any = {
           userId: user!.uid,
           videoType: promptForm.videoType,
           basePrompt: promptForm.basePrompt,
-          characterId: promptForm.characterId || undefined,
-          characterName,
           assignedAccountId: promptForm.assignedAccountId,
           postingTimes: promptForm.postingTimes,
-          category: promptForm.category || undefined,
           usageCount: 0,
           lastUsedAt: null,
           isActive: true,
-        });
+        };
+
+        // Only include optional fields if they have values
+        if (promptForm.characterId) {
+          createData.characterId = promptForm.characterId;
+        }
+        if (characterName) {
+          createData.characterName = characterName;
+        }
+        if (promptForm.category) {
+          createData.category = promptForm.category;
+        }
+
+        await APIBook.videoPromptLibrary.createPrompt(createData);
       }
 
       await loadPrompts();
