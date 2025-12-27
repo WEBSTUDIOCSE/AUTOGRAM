@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, CheckCircle2, XCircle, Clock, Video, Film, Calendar } from 'lucide-react';
+import { Loader2, CheckCircle2, XCircle, Clock, Video, Film, Calendar, Upload, AlertCircle } from 'lucide-react';
 import type { VideoAutoPostLog } from '@/lib/firebase/config/types';
 import { APIBook } from '@/lib/firebase/services';
+import { InstagramService } from '@/lib/services/instagram.service';
 
 interface VideoAutoPostHistoryProps {
   userId: string;
@@ -16,6 +18,7 @@ export default function VideoAutoPostHistory({ userId }: VideoAutoPostHistoryPro
   const [logs, setLogs] = useState<VideoAutoPostLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryingId, setRetryingId] = useState<string | null>(null);
 
   useEffect(() => {
     loadLogs();
@@ -30,6 +33,45 @@ export default function VideoAutoPostHistory({ userId }: VideoAutoPostHistoryPro
       setError(err instanceof Error ? err.message : 'Failed to load history');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRetryPost = async (log: VideoAutoPostLog) => {
+    try {
+      setRetryingId(log.id);
+      setError(null);
+
+      // Post to Instagram
+      const instagramPostId = await InstagramService.postImage(
+        log.generatedVideoUrl,
+        log.caption || log.generatedPrompt,
+        log.instagramAccountId,
+        true // isVideo flag for Instagram REELS
+      );
+
+      if (instagramPostId) {
+        // Update log status to success
+        await APIBook.videoAutoPostLog.updateLog(log.id, {
+          status: 'success',
+          instagramPostId,
+          error: undefined,
+        });
+
+        // Reload logs to show updated status
+        await loadLogs();
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to retry posting');
+      
+      // Update log with new error
+      await APIBook.videoAutoPostLog.updateLog(log.id, {
+        status: 'instagram_failed',
+        error: err instanceof Error ? err.message : 'Retry failed',
+      });
+      
+      await loadLogs();
+    } finally {
+      setRetryingId(null);
     }
   };
 
@@ -64,6 +106,13 @@ export default function VideoAutoPostHistory({ userId }: VideoAutoPostHistoryPro
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {error && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        
         {logs.length === 0 ? (
           <Alert>
             <Video className="h-4 w-4" />
@@ -115,12 +164,18 @@ export default function VideoAutoPostHistory({ userId }: VideoAutoPostHistoryPro
                           variant={
                             log.status === 'success' ? 'default' :
                             log.status === 'failed' ? 'destructive' :
+                            log.status === 'video_generated' ? 'default' :
+                            log.status === 'instagram_failed' ? 'destructive' :
                             'secondary'
                           }
                         >
                           {log.status === 'success' && <CheckCircle2 className="mr-1 h-3 w-3" />}
                           {log.status === 'failed' && <XCircle className="mr-1 h-3 w-3" />}
-                          {log.status}
+                          {log.status === 'video_generated' && <Video className="mr-1 h-3 w-3" />}
+                          {log.status === 'instagram_failed' && <XCircle className="mr-1 h-3 w-3" />}
+                          {log.status === 'video_generated' ? 'Video Ready' : 
+                           log.status === 'instagram_failed' ? 'Instagram Failed' : 
+                           log.status}
                         </Badge>
                       </div>
 
@@ -154,12 +209,44 @@ export default function VideoAutoPostHistory({ userId }: VideoAutoPostHistoryPro
                       )}
 
                       {/* Error Message */}
-                      {log.status === 'failed' && log.error && (
+                      {(log.status === 'failed' || log.status === 'instagram_failed') && log.error && (
                         <Alert variant="destructive" className="mt-2">
                           <AlertDescription className="text-xs">
                             {log.error}
                           </AlertDescription>
                         </Alert>
+                      )}
+
+                      {/* Video Generated Alert */}
+                      {log.status === 'video_generated' && (
+                        <Alert className="mt-2">
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertDescription className="text-xs">
+                            Video generated successfully but not posted to Instagram yet. Click retry to post now.
+                          </AlertDescription>
+                        </Alert>
+                      )}
+
+                      {/* Retry Button for video_generated or instagram_failed */}
+                      {(log.status === 'video_generated' || log.status === 'instagram_failed') && (
+                        <Button
+                          onClick={() => handleRetryPost(log)}
+                          disabled={retryingId === log.id}
+                          size="sm"
+                          className="mt-2"
+                        >
+                          {retryingId === log.id ? (
+                            <>
+                              <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                              Posting...
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="mr-2 h-3 w-3" />
+                              Retry Post to Instagram
+                            </>
+                          )}
+                        </Button>
                       )}
 
                       {/* Instagram Post Link */}
