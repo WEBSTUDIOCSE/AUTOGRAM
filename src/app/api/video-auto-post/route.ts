@@ -65,17 +65,30 @@ export async function POST(req: NextRequest) {
 
     // For image-to-video, get character image
     if (videoType === 'image-to-video' && characterId) {
+      console.log('[VideoAutoPost] Fetching character for image-to-video:', characterId);
       const character = await APIBook.character.getCharacter(characterId);
+      console.log('[VideoAutoPost] Character fetched:', { 
+        characterId, 
+        hasCharacter: !!character, 
+        hasImageUrl: !!character?.imageUrl,
+        imageUrl: character?.imageUrl 
+      });
       if (character?.imageUrl) {
         videoOptions.imageUrl = character.imageUrl;
+        console.log('[VideoAutoPost] ✅ Image URL set for image-to-video generation');
+      } else {
+        console.error('[VideoAutoPost] ❌ Character found but NO IMAGE URL! This will generate wrong video!');
       }
     }
 
-    console.log('[VideoAutoPost] Calling video generation with options:', { 
+    console.log('[VideoAutoPost] Final video generation options:', { 
       videoType, 
       userId, 
       hasImageUrl: !!videoOptions.imageUrl,
-      promptLength: promptVariation.length 
+      imageUrl: videoOptions.imageUrl,
+      promptLength: promptVariation.length,
+      aspectRatio: videoOptions.aspectRatio,
+      duration: videoOptions.duration
     });
     
     const videoResult = await unifiedVideoGeneration.generateVideo(videoOptions);

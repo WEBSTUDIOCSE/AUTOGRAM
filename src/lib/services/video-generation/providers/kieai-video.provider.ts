@@ -72,12 +72,22 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
 
     const { prompt, model, imageUrl } = options;
     
+    console.log(`🎥 [KieAI] Generate Video Called:`, {
+      hasPrompt: !!prompt,
+      hasModel: !!model,
+      hasImageUrl: !!imageUrl,
+      imageUrl: imageUrl,
+      promptLength: prompt?.length
+    });
+    
     if (!prompt || prompt.trim().length === 0) {
       throw new Error('Prompt cannot be empty');
     }
 
     // Determine if text-to-video or image-to-video
     const selectedModel = model || (imageUrl ? this.defaultImageToVideoModel : this.defaultTextToVideoModel);
+    
+    console.log(`📹 [KieAI] Selected Model: ${selectedModel} (imageUrl present: ${!!imageUrl})`);
     
     try {
       // Check if it's a Veo model (uses different endpoint)
@@ -228,18 +238,26 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
     }
     // ByteDance V1 Pro Fast Image-to-Video
     else if (model === 'bytedance/v1-pro-fast-image-to-video') {
+      if (!options.imageUrl) {
+        throw new Error('image_url is required for bytedance/v1-pro-fast-image-to-video model');
+      }
       payload.image_url = options.imageUrl;
       payload.resolution = options.resolution || '720p';
       payload.duration = options.duration || '10';
+      console.log(`🖼️ [KieAI] v1-pro-fast-image-to-video payload: image_url=${payload.image_url}, duration=${payload.duration}`);
     }
     // ByteDance V1 Pro Image-to-Video
     else if (model === 'bytedance/v1-pro-image-to-video') {
+      if (!options.imageUrl) {
+        throw new Error('image_url is required for bytedance/v1-pro-image-to-video model');
+      }
       payload.image_url = options.imageUrl;
       payload.resolution = options.resolution || '720p';
       payload.duration = options.duration || '10';
       payload.camera_fixed = options.cameraFixed !== undefined ? options.cameraFixed : false;
       payload.seed = options.seed !== undefined ? options.seed : -1;
       payload.enable_safety_checker = options.enableSafetyChecker !== undefined ? options.enableSafetyChecker : true;
+      console.log(`🖼️ [KieAI] v1-pro-image-to-video payload: image_url=${payload.image_url}, duration=${payload.duration}, camera_fixed=${payload.camera_fixed}`);
     }
     // ByteDance V1 Pro Text-to-Video
     else if (model === 'bytedance/v1-pro-text-to-video') {
@@ -252,6 +270,9 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
     }
     // ByteDance V1 Lite Image-to-Video
     else if (model === 'bytedance/v1-lite-image-to-video') {
+      if (!options.imageUrl) {
+        throw new Error('image_url is required for bytedance/v1-lite-image-to-video model');
+      }
       payload.image_url = options.imageUrl;
       payload.resolution = options.resolution || '720p';
       payload.duration = options.duration || '10';
@@ -259,6 +280,7 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
       payload.seed = options.seed !== undefined ? options.seed : -1;
       payload.enable_safety_checker = options.enableSafetyChecker !== undefined ? options.enableSafetyChecker : true;
       if (options.endImageUrl) payload.end_image_url = options.endImageUrl;
+      console.log(`🖼️ [KieAI] v1-lite-image-to-video payload: image_url=${payload.image_url}, duration=${payload.duration}`);
     }
     // ByteDance V1 Lite Text-to-Video
     else if (model === 'bytedance/v1-lite-text-to-video') {
