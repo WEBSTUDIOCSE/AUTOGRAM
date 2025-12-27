@@ -12,7 +12,6 @@ import { Loader2, Video, Film, Plus, Edit, Trash, Clock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { TimePicker } from "@/components/ui/time-picker";
 import type { VideoPrompt, Character } from '@/lib/firebase/config/types';
 import VideoAutoPostSettings from "@/components/module8/VideoAutoPostSettings";
 import VideoAutoPostHistory from "@/components/module8/VideoAutoPostHistory";
@@ -41,7 +40,16 @@ export default function VideoAutoPosterPage() {
     postingTimes: [] as string[],
     category: '',
   });
-  const [newPostingTime, setNewPostingTime] = useState('10:00');
+  // Initialize with current time rounded to next 15-minute interval
+  const getCurrentTime = () => {
+    const now = new Date();
+    const minutes = now.getMinutes();
+    const roundedMinutes = Math.ceil(minutes / 15) * 15;
+    now.setMinutes(roundedMinutes);
+    now.setSeconds(0);
+    return now.toTimeString().slice(0, 5); // Format as HH:MM
+  };
+  const [newPostingTime, setNewPostingTime] = useState(getCurrentTime());
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [savingPrompt, setSavingPrompt] = useState(false);
@@ -604,11 +612,14 @@ export default function VideoAutoPosterPage() {
             {/* Posting Times */}
             <div className="space-y-2">
               <Label>Posting Times *</Label>
-              <div className="flex gap-2">
-                <TimePicker
-                  value={newPostingTime}
-                  onChange={setNewPostingTime}
-                />
+              <div className="flex items-end gap-2">
+                <div className="flex-1 space-y-2">
+                  <Input
+                    type="time"
+                    value={newPostingTime}
+                    onChange={(e) => setNewPostingTime(e.target.value)}
+                  />
+                </div>
                 <Button type="button" onClick={handleAddPostingTime}>
                   <Plus className="h-4 w-4" />
                 </Button>
