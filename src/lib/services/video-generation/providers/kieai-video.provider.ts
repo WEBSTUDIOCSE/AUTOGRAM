@@ -230,13 +230,13 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
     else if (model === 'bytedance/v1-pro-fast-image-to-video') {
       payload.image_url = options.imageUrl;
       payload.resolution = options.resolution || '720p';
-      payload.duration = options.duration || '5';
+      payload.duration = options.duration || '10';
     }
     // ByteDance V1 Pro Image-to-Video
     else if (model === 'bytedance/v1-pro-image-to-video') {
       payload.image_url = options.imageUrl;
       payload.resolution = options.resolution || '720p';
-      payload.duration = options.duration || '5';
+      payload.duration = options.duration || '10';
       payload.camera_fixed = options.cameraFixed !== undefined ? options.cameraFixed : false;
       payload.seed = options.seed !== undefined ? options.seed : -1;
       payload.enable_safety_checker = options.enableSafetyChecker !== undefined ? options.enableSafetyChecker : true;
@@ -254,7 +254,7 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
     else if (model === 'bytedance/v1-lite-image-to-video') {
       payload.image_url = options.imageUrl;
       payload.resolution = options.resolution || '720p';
-      payload.duration = options.duration || '5';
+      payload.duration = options.duration || '10';
       payload.camera_fixed = options.cameraFixed !== undefined ? options.cameraFixed : false;
       payload.seed = options.seed !== undefined ? options.seed : -1;
       payload.enable_safety_checker = options.enableSafetyChecker !== undefined ? options.enableSafetyChecker : true;

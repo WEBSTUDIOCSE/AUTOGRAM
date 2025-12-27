@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     let videoOptions: VideoGenerationOptions = {
       prompt: promptVariation,
       aspectRatio: '9:16', // Instagram Reels format
-      duration: '5',
+      duration: '10', // Changed to 10 seconds (universally supported)
       userId, // Pass userId to load AI settings
     };
 
