@@ -49,6 +49,11 @@ const imageItems = [
     url: '/dashboard/character-generator',
     icon: UserCircle,
   },
+  {
+    title: 'Auto-Poster',
+    url: '/dashboard/auto-poster',
+    icon: Zap,
+  },
 ];
 
 const videoItems = [
@@ -62,23 +67,18 @@ const videoItems = [
     url: '/dashboard/image-to-video-generator',
     icon: Film,
   },
+  {
+    title: 'Video Auto Poster',
+    url: '/dashboard/video-auto-poster',
+    icon: Zap,
+  },
 ];
 
 const automationItems = [
   {
-    title: 'Auto-Poster',
-    url: '/dashboard/auto-poster',
-    icon: Zap,
-  },
-  {
     title: 'Family Auto Poster',
     url: '/dashboard/family-auto-poster',
     icon: Users,
-  },
-  {
-    title: 'Video Auto Poster',
-    url: '/dashboard/video-auto-poster',
-    icon: Video,
   },
 ];
 

@@ -148,28 +148,40 @@ const MODULES: AutoPostModule[] = [
         .where("isActive", "==", true)
         .get();
 
-      promptsSnapshot.forEach((doc) => {
+      // Check each prompt
+      for (const doc of promptsSnapshot.docs) {
         const prompt = doc.data();
         const promptId = doc.id;
 
         // Check if prompt has this posting time
         if (prompt.postingTimes?.includes(currentTime)) {
-          results.push({
-            userId: prompt.userId,
-            itemId: promptId,
-            displayName: `${prompt.videoType === 'text-to-video' ? 'Text' : 'Image'}-to-Video: ${prompt.basePrompt?.substring(0, 30)}...` || "Unknown Video Prompt",
-            payload: {
+          // Check if auto-posting is enabled for this user
+          const configDoc = await db
+            .collection("video_auto_post_configs")
+            .doc(prompt.userId)
+            .get();
+          
+          const config = configDoc.data();
+          
+          // Only add if auto-posting is enabled
+          if (config?.isEnabled === true) {
+            results.push({
               userId: prompt.userId,
-              scheduledTime: currentTime,
-              promptId: promptId,
-              videoType: prompt.videoType,
-              basePrompt: prompt.basePrompt,
-              characterId: prompt.characterId,
-              assignedAccountId: prompt.assignedAccountId,
-            },
-          });
+              itemId: promptId,
+              displayName: `${prompt.videoType === 'text-to-video' ? 'Text' : 'Image'}-to-Video: ${prompt.basePrompt?.substring(0, 30)}...` || "Unknown Video Prompt",
+              payload: {
+                userId: prompt.userId,
+                scheduledTime: currentTime,
+                promptId: promptId,
+                videoType: prompt.videoType,
+                basePrompt: prompt.basePrompt,
+                characterId: prompt.characterId,
+                assignedAccountId: prompt.assignedAccountId,
+              },
+            });
+          }
         }
-      });
+      }
 
       return results;
     },
