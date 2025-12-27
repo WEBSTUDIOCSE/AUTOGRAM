@@ -90,25 +90,36 @@ export async function POST(req: NextRequest) {
     console.log('[VideoAutoPost] Posted to Instagram:', instagramResult);
 
     // 4. Log the auto-post
-    await APIBook.videoAutoPostLog.createLog({
+    // Build log object conditionally - Firestore doesn't allow undefined values
+    const logData: Record<string, unknown> = {
       userId,
       videoPromptId: promptId,
       videoType,
-      characterId,
-      characterName: characterId ? await getCharacterName(characterId) : undefined,
       basePrompt,
       generatedPrompt: promptVariation,
       generatedVideoUrl: videoResult.videoUrl,
       caption: promptVariation, // Using prompt as caption for now
       hashtags: '#AI #Video #Autogram',
-      instagramPostId: instagramResult,
       instagramAccountId: assignedAccountId,
       instagramAccountName: await getAccountName(assignedAccountId),
       scheduledTime,
       executedAt: new Date().toISOString(),
       status: 'success',
       model: videoResult.model,
-    });
+    };
+
+    // Only include characterId and characterName if they have values
+    if (characterId) {
+      logData.characterId = characterId;
+      logData.characterName = await getCharacterName(characterId);
+    }
+
+    // Set instagramPostId if available
+    if (instagramResult) {
+      logData.instagramPostId = instagramResult;
+    }
+
+    await APIBook.videoAutoPostLog.createLog(logData as any);
 
     // 5. Update prompt usage
     await APIBook.videoPromptLibrary.incrementUsageCount(promptId);
@@ -130,25 +141,32 @@ export async function POST(req: NextRequest) {
     // Log failed attempt
     try {
       const body = await req.json();
-      await APIBook.videoAutoPostLog.createLog({
+      
+      // Build error log object conditionally - Firestore doesn't allow undefined values
+      const errorLogData: Record<string, unknown> = {
         userId: body.userId,
         videoPromptId: body.promptId,
         videoType: body.videoType,
-        characterId: body.characterId,
-        characterName: body.characterId ? await getCharacterName(body.characterId) : undefined,
         basePrompt: body.basePrompt,
         generatedPrompt: body.basePrompt,
         generatedVideoUrl: '',
         caption: '',
         hashtags: '',
-        instagramPostId: undefined,
         instagramAccountId: body.assignedAccountId,
         instagramAccountName: await getAccountName(body.assignedAccountId),
         scheduledTime: body.scheduledTime,
         executedAt: new Date().toISOString(),
         status: 'failed',
         error: error instanceof Error ? error.message : 'Unknown error',
-      });
+      };
+
+      // Only include characterId and characterName if they have values
+      if (body.characterId) {
+        errorLogData.characterId = body.characterId;
+        errorLogData.characterName = await getCharacterName(body.characterId);
+      }
+
+      await APIBook.videoAutoPostLog.createLog(errorLogData as any);
     } catch (logError) {
       console.error('[VideoAutoPost] Failed to log error:', logError);
     }
