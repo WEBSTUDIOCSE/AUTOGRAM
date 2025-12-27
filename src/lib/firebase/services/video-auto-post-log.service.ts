@@ -4,7 +4,7 @@
  */
 
 import { db } from '../firebase';
-import { collection, addDoc, query, where, getDocs, orderBy, limit as firestoreLimit } from 'firebase/firestore';
+import { collection, addDoc, query, where, getDocs, orderBy, limit as firestoreLimit, doc, updateDoc } from 'firebase/firestore';
 import type { VideoAutoPostLog } from '../config/types';
 
 const VIDEO_AUTO_POST_LOGS_COLLECTION = 'video_auto_post_logs';
@@ -16,6 +16,14 @@ export const VideoAutoPostLogService = {
   createLog: async (log: Omit<VideoAutoPostLog, 'id'>): Promise<string> => {
     const docRef = await addDoc(collection(db, VIDEO_AUTO_POST_LOGS_COLLECTION), log);
     return docRef.id;
+  },
+
+  /**
+   * Update an existing log entry
+   */
+  updateLog: async (logId: string, updates: Partial<VideoAutoPostLog>): Promise<void> => {
+    const docRef = doc(db, VIDEO_AUTO_POST_LOGS_COLLECTION, logId);
+    await updateDoc(docRef, updates);
   },
 
   /**

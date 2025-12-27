@@ -79,18 +79,8 @@ export async function POST(req: NextRequest) {
 
     console.log('[VideoAutoPost] Video generated:', videoResult.videoUrl);
 
-    // 3. Post to Instagram
-    const instagramResult = await InstagramService.postImage(
-      videoResult.videoUrl,
-      promptVariation,
-      assignedAccountId,
-      true // isVideo flag for Instagram REELS
-    );
-
-    console.log('[VideoAutoPost] Posted to Instagram:', instagramResult);
-
-    // 4. Log the auto-post
-    // Build log object conditionally - Firestore doesn't allow undefined values
+    // 3. IMMEDIATELY SAVE VIDEO to Firestore (before Instagram posting)
+    // This ensures we don't lose videos if Instagram posting times out or fails
     const logData: Record<string, unknown> = {
       userId,
       videoPromptId: promptId,
@@ -98,13 +88,13 @@ export async function POST(req: NextRequest) {
       basePrompt,
       generatedPrompt: promptVariation,
       generatedVideoUrl: videoResult.videoUrl,
-      caption: promptVariation, // Using prompt as caption for now
+      caption: promptVariation,
       hashtags: '#AI #Video #Autogram',
       instagramAccountId: assignedAccountId,
       instagramAccountName: await getAccountName(assignedAccountId),
       scheduledTime,
       executedAt: new Date().toISOString(),
-      status: 'success',
+      status: 'video_generated', // Initial status: video ready but not posted yet
       model: videoResult.model,
     };
 
@@ -114,12 +104,42 @@ export async function POST(req: NextRequest) {
       logData.characterName = await getCharacterName(characterId);
     }
 
-    // Set instagramPostId if available
-    if (instagramResult) {
-      logData.instagramPostId = instagramResult;
-    }
+    // Save video log immediately
+    const logId = await APIBook.videoAutoPostLog.createLog(logData as any);
+    console.log('[VideoAutoPost] Video saved to Firestore:', logId);
 
-    await APIBook.videoAutoPostLog.createLog(logData as any);
+    // 4. Now try to post to Instagram
+    let instagramResult: string | undefined;
+    let finalStatus = 'video_generated';
+    
+    try {
+      instagramResult = await InstagramService.postImage(
+        videoResult.videoUrl,
+        promptVariation,
+        assignedAccountId,
+        true // isVideo flag for Instagram REELS
+      );
+
+      if (instagramResult) {
+        console.log('[VideoAutoPost] Posted to Instagram:', instagramResult);
+        finalStatus = 'success';
+        
+        // Update log with Instagram post ID
+        await APIBook.videoAutoPostLog.updateLog(logId, {
+          instagramPostId: instagramResult,
+          status: 'success',
+        });
+      }
+    } catch (instagramError) {
+      console.error('[VideoAutoPost] Instagram posting failed:', instagramError);
+      finalStatus = 'instagram_failed';
+      
+      // Update log with error but keep the video
+      await APIBook.videoAutoPostLog.updateLog(logId, {
+        status: 'instagram_failed',
+        error: instagramError instanceof Error ? instagramError.message : 'Instagram posting failed',
+      });
+    }
 
     // 5. Update prompt usage
     await APIBook.videoPromptLibrary.incrementUsageCount(promptId);

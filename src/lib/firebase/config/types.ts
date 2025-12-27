@@ -334,7 +334,7 @@ export interface VideoAutoPostLog {
   instagramAccountName: string;
   scheduledTime: string; // HH:mm format
   executedAt: string;
-  status: 'success' | 'failed' | 'skipped';
+  status: 'success' | 'failed' | 'skipped' | 'video_generated' | 'instagram_failed';
   error?: string;
   model?: string; // Video model used
 }
