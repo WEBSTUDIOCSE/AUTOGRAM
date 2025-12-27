@@ -209,10 +209,10 @@ export default function VideoAutoPostHistory({ userId }: VideoAutoPostHistoryPro
                       )}
 
                       {/* Error Message */}
-                      {(log.status === 'failed' || log.status === 'instagram_failed') && log.error && (
+                      {(log.status === 'failed' || log.status === 'instagram_failed' || log.status === 'skipped') && log.error && (
                         <Alert variant="destructive" className="mt-2">
                           <AlertDescription className="text-xs">
-                            {log.error}
+                            <strong>Error:</strong> {log.error}
                           </AlertDescription>
                         </Alert>
                       )}

@@ -115,7 +115,7 @@ export default function VideoAutoPosterPage() {
       postingTimes: [],
       category: '',
     });
-    setNewPostingTime('10:00');
+    setNewPostingTime(getCurrentTime()); // Use current time
     setPromptError(null);
     setUploadedImage(null);
     setUploadedImageUrl(null);
@@ -132,7 +132,7 @@ export default function VideoAutoPosterPage() {
       postingTimes: prompt.postingTimes || [],
       category: prompt.category || '',
     });
-    setNewPostingTime('10:00');
+    setNewPostingTime(getCurrentTime()); // Use current time
     setPromptError(null);
     setUploadedImage(null);
     setUploadedImageUrl(null);
