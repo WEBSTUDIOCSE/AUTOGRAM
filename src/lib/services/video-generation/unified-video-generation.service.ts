@@ -30,7 +30,10 @@ export class UnifiedVideoGenerationService {
   ): Promise<VideoGenerationResult> {
     // Load model from preferences if not specified
     if (!options.model) {
-      const model = await this.loadModelFromPreferences(options.imageUrl ? 'image-to-video' : 'text-to-video');
+      const model = await this.loadModelFromPreferences(
+        options.imageUrl ? 'image-to-video' : 'text-to-video',
+        options.userId
+      );
       if (model) {
         options.model = model;
       }
@@ -59,10 +62,10 @@ export class UnifiedVideoGenerationService {
   /**
    * Load video model from Firebase preferences
    */
-  private async loadModelFromPreferences(type: 'text-to-video' | 'image-to-video'): Promise<string | null> {
+  private async loadModelFromPreferences(type: 'text-to-video' | 'image-to-video', userId?: string): Promise<string | null> {
     try {
-      console.log(`🔍 Loading ${type} model from Firebase...`);
-      const prefsResponse = await UserPreferencesService.getPreferences();
+      console.log(`🔍 Loading ${type} model from Firebase for user: ${userId || 'unknown'}...`);
+      const prefsResponse = await UserPreferencesService.getPreferences(userId);
       
       if (prefsResponse.success && prefsResponse.data) {
         const prefs = prefsResponse.data;

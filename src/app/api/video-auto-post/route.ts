@@ -61,6 +61,7 @@ export async function POST(req: NextRequest) {
       prompt: promptVariation,
       aspectRatio: '9:16', // Instagram Reels format
       duration: '5',
+      userId, // Pass userId to load AI settings
     };
 
     // For image-to-video, get character image

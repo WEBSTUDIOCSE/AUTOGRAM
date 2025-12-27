@@ -5,6 +5,7 @@
 export interface VideoGenerationOptions {
   prompt: string;
   model?: string;
+  userId?: string; // For loading user preferences
   
   // Image input (for image-to-video)
   imageUrl?: string;
