@@ -130,7 +130,7 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
         model: selectedModel,
         provider: 'kieai',
         timestamp: Date.now(),
-        duration: options.duration ? parseInt(options.duration) : undefined,
+        duration: options.duration ? parseFloat(options.duration) : undefined,
         resolution: options.resolution,
         aspectRatio: options.aspectRatio,
         cost: this.getEstimatedCost(options),
@@ -222,7 +222,7 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
       if (options.imageUrls) payload.input_urls = options.imageUrls;
       payload.aspect_ratio = options.aspectRatio || '1:1';
       payload.resolution = options.resolution || '720p';
-      payload.duration = parseInt(options.duration || '8');
+      payload.duration = options.duration || '8'; // Keep as string
       payload.fixed_lens = options.fixedLens !== undefined ? options.fixedLens : false;
       payload.generate_audio = options.generateAudio !== undefined ? options.generateAudio : false;
     }
