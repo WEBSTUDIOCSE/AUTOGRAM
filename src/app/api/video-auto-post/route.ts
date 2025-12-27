@@ -55,9 +55,10 @@ export async function POST(req: NextRequest) {
     console.log('[VideoAutoPost] Generated prompt variation:', promptVariation);
 
     // 2. Generate video
+    // Note: model is intentionally not set here - it will be loaded from user preferences
+    // by UnifiedVideoGenerationService.generateVideo()
     let videoOptions: VideoGenerationOptions = {
       prompt: promptVariation,
-      model: videoType === 'text-to-video' ? 'bytedance/seedream' : 'kling/v1-5-image-to-video',
       aspectRatio: '9:16', // Instagram Reels format
       duration: '5',
     };
