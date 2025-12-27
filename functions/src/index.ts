@@ -127,16 +127,63 @@ const MODULES: AutoPostModule[] = [
       return results;
     },
   },
+
+  // Module 8: Video Auto Poster
+  {
+    moduleId: "module8",
+    moduleName: "Video Auto Poster",
+    collection: "video_prompts",
+    apiEndpoint: "/api/video-auto-post",
+    getScheduledItems: async (currentTime: string) => {
+      const results: Array<{
+        userId: string;
+        itemId: string;
+        displayName: string;
+        payload: Record<string, any>;
+      }> = [];
+
+      // Get all active video prompts with posting times
+      const promptsSnapshot = await db
+        .collection("video_prompts")
+        .where("isActive", "==", true)
+        .get();
+
+      promptsSnapshot.forEach((doc) => {
+        const prompt = doc.data();
+        const promptId = doc.id;
+
+        // Check if prompt has this posting time
+        if (prompt.postingTimes?.includes(currentTime)) {
+          results.push({
+            userId: prompt.userId,
+            itemId: promptId,
+            displayName: `${prompt.videoType === 'text-to-video' ? 'Text' : 'Image'}-to-Video: ${prompt.basePrompt?.substring(0, 30)}...` || "Unknown Video Prompt",
+            payload: {
+              userId: prompt.userId,
+              scheduledTime: currentTime,
+              promptId: promptId,
+              videoType: prompt.videoType,
+              basePrompt: prompt.basePrompt,
+              characterId: prompt.characterId,
+              assignedAccountId: prompt.assignedAccountId,
+            },
+          });
+        }
+      });
+
+      return results;
+    },
+  },
 ];
 
 /**
  * Unified Scheduled Auto-Post Function
  * Single scheduler that handles ALL modules dynamically
- * Runs at the start of every hour
+ * Runs every 5 minutes for testing (changed from hourly)
  */
 export const scheduledUnifiedAutoPost = onSchedule(
   {
-    schedule: "0 * * * *", // Every hour at minute 0
+    schedule: "*/5 * * * *", // Every 5 minutes (for testing)
     timeZone: "Asia/Kolkata", // India Standard Time (IST)
   },
   async (event) => {
