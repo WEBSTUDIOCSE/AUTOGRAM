@@ -55,8 +55,7 @@ export async function POST(req: NextRequest) {
     console.log('[VideoAutoPost] Generated prompt variation:', promptVariation);
 
     // 2. Generate video
-    // Note: model is intentionally not set here - it will be loaded from user preferences
-    // by UnifiedVideoGenerationService.generateVideo()
+    console.log('[VideoAutoPost] Loading video model from user preferences for userId:', userId);
     let videoOptions: VideoGenerationOptions = {
       prompt: promptVariation,
       aspectRatio: '9:16', // Instagram Reels format
@@ -72,6 +71,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    console.log('[VideoAutoPost] Calling video generation with options:', { 
+      videoType, 
+      userId, 
+      hasImageUrl: !!videoOptions.imageUrl,
+      promptLength: promptVariation.length 
+    });
+    
     const videoResult = await unifiedVideoGeneration.generateVideo(videoOptions);
     
     if (!videoResult.videoUrl) {
@@ -213,9 +219,9 @@ function getCurrentSeason(): string {
 
 async function getRecentPrompts(userId: string): Promise<string[]> {
   try {
-    const logs = await APIBook.videoAutoPostLog.getLogsByUserId(userId);
+    const logs = await APIBook.videoAutoPostLog.getLogsByUserId(userId, 20);
     return logs
-      .slice(0, 5) // Last 5 posts
+      .slice(0, 10) // Last 10 posts for better variety
       .map(log => log.generatedPrompt)
       .filter(Boolean);
   } catch (error) {

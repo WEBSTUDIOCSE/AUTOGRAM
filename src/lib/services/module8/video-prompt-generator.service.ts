@@ -35,25 +35,32 @@ export const Module8PromptGenerator = {
         ? `\nCHARACTER: ${context.characterName} (use "this person" for consistency)`
         : '';
 
-      const generationPrompt = `You are creating a UNIQUE video prompt for an auto-posting system.
+      const generationPrompt = `You are creating a COMPLETELY UNIQUE video prompt for an auto-posting system.
 
 VIDEO TYPE: ${context.videoType === 'text-to-video' ? 'Text-to-Video' : 'Image-to-Video'}
-BASE STYLE: "${basePrompt}"
+BASE STYLE REFERENCE: "${basePrompt}"
 TIME: ${context.timeOfDay}
 SEASON: ${context.season}${characterContext}${avoidanceText}
 
-YOUR TASK: Create a NEW, SPECIFIC video concept that:
-1. ${context.videoType === 'image-to-video' ? 'Animates the character in an engaging scenario' : 'Creates a compelling visual story'}
-2. Is COMPLETELY DIFFERENT from recent prompts
-3. Has specific details (setting, movement, lighting, atmosphere)
-4. Feels fresh and creative
-5. Under 250 characters
-6. Cinematic and engaging
-${context.videoType === 'image-to-video' ? '7. Uses "this person" for character consistency\n8. Focuses on natural movements and expressions' : '7. Creates dynamic camera movements\n8. Professional video production quality'}
+🚨 CRITICAL: Create a video concept with a COMPLETELY DIFFERENT TOPIC/THEME from recent prompts.
+Do NOT just change location/time - change the ENTIRE CONCEPT, ACTIVITY, and SETTING.
 
-Create a unique video concept that stands out from recent posts.
-Be CREATIVE and SPECIFIC. Avoid generic descriptions.
-Focus on MOTION, EMOTION, and VISUAL STORYTELLING.
+YOUR TASK: Create a NEW video concept that:
+1. ${context.videoType === 'image-to-video' ? 'Shows the character in a COMPLETELY DIFFERENT activity/scenario than before' : 'Shows a COMPLETELY DIFFERENT scene/story than before'}
+2. Changes BOTH the topic AND the setting (e.g., if recent was beach → try urban/forest/studio/fantasy)
+3. Changes the action/activity (e.g., if recent was dancing → try reading/cooking/exploring/creating)
+4. Uses specific details (weather, emotions, colors, textures)
+5. Has dynamic movement and energy
+6. Under 250 characters
+7. Cinematic and professional
+${context.videoType === 'image-to-video' ? '8. Uses "this person" for character consistency\n9. Natural movements and authentic expressions' : '8. Dynamic camera work\n9. Engaging visual storytelling'}
+
+Examples of GOOD variety:
+- Beach dancing → Urban rooftop sunset meditation
+- Cafe reading → Forest hiking adventure
+- Party celebration → Quiet studio art creation
+
+Be BOLD. Change the ENTIRE concept. Make it feel like a different creator.
 Output the prompt only, no explanations.`;
 
       console.log('🤖 [Module 8] Generating AI-varied video prompt...');

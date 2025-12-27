@@ -30,13 +30,19 @@ export class UnifiedVideoGenerationService {
   ): Promise<VideoGenerationResult> {
     // Load model from preferences if not specified
     if (!options.model) {
+      console.log(`🔍 No model specified, loading from preferences for userId: ${options.userId}...`);
       const model = await this.loadModelFromPreferences(
         options.imageUrl ? 'image-to-video' : 'text-to-video',
         options.userId
       );
       if (model) {
+        console.log(`✅ Loaded model from preferences: ${model}`);
         options.model = model;
+      } else {
+        console.warn(`⚠️ No model found in preferences, will use provider default`);
       }
+    } else {
+      console.log(`✅ Model already specified: ${options.model}`);
     }
 
     const selectedProvider = this.providers.get(provider);
