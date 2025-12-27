@@ -54,13 +54,24 @@ YOUR TASK: Create a NEW video concept that:
 6. Under 250 characters
 7. Cinematic and professional
 ${context.videoType === 'image-to-video' ? '8. Uses "this person" for character consistency\n9. Natural movements and authentic expressions' : '8. Dynamic camera work\n9. Engaging visual storytelling'}
+10. FAMILY-FRIENDLY AND WHOLESOME - avoid any suggestive or provocative language
+
+🚨 CONTENT SAFETY RULES (CRITICAL):
+- NO suggestive words: teasing, flirty, seductive, provocative, sultry, alluring
+- NO romantic/intimate scenarios: date scenes, bedroom settings, close-up gazes
+- NO focus on body parts or appearance: curves, figure, physique, body
+- YES to wholesome activities: cooking, reading, exploring, creating, learning, helping
+- YES to positive emotions: happy, joyful, cheerful, peaceful, content, excited
+- YES to safe settings: kitchen, library, park, studio, garden, cafe, market
 
 Examples of GOOD variety:
 - Beach dancing → Urban rooftop sunset meditation
 - Cafe reading → Forest hiking adventure
 - Party celebration → Quiet studio art creation
+- Garden stroll → Library book browsing
 
 Be BOLD. Change the ENTIRE concept. Make it feel like a different creator.
+Keep it CLEAN, WHOLESOME, and FAMILY-FRIENDLY.
 Output the prompt only, no explanations.`;
 
       console.log('🤖 [Module 8] Generating AI-varied video prompt...');
