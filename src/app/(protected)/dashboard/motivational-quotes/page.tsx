@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { MotivationalQuoteSettings } from "@/components/module9/MotivationalQuoteSettings";
 import { MotivationalQuoteHistory } from "@/components/module9/MotivationalQuoteHistory";
+import { MotivationalQuoteGenerator } from "@/components/module9/MotivationalQuoteGenerator";
 import { getCurrentUser } from "@/lib/auth/server";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -20,11 +21,16 @@ export default async function MotivationalQuotesPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="settings" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="settings">Settings</TabsTrigger>
+      <Tabs defaultValue="generate" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="generate">Generate</TabsTrigger>
+          <TabsTrigger value="settings">Auto Post Settings</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="generate" className="space-y-4">
+          <MotivationalQuoteGenerator />
+        </TabsContent>
 
         <TabsContent value="settings" className="space-y-4">
           <MotivationalQuoteSettings />
