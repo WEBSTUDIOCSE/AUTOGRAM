@@ -11,6 +11,7 @@ import { Loader2, Sparkles, Image, Video, Plus, X, Edit, Trash2 } from 'lucide-r
 import { toast } from 'sonner';
 import { APIBook, UserPreferencesService } from '@/lib/firebase/services';
 import { useAuth } from '@/contexts/AuthContext';
+import { ModuleAIModelSelector } from '@/components/common/ModuleAIModelSelector';
 import {
   Dialog,
   DialogContent,
@@ -72,6 +73,11 @@ export function MotivationalQuoteSettings() {
   const [selectedHour, setSelectedHour] = React.useState('');
   const [selectedMinute, setSelectedMinute] = React.useState('');
   const [selectedModel, setSelectedModel] = React.useState<string>('');
+  
+  // Module-specific AI model settings
+  const [moduleImageModel, setModuleImageModel] = React.useState('');
+  const [moduleVideoModel, setModuleVideoModel] = React.useState('');
+  const [savingModels, setSavingModels] = React.useState(false);
 
   React.useEffect(() => {
     if (user?.uid) {
@@ -90,6 +96,12 @@ export function MotivationalQuoteSettings() {
       
       if (config && config.accountConfigs) {
         setAccountConfigs(config.accountConfigs);
+      }
+      
+      // Load module-specific AI model settings
+      if (config?.aiModelConfig) {
+        setModuleImageModel(config.aiModelConfig.textToImageModel || '');
+        setModuleVideoModel(config.aiModelConfig.textToVideoModel || '');
       }
       
       // Load Instagram accounts
@@ -265,6 +277,51 @@ export function MotivationalQuoteSettings() {
       toast.error('Failed to update settings');
     } finally {
       setUpdating(false);
+    }
+  };
+
+  // Handle module-specific AI model changes
+  const handleImageModelChange = async (model: string) => {
+    if (!user?.uid) return;
+    
+    setModuleImageModel(model);
+    setSavingModels(true);
+    
+    try {
+      await APIBook.motivationalAutoPostConfig.updateConfig(user.uid, {
+        aiModelConfig: {
+          textToImageModel: model || undefined,
+          textToVideoModel: moduleVideoModel || undefined,
+        },
+      });
+      toast.success(model ? 'Image model updated' : 'Image model reset to global settings');
+    } catch (error) {
+      console.error('Error saving image model:', error);
+      toast.error('Failed to save image model');
+    } finally {
+      setSavingModels(false);
+    }
+  };
+
+  const handleVideoModelChange = async (model: string) => {
+    if (!user?.uid) return;
+    
+    setModuleVideoModel(model);
+    setSavingModels(true);
+    
+    try {
+      await APIBook.motivationalAutoPostConfig.updateConfig(user.uid, {
+        aiModelConfig: {
+          textToImageModel: moduleImageModel || undefined,
+          textToVideoModel: model || undefined,
+        },
+      });
+      toast.success(model ? 'Video model updated' : 'Video model reset to global settings');
+    } catch (error) {
+      console.error('Error saving video model:', error);
+      toast.error('Failed to save video model');
+    } finally {
+      setSavingModels(false);
     }
   };
 
@@ -640,7 +697,7 @@ export function MotivationalQuoteSettings() {
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary">•</span>
-                <span>Quotes are auto-generated using your selected AI models from settings</span>
+                <span>Quotes are auto-generated using your selected AI models below</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-primary">•</span>
@@ -650,6 +707,20 @@ export function MotivationalQuoteSettings() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Module-specific AI Model Selection */}
+      <ModuleAIModelSelector
+        moduleId="module9"
+        moduleName="Motivational Quotes"
+        description="Select AI models specifically for motivational quote generation. These models will be used instead of global AI settings for this module."
+        showImageModel={true}
+        showVideoModel={true}
+        selectedImageModel={moduleImageModel}
+        selectedVideoModel={moduleVideoModel}
+        onImageModelChange={handleImageModelChange}
+        onVideoModelChange={handleVideoModelChange}
+        disabled={savingModels}
+      />
     </div>
   );
 }

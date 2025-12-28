@@ -6,6 +6,7 @@ import { UnifiedVideoGenerationService } from '@/lib/services/video-generation/u
 import { UserPreferencesService } from '@/lib/firebase/services/user-preferences.service';
 import { UnifiedImageStorageService } from '@/lib/services/unified/image-storage.service';
 import { VideoStorageService } from '@/lib/services/video-storage.service';
+import { getModelById } from '@/lib/services/image-generation/model-registry';
 
 /**
  * Manual Motivational Quote Generator API
@@ -35,6 +36,21 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    // Get module-specific AI config (for motivational quotes)
+    const moduleConfig = await APIBook.motivationalAutoPostConfig.getConfig(user.uid);
+    const moduleAIConfig = moduleConfig?.aiModelConfig;
+
+    // Get global user preferences (fallback)
+    const preferencesResponse = await UserPreferencesService.getPreferences(user.uid);
+    const globalPreferences = preferencesResponse.data;
+
+    // Determine which models to use (module-specific > global)
+    const imageModel = moduleAIConfig?.textToImageModel || globalPreferences?.textToImageModel;
+    const videoModel = moduleAIConfig?.textToVideoModel || globalPreferences?.textToVideoModel;
+
+    console.log(`🔧 [AI Models] Image: ${imageModel || 'default'} | Video: ${videoModel || 'default'}`);
+    console.log(`   Source: ${moduleAIConfig?.textToImageModel ? 'Module-specific' : 'Global settings'}`);
+
     // Get recent quotes to avoid duplication
     const recentLogs = await APIBook.motivationalAutoPostLog.getRecentLogs(user.uid, undefined, 20);
     const recentQuotes = recentLogs.filter((log): log is string => typeof log === 'string' && !!log);
@@ -52,25 +68,33 @@ export async function POST(request: NextRequest) {
 
     console.log(`✨ Quote generated: "${quoteData.quoteText.substring(0, 60)}..."`);
 
-    // Get user preferences
-    const preferencesResponse = await UserPreferencesService.getPreferences(user.uid);
-    const userPreferences = preferencesResponse.data;
-
     let mediaUrl: string;
     let mediaType: 'image' | 'video' = contentType;
 
     // Generate media based on content type
     if (contentType === 'image') {
-      console.log(`📸 Generating image with AI settings...`);
+      console.log(`📸 Generating image with model: ${imageModel || 'default'}...`);
       
-      // Use AIService which properly handles model selection from user preferences
-      const response = await APIBook.ai.generateImage(quoteData.visualPrompt);
+      // Determine provider from model
+      let provider: 'gemini' | 'kieai' | undefined;
+      if (imageModel) {
+        const modelInfo = getModelById(imageModel);
+        provider = modelInfo?.provider;
+      }
       
-      if (!response.success || !response.data) {
+      // Generate image using unified service with specific model/provider
+      const result = await unifiedImageGeneration.generateImage({
+        prompt: quoteData.visualPrompt,
+        quality: 'high',
+        imageSize: 'square_hd',
+        model: imageModel,
+      }, provider);
+      
+      if (!result.imageBase64) {
         return NextResponse.json({
           success: false,
           error: 'Image generation failed',
-          details: response.error || 'AI returned no data',
+          details: 'AI returned no image data',
           quoteData: {
             quoteText: quoteData.quoteText,
             author: quoteData.author,
@@ -79,13 +103,12 @@ export async function POST(request: NextRequest) {
         }, { status: 500 });
       }
 
-      const imageBase64 = response.data.imageBase64;
-      console.log(`✅ Image generated successfully with ${response.data.provider}`);
+      console.log(`✅ Image generated successfully with ${result.provider}`);
 
       // Upload to Firebase
       console.log(`📤 Uploading to Firebase Storage...`);
       const uploadResult = await UnifiedImageStorageService.uploadImage(
-        imageBase64,
+        result.imageBase64,
         user.uid,
         'module9/manual-quotes',
         `quote_${Date.now()}`
@@ -95,12 +118,12 @@ export async function POST(request: NextRequest) {
       console.log(`✅ Image uploaded: ${mediaUrl.substring(0, 80)}...`);
       
     } else {
-      console.log(`🎬 Generating video...`);
+      console.log(`🎬 Generating video with model: ${videoModel || 'default'}...`);
       
       const videoService = new UnifiedVideoGenerationService();
       const videoResult = await videoService.generateVideo({
         prompt: quoteData.visualPrompt,
-        model: userPreferences?.textToVideoModel,
+        model: videoModel,
         duration: '5',
         aspectRatio: '1:1',
       });

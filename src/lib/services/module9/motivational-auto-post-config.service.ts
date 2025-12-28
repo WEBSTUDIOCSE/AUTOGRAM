@@ -13,10 +13,17 @@ export interface AccountConfig {
   postingTimes: string[];
 }
 
+export interface ModuleAIModelConfig {
+  textToImageModel?: string;
+  textToVideoModel?: string;
+}
+
 export interface MotivationalAutoPostConfig {
   userId: string;
   isEnabled: boolean;
   accountConfigs: AccountConfig[];
+  // Module-specific AI model settings
+  aiModelConfig?: ModuleAIModelConfig;
   updatedAt: Timestamp;
 }
 

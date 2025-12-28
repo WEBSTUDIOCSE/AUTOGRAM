@@ -7,6 +7,7 @@ import { UserPreferencesService } from '@/lib/firebase/services/user-preferences
 import { UnifiedImageStorageService } from '@/lib/services/unified/image-storage.service';
 import { VideoStorageService } from '@/lib/services/video-storage.service';
 import { InstagramService } from '@/lib/services/instagram.service';
+import { getModelById } from '@/lib/services/image-generation/model-registry';
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://autogram-orpin.vercel.app';
 
@@ -139,36 +140,53 @@ export async function POST(request: NextRequest) {
         console.log(`✨ Generated quote: "${quoteData.quoteText.substring(0, 60)}..."`);
         console.log(`🎨 Visual style: ${accountConfig.style}`);
 
-        // Get user preferences for AI models
-        const preferencesResponse = await UserPreferencesService.getPreferences(effectiveUserId);
-        const userPreferences = preferencesResponse.data;
+        // Get module-specific AI config
+        const moduleAIConfig = config.aiModelConfig;
         
-        console.log(`🔍 [DEBUG] User Preferences:`, {
-          textToImageModel: userPreferences?.textToImageModel || 'NOT SET - will use default',
-          textToVideoModel: userPreferences?.textToVideoModel || 'NOT SET - will use default'
-        });
+        // Get global user preferences (fallback)
+        const preferencesResponse = await UserPreferencesService.getPreferences(effectiveUserId);
+        const globalPreferences = preferencesResponse.data;
+        
+        // Determine which models to use (module-specific > global)
+        const imageModel = moduleAIConfig?.textToImageModel || globalPreferences?.textToImageModel;
+        const videoModel = moduleAIConfig?.textToVideoModel || globalPreferences?.textToVideoModel;
+        
+        console.log(`🔧 [AI Models] Image: ${imageModel || 'default'} | Video: ${videoModel || 'default'}`);
+        console.log(`   Source: ${moduleAIConfig?.textToImageModel ? 'Module-specific' : 'Global settings'}`);
 
         // Generate media (image or video) using unified services
         let mediaUrl: string;
         
         if (actualContentType === 'image') {
-          console.log(`📸 [STEP 1/4] Generating image with AI settings...`);
+          console.log(`📸 [STEP 1/4] Generating image with model: ${imageModel || 'default'}...`);
           
-          const response = await APIBook.ai.generateImage(quoteData.visualPrompt);
+          // Determine provider from model
+          let provider: 'gemini' | 'kieai' | undefined;
+          if (imageModel) {
+            const modelInfo = getModelById(imageModel);
+            provider = modelInfo?.provider;
+          }
           
-          if (!response.success || !response.data) {
-            throw new Error(`Image generation failed: ${response.error || 'No data returned'}`);
+          // Generate image using unified service with specific model/provider
+          const result = await unifiedImageGeneration.generateImage({
+            prompt: quoteData.visualPrompt,
+            quality: 'high',
+            imageSize: 'square_hd',
+            model: imageModel,
+          }, provider);
+          
+          if (!result.imageBase64) {
+            throw new Error(`Image generation failed: No image data returned`);
           }
 
-          const imageBase64 = response.data.imageBase64;
-          console.log(`✅ [STEP 1/4] Image generated with ${response.data.provider}`);
+          console.log(`✅ [STEP 1/4] Image generated with ${result.provider}`);
 
           console.log(`📤 [STEP 2/4] Uploading to Firebase Storage...`);
           
           try {
             // Upload to Firebase Storage (even if Instagram post fails later)
             const uploadResult = await UnifiedImageStorageService.uploadImage(
-              imageBase64,
+              result.imageBase64,
               effectiveUserId,
               'module9/generated-quotes',
               `quote_${Date.now()}`
@@ -183,13 +201,13 @@ export async function POST(request: NextRequest) {
             throw new Error(`Firebase upload failed: ${uploadError instanceof Error ? uploadError.message : String(uploadError)}`);
           }
         } else {
-          console.log(`🎬 Generating video with visual prompt...`);
+          console.log(`🎬 Generating video with model: ${videoModel || 'default'}...`);
           
           // Generate video using unified video generation service
           const videoService = new UnifiedVideoGenerationService();
           const videoResult = await videoService.generateVideo({
             prompt: quoteData.visualPrompt,
-            model: userPreferences?.textToVideoModel, // Use user's selected model
+            model: videoModel,
             duration: '5',
             aspectRatio: '1:1',
           });
