@@ -4,6 +4,8 @@ import { APIBook } from '@/lib/firebase/services';
 import { unifiedImageGeneration } from '@/lib/services/image-generation';
 import { UnifiedVideoGenerationService } from '@/lib/services/video-generation/unified-video-generation.service';
 import { UserPreferencesService } from '@/lib/firebase/services/user-preferences.service';
+import { UnifiedImageStorageService } from '@/lib/services/unified/image-storage.service';
+import { VideoStorageService } from '@/lib/services/video-storage.service';
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://autogram-orpin.vercel.app';
 
@@ -67,6 +69,10 @@ export async function POST(request: NextRequest) {
 
     // Process each configured account
     for (const accountConfig of config.accountConfigs) {
+      let logId: string = '';
+      let quoteData: any = null;
+      let firebaseMediaUrl: string | undefined = undefined;
+      
       try {
         // Get Instagram account
         const instagramAccount = APIBook.instagram.getAccountById(accountConfig.accountId);
@@ -91,7 +97,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Create log entry
-        const logId = await APIBook.motivationalAutoPostLog.createLog({
+        logId = await APIBook.motivationalAutoPostLog.createLog({
           userId: effectiveUserId,
           accountId: accountConfig.accountId,
           category: accountConfig.category,
@@ -121,7 +127,7 @@ export async function POST(request: NextRequest) {
         console.log(`   Recent quotes to avoid: ${recentQuotes.length}`);
 
         // Generate unique quote using AI based on category and style
-        const quoteData = await APIBook.motivationalPromptRefiner.generateUniqueQuote({
+        quoteData = await APIBook.motivationalPromptRefiner.generateUniqueQuote({
           category: accountConfig.category,
           themeDescription: `${accountConfig.category.charAt(0).toUpperCase() + accountConfig.category.slice(1)} quotes in ${accountConfig.style} style`,
           contentType: actualContentType,
@@ -138,6 +144,7 @@ export async function POST(request: NextRequest) {
 
         // Generate media (image or video) using unified services
         let mediaUrl: string;
+        
         if (actualContentType === 'image') {
           console.log(`📸 Generating image with visual prompt...`);
           
@@ -152,9 +159,20 @@ export async function POST(request: NextRequest) {
             throw new Error('Failed to generate image - no image data returned');
           }
 
-          // For now, use the base64 data directly (you may want to upload to storage)
-          mediaUrl = imageResult.imageBase64;
-          console.log(`✅ Image generated successfully`);
+          console.log(`✅ Image generated successfully, uploading to Firebase Storage...`);
+          
+          // Upload to Firebase Storage (even if Instagram post fails later)
+          const uploadResult = await UnifiedImageStorageService.uploadImage(
+            imageResult.imageBase64,
+            effectiveUserId,
+            'module9/generated-quotes',
+            `quote_${Date.now()}`
+          );
+          
+          firebaseMediaUrl = uploadResult.imageUrl;
+          mediaUrl = uploadResult.imageUrl; // Use Firebase URL for Instagram
+          
+          console.log(`✅ Image uploaded to Firebase: ${firebaseMediaUrl.substring(0, 80)}...`);
         } else {
           console.log(`🎬 Generating video with visual prompt...`);
           
@@ -171,8 +189,18 @@ export async function POST(request: NextRequest) {
             throw new Error('Failed to generate video - no video URL returned');
           }
 
-          mediaUrl = videoResult.videoUrl;
-          console.log(`✅ Video generated successfully`);
+          console.log(`✅ Video generated successfully, uploading to Firebase Storage...`);
+          
+          // Upload video to Firebase Storage
+          firebaseMediaUrl = await VideoStorageService.uploadVideoFromUrl(
+            videoResult.videoUrl,
+            effectiveUserId,
+            'module7'
+          );
+          
+          mediaUrl = firebaseMediaUrl; // Use Firebase URL for Instagram
+          
+          console.log(`✅ Video uploaded to Firebase: ${firebaseMediaUrl.substring(0, 80)}...`);
         }
 
         // Create caption with quote
@@ -201,7 +229,9 @@ export async function POST(request: NextRequest) {
           status: 'success',
           quoteText: quoteData.quoteText,
           author: quoteData.author,
-          mediaUrl,
+          mediaUrl: firebaseMediaUrl, // Store Firebase URL
+          generatedPrompt: quoteData.visualPrompt,
+          caption,
           instagramPostId: postData.postId,
           instagramAccountName: instagramAccount.name,
         });
@@ -216,6 +246,25 @@ export async function POST(request: NextRequest) {
         console.log(`✅ [Module 9 API] Successfully posted for account ${instagramAccount.name}`);
       } catch (error) {
         console.error(`❌ [Module 9 API] Error processing account ${accountConfig.accountId}:`, error);
+        
+        // Update log with failure status (keep the generated media URL if available)
+        try {
+          await APIBook.motivationalAutoPostLog.updateLog(logId, {
+            status: 'failed',
+            error: error instanceof Error ? error.message : String(error),
+            // If we generated media but failed to post, keep the URL
+            ...(typeof firebaseMediaUrl !== 'undefined' && { 
+              mediaUrl: firebaseMediaUrl,
+              generatedPrompt: quoteData?.visualPrompt || '',
+            }),
+            ...(quoteData && { 
+              quoteText: quoteData.quoteText,
+              author: quoteData.author,
+            }),
+          });
+        } catch (updateError) {
+          console.error('Failed to update log on error:', updateError);
+        }
         
         results.push({
           accountId: accountConfig.accountId,

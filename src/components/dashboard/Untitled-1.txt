@@ -1,87 +1,179 @@
-INFO 2025-12-28T16:38:03.402794Z [Module 9] User Ck8QAuooZfcA7Vwzz7Bug4ySZkF3: Checking 1 account(s)
-INFO 2025-12-28T16:38:03.402863Z [Module 9] Account account_17841478413044591: postingTimes=["21:00","21:31","22:01","22:04","22:08"], currentTime=22:08
-INFO 2025-12-28T16:38:03.402932Z [Module 9] ✅ MATCH! Account account_17841478413044591 scheduled for 22:08
-INFO 2025-12-28T16:38:03.433308Z [Module 9] User NSuYzmIgoET0ybRjmlgg0a0l89h2: No config found
-INFO 2025-12-28T16:38:03.462491Z [Module 9] User PE2lXo9qBhQGTK0jwAxMazvawo02: No config found
-INFO 2025-12-28T16:38:03.497761Z [Module 9] User SXugrvwOBme3dv5On5Zmwr1Jtz33: No config found
-INFO 2025-12-28T16:38:03.550297Z [Module 9] User SbaZ7J8tQBcJ5EWt4z11: No config found
-INFO 2025-12-28T16:38:03.550372Z Found 1 scheduled item(s) in Motivational Quotes Auto Poster
-INFO 2025-12-28T16:38:03.550496Z ▶ Executing: motivation (bold) (account_17841478413044591)
-INFO 2025-12-28T16:38:03.550572Z 🌐 Calling API: https://autogram-orpin.vercel.app/api/motivational-auto-post
-INFO 2025-12-28T16:38:06.897682Z 📡 API Response Status: 200
-INFO 2025-12-28T16:38:06.899602Z 📥 API Response: { "success": true, "results": [ { "accountId": "account_17841478413044591", "status": "failed", "error": "Failed to generate image" } ], "totalProcessed": 1, "timestamp": "2025-12-28T16:38:06.839Z", "duration": "2468ms" }
+INFO 2025-12-28T16:43:03.554457Z [Module 9] User SbaZ7J8tQBcJ5EWt4z11: No config found
+INFO 2025-12-28T16:43:03.554545Z Found 1 scheduled item(s) in Motivational Quotes Auto Poster
+INFO 2025-12-28T16:43:03.554623Z ▶ Executing: motivation (bold) (account_17841478413044591)
   {
-    "textPayload": "📥 API Response: {\n  \"success\": true,\n  \"results\": [\n    {\n      \"accountId\": \"account_17841478413044591\",\n      \"status\": \"failed\",\n      \"error\": \"Failed to generate image\"\n    }\n  ],\n  \"totalProcessed\": 1,\n  \"timestamp\": \"2025-12-28T16:38:06.839Z\",\n  \"duration\": \"2468ms\"\n}",
-    "insertId": "69515cee000dba12b07d7269",
+    "textPayload": "\n▶ Executing: motivation (bold) (account_17841478413044591)",
+    "insertId": "69515e170008767f58e8568d",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "scheduledunifiedautopost-00012-zot",
+        "service_name": "scheduledunifiedautopost",
+        "project_id": "env-uat-cd3c5",
+        "location": "us-central1",
+        "configuration_name": "scheduledunifiedautopost"
+      }
+    },
+    "timestamp": "2025-12-28T16:43:03.554623Z",
+    "severity": "INFO",
+    "labels": {
+      "deployment-scheduled": "true",
+      "execution_id": "pykam8m2tlag",
+      "firebase-functions-hash": "7b04f6c9d37762361983adeee850314ae9ca498f",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "goog-managed-by": "cloudfunctions",
+      "instanceId": "0007e26d684c3987a7d3ae54c89fd2145dad759629f19732f8cdc8f6171a91774a99008f9c65d1896e74c6bb155427298c62ed260fdb701822d1ca7cc3ea637344dc83d034e8d9ba4af614c5494590",
+      "goog-drz-cloudfunctions-id": "scheduledunifiedautopost",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/nodejs22:nodejs22_20251207_22_21_1_RC00"
+    },
+    "logName": "projects/env-uat-cd3c5/logs/run.googleapis.com%2Fstdout",
+    "trace": "projects/env-uat-cd3c5/traces/32c207b6279491a440a1d77d740c293d",
+    "receiveTimestamp": "2025-12-28T16:43:03.729043917Z",
+    "spanId": "17259778226458149134"
+  }
+> INFO 2025-12-28T16:43:03.554719Z 🌐 Calling API: https://autogram-orpin.vercel.app/api/motivational-auto-post
+INFO 2025-12-28T16:43:03.554719Z 🌐 Calling API: https://autogram-orpin.vercel.app/api/motivational-auto-post
+INFO 2025-12-28T16:43:07.677099Z 📡 API Response Status: 200
+  {
+    "textPayload": "📡 API Response Status: 200",
+    "insertId": "69515e1b000a54eb785714ca",
     "resource": {
       "type": "cloud_run_revision",
       "labels": {
         "service_name": "scheduledunifiedautopost",
         "location": "us-central1",
-        "revision_name": "scheduledunifiedautopost-00012-zot",
         "project_id": "env-uat-cd3c5",
-        "configuration_name": "scheduledunifiedautopost"
+        "configuration_name": "scheduledunifiedautopost",
+        "revision_name": "scheduledunifiedautopost-00012-zot"
       }
     },
-    "timestamp": "2025-12-28T16:38:06.899602Z",
+    "timestamp": "2025-12-28T16:43:07.677099Z",
     "severity": "INFO",
     "labels": {
-      "execution_id": "pydv4kiv0w2p",
-      "firebase-functions-hash": "7b04f6c9d37762361983adeee850314ae9ca498f",
+      "deployment-scheduled": "true",
+      "goog-drz-cloudfunctions-id": "scheduledunifiedautopost",
       "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/nodejs22:nodejs22_20251207_22_21_1_RC00",
       "goog-managed-by": "cloudfunctions",
-      "goog-drz-cloudfunctions-id": "scheduledunifiedautopost",
-      "deployment-scheduled": "true",
+      "execution_id": "pykam8m2tlag",
+      "goog-drz-cloudfunctions-location": "us-central1",
       "instanceId": "0007e26d684c3987a7d3ae54c89fd2145dad759629f19732f8cdc8f6171a91774a99008f9c65d1896e74c6bb155427298c62ed260fdb701822d1ca7cc3ea637344dc83d034e8d9ba4af614c5494590",
-      "goog-drz-cloudfunctions-location": "us-central1"
+      "firebase-functions-hash": "7b04f6c9d37762361983adeee850314ae9ca498f"
     },
     "logName": "projects/env-uat-cd3c5/logs/run.googleapis.com%2Fstdout",
-    "trace": "projects/env-uat-cd3c5/traces/d5d0fc171a844849301e0a8cb9c9b612",
-    "receiveTimestamp": "2025-12-28T16:38:07.042661815Z",
-    "spanId": "12716936029589602482"
+    "trace": "projects/env-uat-cd3c5/traces/32c207b6279491a440a1d77d740c293d",
+    "receiveTimestamp": "2025-12-28T16:43:07.723529241Z",
+    "spanId": "17259778226458149134"
   }
-> INFO 2025-12-28T16:38:06.899669Z ✅ Auto-post completed successfully
-> INFO 2025-12-28T16:38:06.899753Z ✅ SUCCESS: motivation (bold)
-> INFO 2025-12-28T16:38:06.899867Z 📊 Execution Summary:
-> INFO 2025-12-28T16:38:06.899904Z ✅ Unified Auto-Post Scheduler completed
-INFO 2025-12-28T16:38:06.899669Z ✅ Auto-post completed successfully
-INFO 2025-12-28T16:38:06.899753Z ✅ SUCCESS: motivation (bold)
-INFO 2025-12-28T16:38:06.899867Z 📊 Execution Summary:
+> INFO 2025-12-28T16:43:07.679152Z 📥 API Response: { "success": true, "results": [ { "accountId": "account_17841478413044591", "status": "failed", "error": "{\"error\":{\"message\":\"\",\"code\":404,\"status\":\"Not Found\"}}" } ], "totalProcessed": 1, "timestamp": "2025-12-28T16:43:07.615Z", "duration": "3199ms" }
+> INFO 2025-12-28T16:43:07.679166Z ✅ Auto-post completed successfully
+> INFO 2025-12-28T16:43:07.679174Z ✅ SUCCESS: motivation (bold)
+> INFO 2025-12-28T16:43:07.679295Z 📊 Execution Summary:
+> INFO 2025-12-28T16:43:07.679339Z ✅ Unified Auto-Post Scheduler completed
+INFO 2025-12-28T16:43:07.679152Z 📥 API Response: { "success": true, "results": [ { "accountId": "account_17841478413044591", "status": "failed", "error": "{\"error\":{\"message\":\"\",\"code\":404,\"status\":\"Not Found\"}}" } ], "totalProcessed": 1, "timestamp": "2025-12-28T16:43:07.615Z", "duration": "3199ms" }
   {
-    "insertId": "69515cee000dbb1b30d73449",
+    "textPayload": "📥 API Response: {\n  \"success\": true,\n  \"results\": [\n    {\n      \"accountId\": \"account_17841478413044591\",\n      \"status\": \"failed\",\n      \"error\": \"{\\\"error\\\":{\\\"message\\\":\\\"\\\",\\\"code\\\":404,\\\"status\\\":\\\"Not Found\\\"}}\"\n    }\n  ],\n  \"totalProcessed\": 1,\n  \"timestamp\": \"2025-12-28T16:43:07.615Z\",\n  \"duration\": \"3199ms\"\n}",
+    "insertId": "69515e1b000a5cf08fae984f",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "env-uat-cd3c5",
+        "location": "us-central1",
+        "service_name": "scheduledunifiedautopost",
+        "configuration_name": "scheduledunifiedautopost",
+        "revision_name": "scheduledunifiedautopost-00012-zot"
+      }
+    },
+    "timestamp": "2025-12-28T16:43:07.679152Z",
+    "severity": "INFO",
+    "labels": {
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "firebase-functions-hash": "7b04f6c9d37762361983adeee850314ae9ca498f",
+      "instanceId": "0007e26d684c3987a7d3ae54c89fd2145dad759629f19732f8cdc8f6171a91774a99008f9c65d1896e74c6bb155427298c62ed260fdb701822d1ca7cc3ea637344dc83d034e8d9ba4af614c5494590",
+      "execution_id": "pykam8m2tlag",
+      "goog-drz-cloudfunctions-id": "scheduledunifiedautopost",
+      "goog-managed-by": "cloudfunctions",
+      "deployment-scheduled": "true",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/nodejs22:nodejs22_20251207_22_21_1_RC00"
+    },
+    "logName": "projects/env-uat-cd3c5/logs/run.googleapis.com%2Fstdout",
+    "trace": "projects/env-uat-cd3c5/traces/32c207b6279491a440a1d77d740c293d",
+    "receiveTimestamp": "2025-12-28T16:43:07.723529241Z",
+    "spanId": "17259778226458149134"
+  }
+> INFO 2025-12-28T16:43:07.679166Z ✅ Auto-post completed successfully
+> INFO 2025-12-28T16:43:07.679174Z ✅ SUCCESS: motivation (bold)
+> INFO 2025-12-28T16:43:07.679295Z 📊 Execution Summary:
+> INFO 2025-12-28T16:43:07.679339Z ✅ Unified Auto-Post Scheduler completed
+INFO 2025-12-28T16:43:07.679166Z ✅ Auto-post completed successfully
+  {
+    "textPayload": "✅ Auto-post completed successfully",
+    "insertId": "69515e1b000a5cfe4073651b",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "scheduledunifiedautopost-00012-zot",
+        "service_name": "scheduledunifiedautopost",
+        "location": "us-central1",
+        "configuration_name": "scheduledunifiedautopost",
+        "project_id": "env-uat-cd3c5"
+      }
+    },
+    "timestamp": "2025-12-28T16:43:07.679166Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "0007e26d684c3987a7d3ae54c89fd2145dad759629f19732f8cdc8f6171a91774a99008f9c65d1896e74c6bb155427298c62ed260fdb701822d1ca7cc3ea637344dc83d034e8d9ba4af614c5494590",
+      "deployment-scheduled": "true",
+      "goog-managed-by": "cloudfunctions",
+      "goog-drz-cloudfunctions-location": "us-central1",
+      "execution_id": "pykam8m2tlag",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/nodejs22:nodejs22_20251207_22_21_1_RC00",
+      "goog-drz-cloudfunctions-id": "scheduledunifiedautopost",
+      "firebase-functions-hash": "7b04f6c9d37762361983adeee850314ae9ca498f"
+    },
+    "logName": "projects/env-uat-cd3c5/logs/run.googleapis.com%2Fstdout",
+    "trace": "projects/env-uat-cd3c5/traces/32c207b6279491a440a1d77d740c293d",
+    "receiveTimestamp": "2025-12-28T16:43:07.723529241Z",
+    "spanId": "17259778226458149134"
+  }
+> INFO 2025-12-28T16:43:07.679174Z ✅ SUCCESS: motivation (bold)
+> INFO 2025-12-28T16:43:07.679295Z 📊 Execution Summary:
+  {
+    "insertId": "69515e1b000a5d7ff183be2a",
     "jsonPayload": {
-      "totalSuccessful": 1,
       "totalScheduledItems": 1,
       "successRate": "100.0%",
       "message": "\n📊 Execution Summary:",
-      "totalFailed": 0
+      "totalFailed": 0,
+      "totalSuccessful": 1
     },
     "resource": {
       "type": "cloud_run_revision",
       "labels": {
-        "configuration_name": "scheduledunifiedautopost",
         "project_id": "env-uat-cd3c5",
         "revision_name": "scheduledunifiedautopost-00012-zot",
-        "location": "us-central1",
-        "service_name": "scheduledunifiedautopost"
+        "service_name": "scheduledunifiedautopost",
+        "configuration_name": "scheduledunifiedautopost",
+        "location": "us-central1"
       }
     },
-    "timestamp": "2025-12-28T16:38:06.899867Z",
+    "timestamp": "2025-12-28T16:43:07.679295Z",
     "severity": "INFO",
     "labels": {
-      "goog-drz-cloudfunctions-id": "scheduledunifiedautopost",
-      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/nodejs22:nodejs22_20251207_22_21_1_RC00",
-      "firebase-functions-hash": "7b04f6c9d37762361983adeee850314ae9ca498f",
+      "execution_id": "pykam8m2tlag",
       "goog-managed-by": "cloudfunctions",
-      "instanceId": "0007e26d684c3987a7d3ae54c89fd2145dad759629f19732f8cdc8f6171a91774a99008f9c65d1896e74c6bb155427298c62ed260fdb701822d1ca7cc3ea637344dc83d034e8d9ba4af614c5494590",
-      "deployment-scheduled": "true",
       "goog-drz-cloudfunctions-location": "us-central1",
-      "execution_id": "pydv4kiv0w2p"
+      "deployment-scheduled": "true",
+      "firebase-functions-hash": "7b04f6c9d37762361983adeee850314ae9ca498f",
+      "goog-drz-cloudfunctions-id": "scheduledunifiedautopost",
+      "instanceId": "0007e26d684c3987a7d3ae54c89fd2145dad759629f19732f8cdc8f6171a91774a99008f9c65d1896e74c6bb155427298c62ed260fdb701822d1ca7cc3ea637344dc83d034e8d9ba4af614c5494590",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22-full/runtimes/nodejs22:nodejs22_20251207_22_21_1_RC00"
     },
     "logName": "projects/env-uat-cd3c5/logs/run.googleapis.com%2Fstdout",
-    "trace": "projects/env-uat-cd3c5/traces/d5d0fc171a844849301e0a8cb9c9b612",
-    "receiveTimestamp": "2025-12-28T16:38:07.042661815Z",
-    "spanId": "12716936029589602482"
+    "trace": "projects/env-uat-cd3c5/traces/32c207b6279491a440a1d77d740c293d",
+    "receiveTimestamp": "2025-12-28T16:43:07.723529241Z",
+    "spanId": "17259778226458149134"
   }
-> INFO 2025-12-28T16:38:06.899904Z ✅ Unified Auto-Post Scheduler completed
-INFO 2025-12-28T16:38:06.899904Z ✅ Unified Auto-Post Scheduler completed
+> INFO 2025-12-28T16:43:07.679339Z ✅ Unified Auto-Post Scheduler completed
+INFO 2025-12-28T16:43:07.679174Z ✅ SUCCESS: motivation (bold)
+INFO 2025-12-28T16:43:07.679295Z 📊 Execution Summary:
+INFO 2025-12-28T16:43:07.679339Z ✅ Unified Auto-Post Scheduler completed
