@@ -73,7 +73,7 @@ export function AIProviderSettings() {
         setTextToImageModel(prefs.textToImageModel);
       } else {
         // Set default based on provider
-        const defaultModel = currentProvider === 'gemini' ? 'gemini-2.5-flash-' : 'google/imagen4-fast';
+        const defaultModel = currentProvider === 'gemini' ? 'gemini-2.5-flash-image' : 'google/imagen4-fast';
         setTextToImageModel(defaultModel);
       }
       

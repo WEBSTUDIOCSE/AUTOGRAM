@@ -8,20 +8,18 @@ import { collection, addDoc, query, where, getDocs, orderBy, limit, Timestamp, u
 export interface MotivationalAutoPostLog {
   id: string;
   userId: string;
-  promptId: string;
+  accountId: string;
   category: string;
+  style: string;
+  contentType: 'image' | 'video';
   quoteText: string;
   author?: string;
-  contentType: 'image' | 'video';
   generatedPrompt: string;
   mediaUrl: string;
-  thumbnailUrl?: string;
   caption: string;
-  hashtags: string;
-  instagramAccountId: string;
-  instagramAccountName?: string;
   instagramPostId?: string;
-  status: 'success' | 'failed' | 'media_generated' | 'instagram_failed' | 'skipped';
+  instagramAccountName?: string;
+  status: 'success' | 'failed' | 'processing' | 'instagram_failed';
   error?: string;
   timestamp: Timestamp;
 }
@@ -69,21 +67,24 @@ export const MotivationalAutoPostLogService = {
   },
 
   /**
-   * Get recent prompts (for variation)
+   * Get recent logs for an account (for variation)
    */
-  async getRecentPrompts(userId: string, count: number = 10): Promise<string[]> {
+  async getRecentLogs(userId: string, accountId: string, count: number = 10): Promise<string[]> {
     try {
       const q = query(
         collection(db, 'motivational_auto_post_logs'),
         where('userId', '==', userId),
+        where('accountId', '==', accountId),
         orderBy('timestamp', 'desc'),
         limit(count)
       );
 
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => doc.data().generatedPrompt);
+      return snapshot.docs
+        .map(doc => doc.data().quoteText)
+        .filter((text): text is string => typeof text === 'string' && !!text);
     } catch (error) {
-      console.error('Error getting recent prompts:', error);
+      console.error('Error getting recent logs:', error);
       return [];
     }
   },

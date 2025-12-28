@@ -29,63 +29,130 @@ export const MotivationalPromptRefinerService = {
     try {
       const modelName = getTextModelName();
 
+      // Get time-based context for more variation
+      const now = new Date();
+      const hour = now.getHours();
+      const dayOfWeek = now.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+      const isMonday = dayOfWeek === 1;
+      const isFriday = dayOfWeek === 5;
+      
+      let timeContext = '';
+      if (hour < 12) {
+        timeContext = 'morning inspiration to start the day strong';
+      } else if (hour < 17) {
+        timeContext = 'afternoon motivation to keep pushing forward';
+      } else {
+        timeContext = 'evening reflection and tomorrow\'s possibilities';
+      }
+      
+      let dayContext = '';
+      if (isMonday) {
+        dayContext = ' (Monday fresh start theme)';
+      } else if (isFriday) {
+        dayContext = ' (Friday celebration of progress theme)';
+      } else if (isWeekend) {
+        dayContext = ' (weekend growth and self-improvement theme)';
+      }
+
       const avoidanceText = context.recentQuotes.length > 0
-        ? `\n\nRECENT QUOTES (DO NOT REPEAT):\n${context.recentQuotes.map((q, i) => `${i + 1}. "${q}"`).join('\n')}`
+        ? `\n\n🚫 RECENT QUOTES (MUST BE COMPLETELY DIFFERENT - use different words, structures, and themes):\n${context.recentQuotes.map((q, i) => `${i + 1}. "${q}"`).join('\n')}`
         : '';
 
       const templateText = context.quoteTemplate
-        ? `\n\nQUOTE TEMPLATE (Use as inspiration but make it unique):\n"${context.quoteTemplate}"`
+        ? `\n\n💡 QUOTE TEMPLATE (Use as loose inspiration but transform it completely):\n"${context.quoteTemplate}"`
         : '';
 
-      const generationPrompt = `You are a motivational content creator generating inspiring quotes for Instagram.
+      // Random variation in prompt structure for more diversity
+      const variations = [
+        'a powerful one-liner that hits hard',
+        'an actionable call-to-action quote',
+        'a thought-provoking question-based quote',
+        'a metaphor-rich inspirational statement',
+        'a contrast-based quote (before vs after mindset)',
+        'a future-focused vision statement',
+      ];
+      const randomVariation = variations[Math.floor(Math.random() * variations.length)];
 
-CATEGORY: ${context.category}
-THEME: ${context.themeDescription}
-CONTENT TYPE: ${context.contentType}
-VISUAL STYLE: ${context.style}${templateText}${avoidanceText}
+      const generationPrompt = `You are an elite motivational content creator for Instagram, known for creating UNIQUE quotes that go viral.
 
-🎯 YOUR TASK: Generate a completely NEW and UNIQUE motivational quote that:
+📊 GENERATION PARAMETERS:
+• CATEGORY: ${context.category}
+• THEME: ${context.themeDescription}
+• CONTENT TYPE: ${context.contentType}
+• VISUAL STYLE: ${context.style}
+• TIME CONTEXT: ${timeContext}${dayContext}
+• VARIATION TYPE: ${randomVariation}${templateText}${avoidanceText}
 
-1. **Quote Requirements**:
-   - Short and impactful (max 100 characters for ${context.contentType})
-   - Inspiring and actionable
-   - Fits the ${context.category} category
-   - Completely different from recent quotes
-   - Can be attributed to "Unknown" or a famous person (if appropriate)
-   - No clichés or overused phrases
+🎯 YOUR MISSION: Create a COMPLETELY ORIGINAL motivational quote that has NEVER been seen before.
 
-2. **Visual Prompt Requirements** (for AI ${context.contentType} generation):
-   - Describe the visual scene/composition
-   - Match the ${context.style} style
-   - For IMAGE: Static composition, typography, colors, mood
-   - For VIDEO: Motion, transitions, camera movement, dynamic elements
-   - Include: background, text placement, visual effects, atmosphere
-   - Professional and Instagram-ready aesthetic
-   - NO people or faces (abstract/symbolic visuals only)
+✨ **Quote Requirements**:
+   - Length: ${context.contentType === 'video' ? '60-120 characters (for video overlay)' : '50-100 characters (for image text)'}
+   - Style: ${randomVariation}
+   - Must be 100% unique - NO common motivational phrases
+   - Use unexpected word combinations and fresh perspectives
+   - Make it instantly shareable and memorable
+   - Attribution: "Unknown" (or real famous person if naturally fitting)
+   - Vary the structure: try different formats each time
+   
+💡 **Creative Techniques to Use**:
+   - Play with contrasts and paradoxes
+   - Use powerful action verbs
+   - Include numbers or specific details when relevant
+   - Create rhythm and cadence
+   - End with impact - last word should be memorable
+   - Avoid: "Don't", "Never", negative phrasing (stay positive)
 
-3. **Hashtag Requirements**:
-   - 10-15 relevant hashtags
-   - Mix of popular and niche tags
-   - Motivational/inspirational focus
-   - No spaces, all lowercase
+🎨 **Visual Prompt Requirements** (for AI ${context.contentType} generation):
+   - Style: ${context.style} aesthetic with modern Instagram appeal
+   ${context.contentType === 'image' ? `
+   - Composition: Rule of thirds, dynamic balance
+   - Typography: Bold, readable, artistically placed
+   - Colors: Trending palettes (gradients, neons, pastels, or bold contrasts)
+   - Elements: Abstract shapes, geometric patterns, natural textures
+   - Depth: Layered composition with foreground/background separation
+   - Lighting: Dramatic or soft mood lighting` : `
+   - Motion: Smooth, cinematic camera movements
+   - Animation: Text reveals, zoom effects, particle systems
+   - Transitions: Seamless flow between scenes
+   - Dynamics: Kinetic typography, morphing shapes
+   - Effects: Glow, light leaks, bokeh, film grain
+   - Duration: 5-10 second loop potential`}
+   - Professional quality, Instagram-optimized
+   - NO people, faces, or hands (purely abstract/symbolic)
+   - Make it VISUALLY DISTINCTIVE from typical motivational posts
 
-🚨 CONTENT SAFETY RULES:
-- Family-friendly and appropriate for all audiences
-- Positive and uplifting tone
-- No controversial topics
-- No religious or political content
-- Focus on universal themes: growth, success, perseverance, wisdom
+📱 **Hashtag Strategy**:
+   - 12-15 hashtags total
+   - Mix: 3 trending (#motivation), 5 niche (category-specific), 4 branded
+   - All lowercase, no spaces
+   - Focus on ${context.category} + ${context.style} keywords
+   - Include 2-3 action hashtags (#hustlehard #growthmindset)
 
-OUTPUT FORMAT (JSON):
+🔒 SAFETY & BRAND GUIDELINES:
+✓ Family-friendly, universally appropriate
+✓ Empowering, never preachy
+✓ Action-oriented, not passive
+✓ Inclusive language
+✗ No clichés ("shoot for the moon", "every cloud", etc.)
+✗ No religious/political content
+✗ No gender-specific pronouns
+
+📦 OUTPUT FORMAT (Valid JSON):
 {
-  "quoteText": "Your inspiring quote here",
-  "author": "Unknown" or "Famous Person Name",
-  "visualPrompt": "Detailed visual description for AI generation",
-  "suggestedHashtags": "#motivation #success #inspiration ..."
-}`;
+  "quoteText": "Your completely unique quote here",
+  "author": "Unknown",
+  "visualPrompt": "Ultra-detailed visual description for AI generation (150+ words)",
+  "suggestedHashtags": "#motivation #success #inspiration #mindset ..."
+}
+
+🚀 REMEMBER: The goal is to create something that makes people stop scrolling. Be bold, be different, be memorable!`;
 
       console.log('🤖 [Module 9] Generating motivational quote with Gemini AI...');
+      console.log('   Category:', context.category, '| Style:', context.style, '| Time:', timeContext);
 
+      // Note: Using higher randomness through prompt engineering since generationConfig
+      // temperature is not supported in this Gemini API version
       const response = await genAI.models.generateContent({
         model: modelName,
         contents: generationPrompt,
@@ -118,7 +185,35 @@ OUTPUT FORMAT (JSON):
         throw new Error('AI response missing required fields');
       }
 
+      // Check for similarity with recent quotes (basic deduplication)
+      const generatedQuote = parsed.quoteText.toLowerCase().trim();
+      const isTooSimilar = context.recentQuotes.some(recent => {
+        const recentLower = recent.toLowerCase().trim();
+        // Check if quotes are identical or very similar (>70% word overlap)
+        if (generatedQuote === recentLower) return true;
+        
+        const genWords = new Set(generatedQuote.split(/\s+/));
+        const recentWords = new Set(recentLower.split(/\s+/));
+        const genWordsArray = Array.from(genWords) as string[];
+        const intersection = new Set(genWordsArray.filter(w => recentWords.has(w)));
+        const similarity = intersection.size / Math.min(genWords.size, recentWords.size);
+        
+        return similarity > 0.7; // 70% word overlap threshold
+      });
+
+      if (isTooSimilar) {
+        console.warn('⚠️ [Module 9] Generated quote too similar to recent ones, retrying...');
+        // Retry once with different variation
+        if (!context.recentQuotes.includes('__RETRY__')) {
+          return this.generateUniqueQuote({
+            ...context,
+            recentQuotes: [...context.recentQuotes, generatedQuote, '__RETRY__'],
+          });
+        }
+      }
+
       console.log('✅ [Module 9] Generated unique motivational quote');
+      console.log('   Quote:', parsed.quoteText.substring(0, 60) + '...');
 
       return {
         quoteText: parsed.quoteText.trim(),

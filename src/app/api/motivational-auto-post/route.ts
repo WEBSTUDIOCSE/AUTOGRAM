@@ -9,71 +9,96 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get active prompts
-    const activePrompts = await APIBook.motivationalPromptLibrary.getActivePrompts(user.uid);
+    // Get auto-post configuration
+    const config = await APIBook.motivationalAutoPostConfig.getConfig(user.uid);
     
-    if (activePrompts.length === 0) {
+    if (!config?.isEnabled || !config.accountConfigs || config.accountConfigs.length === 0) {
       return NextResponse.json({ 
         success: true, 
-        message: 'No active prompts configured' 
+        message: 'Auto-posting not enabled or no accounts configured' 
       });
     }
 
     const results = [];
     const startTime = Date.now();
 
-    // Process each active prompt
-    for (const prompt of activePrompts) {
-      let logId = '';
+    // Process each configured account
+    for (const accountConfig of config.accountConfigs) {
       try {
-        // Determine actual content type (handle 'both')
-        const actualContentType: 'image' | 'video' = 
-          prompt.contentType === 'both' 
-            ? (Math.random() > 0.5 ? 'video' : 'image')
-            : prompt.contentType as 'image' | 'video';
+        // Get Instagram account
+        const instagramAccount = APIBook.instagram.getAccountById(accountConfig.accountId);
+
+        if (!instagramAccount) {
+          throw new Error(`Instagram account ${accountConfig.accountId} not found`);
+        }
+
+        // Check if it's time to post (based on current time and posting schedule)
+        const currentHour = new Date().toLocaleString('en-US', { 
+          timeZone: 'Asia/Kolkata',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        });
+        
+        const shouldPost = accountConfig.postingTimes.some(time => time === currentHour.substring(0, 5));
+
+        if (!shouldPost) {
+          console.log(`Not posting time for ${instagramAccount.name}. Current: ${currentHour}, Scheduled: ${accountConfig.postingTimes.join(', ')}`);
+          continue;
+        }
 
         // Create log entry
-        logId = await APIBook.motivationalAutoPostLog.createLog({
+        const logId = await APIBook.motivationalAutoPostLog.createLog({
           userId: user.uid,
-          promptId: prompt.id,
-          category: prompt.category,
+          accountId: accountConfig.accountId,
+          category: accountConfig.category,
+          style: accountConfig.style,
+          contentType: accountConfig.contentType,
           quoteText: '',
-          contentType: actualContentType,
           generatedPrompt: '',
           mediaUrl: '',
           caption: '',
-          hashtags: '',
-          instagramAccountId: prompt.assignedAccountId || '',
-          status: 'media_generated',
+          status: 'processing',
         });
 
-        // Get recent quotes to avoid duplication
-        const recentPrompts = await APIBook.motivationalAutoPostLog.getRecentPrompts(
-          prompt.id,
-          10
-        );
-        const recentQuotes = recentPrompts
-          .filter((text): text is string => typeof text === 'string' && !!text);
+        // Determine actual content type (for future 'both' support)
+        const actualContentType: 'image' | 'video' = accountConfig.contentType as 'image' | 'video';
 
-        // Generate unique quote using AI
+        // Get recent quotes to avoid duplication (last 20 for better variety)
+        const recentLogs = await APIBook.motivationalAutoPostLog.getRecentLogs(
+          user.uid,
+          accountConfig.accountId,
+          20 // Increased from 10 to 20 for better duplication prevention
+        );
+        const recentQuotes = recentLogs
+          .filter((log): log is string => typeof log === 'string' && !!log);
+
+        console.log(`📝 [Module 9] Generating quote for ${instagramAccount.name}`);
+        console.log(`   Category: ${accountConfig.category} | Style: ${accountConfig.style}`);
+        console.log(`   Recent quotes to avoid: ${recentQuotes.length}`);
+
+        // Generate unique quote using AI based on category and style
         const quoteData = await APIBook.motivationalPromptRefiner.generateUniqueQuote({
-          category: prompt.category,
-          themeDescription: prompt.themeDescription,
+          category: accountConfig.category,
+          themeDescription: `${accountConfig.category.charAt(0).toUpperCase() + accountConfig.category.slice(1)} quotes in ${accountConfig.style} style`,
           contentType: actualContentType,
-          style: prompt.style,
+          style: accountConfig.style,
           recentQuotes,
         });
+
+        console.log(`✨ Generated quote: "${quoteData.quoteText.substring(0, 60)}..."`);
+        console.log(`🎨 Visual style: ${accountConfig.style}`);
 
         // Generate media (image or video)
         let mediaUrl: string;
         if (actualContentType === 'image') {
-          // Generate image using Kie.ai
+          // Generate image using selected AI model
           const imageResult = await fetch('/api/generate-image', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               prompt: quoteData.visualPrompt,
-              style: prompt.style,
+              style: accountConfig.style,
             }),
           });
 
@@ -84,13 +109,13 @@ export async function POST(request: NextRequest) {
           const imageData = await imageResult.json();
           mediaUrl = imageData.imageUrl;
         } else {
-          // Generate video using Kie.ai
+          // Generate video using selected AI model
           const videoResult = await fetch('/api/generate-video', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               prompt: quoteData.visualPrompt,
-              style: prompt.style,
+              style: accountConfig.style,
             }),
           });
 
@@ -100,15 +125,6 @@ export async function POST(request: NextRequest) {
 
           const videoData = await videoResult.json();
           mediaUrl = videoData.videoUrl;
-        }
-
-        // Get Instagram account
-        const instagramAccount = APIBook.instagram.getAccountById(
-          prompt.assignedAccountId || ''
-        );
-
-        if (!instagramAccount) {
-          throw new Error('Instagram account not found');
         }
 
         // Create caption with quote
@@ -122,7 +138,7 @@ export async function POST(request: NextRequest) {
             accountId: instagramAccount.id,
             mediaUrl,
             caption,
-            mediaType: prompt.contentType === 'image' ? 'IMAGE' : 'VIDEO',
+            mediaType: actualContentType === 'image' ? 'IMAGE' : 'VIDEO',
           }),
         });
 
@@ -132,19 +148,6 @@ export async function POST(request: NextRequest) {
 
         const postData = await postResult.json();
 
-        // Save quote to database
-        await APIBook.motivationalQuote.createQuote({
-          userId: user.uid,
-          quoteText: quoteData.quoteText,
-          author: quoteData.author,
-          category: prompt.category,
-          contentType: actualContentType,
-          mediaUrl,
-          instagramPostId: postData.postId,
-          instagramAccountId: instagramAccount.id,
-          prompt: prompt.themeDescription,
-        });
-
         // Update log with success
         await APIBook.motivationalAutoPostLog.updateLog(logId, {
           status: 'success',
@@ -152,33 +155,22 @@ export async function POST(request: NextRequest) {
           author: quoteData.author,
           mediaUrl,
           instagramPostId: postData.postId,
-          instagramAccountName: instagramAccount.username,
+          instagramAccountName: instagramAccount.name,
         });
 
-        // Increment prompt usage count
-        await APIBook.motivationalPromptLibrary.incrementUsage(prompt.id);
-
         results.push({
-          promptId: prompt.id,
+          accountId: accountConfig.accountId,
+          accountName: instagramAccount.name,
           status: 'success',
           quoteText: quoteData.quoteText,
         });
       } catch (error) {
-        console.error(`Error processing prompt ${prompt.id}:`, error);
+        console.error(`Error processing account ${accountConfig.accountId}:`, error);
         
-        // Update log with error
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        await APIBook.motivationalAutoPostLog.updateLog(logId, {
-          status: error instanceof Error && error.message.includes('Instagram') 
-            ? 'instagram_failed' 
-            : 'failed',
-          error: errorMessage,
-        });
-
         results.push({
-          promptId: prompt.id,
+          accountId: accountConfig.accountId,
           status: 'failed',
-          error: errorMessage,
+          error: error instanceof Error ? error.message : 'Unknown error',
         });
       }
     }
@@ -187,6 +179,7 @@ export async function POST(request: NextRequest) {
       success: true,
       results,
       totalProcessed: results.length,
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
     console.error('Error in motivational auto-post:', error);
