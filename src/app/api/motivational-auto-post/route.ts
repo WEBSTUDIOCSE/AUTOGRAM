@@ -147,33 +147,47 @@ export async function POST(request: NextRequest) {
         let mediaUrl: string;
         
         if (actualContentType === 'image') {
-          console.log(`📸 Generating image with visual prompt...`);
+          console.log(`📸 [STEP 1/4] Generating image with visual prompt...`);
+          console.log(`   Model: ${userPreferences?.textToImageModel || 'default'}`);
+          console.log(`   Prompt: ${quoteData.visualPrompt.substring(0, 100)}...`);
           
-          // Generate image using unified image generation service
-          const imageResult = await unifiedImageGeneration.generateImage({
-            prompt: quoteData.visualPrompt,
-            model: userPreferences?.textToImageModel, // Use user's selected model
-            imageSize: 'square_hd',
-          });
+          let imageResult;
+          try {
+            // Generate image using unified image generation service
+            imageResult = await unifiedImageGeneration.generateImage({
+              prompt: quoteData.visualPrompt,
+              model: userPreferences?.textToImageModel, // Use user's selected model
+              imageSize: 'square_hd',
+            });
+            console.log(`✅ [STEP 1/4] Image generation complete`);
+          } catch (imgError) {
+            console.error(`❌ [STEP 1/4] Image generation failed:`, imgError);
+            throw new Error(`Image generation failed: ${imgError instanceof Error ? imgError.message : String(imgError)}`);
+          }
 
           if (!imageResult.imageBase64) {
             throw new Error('Failed to generate image - no image data returned');
           }
 
-          console.log(`✅ Image generated successfully, uploading to Firebase Storage...`);
+          console.log(`📤 [STEP 2/4] Uploading to Firebase Storage...`);
           
-          // Upload to Firebase Storage (even if Instagram post fails later)
-          const uploadResult = await UnifiedImageStorageService.uploadImage(
-            imageResult.imageBase64,
-            effectiveUserId,
-            'module9/generated-quotes',
-            `quote_${Date.now()}`
-          );
-          
-          firebaseMediaUrl = uploadResult.imageUrl;
-          mediaUrl = uploadResult.imageUrl; // Use Firebase URL for Instagram
-          
-          console.log(`✅ Image uploaded to Firebase: ${firebaseMediaUrl.substring(0, 80)}...`);
+          try {
+            // Upload to Firebase Storage (even if Instagram post fails later)
+            const uploadResult = await UnifiedImageStorageService.uploadImage(
+              imageResult.imageBase64,
+              effectiveUserId,
+              'module9/generated-quotes',
+              `quote_${Date.now()}`
+            );
+            
+            firebaseMediaUrl = uploadResult.imageUrl;
+            mediaUrl = uploadResult.imageUrl; // Use Firebase URL for Instagram
+            
+            console.log(`✅ [STEP 2/4] Firebase upload complete: ${firebaseMediaUrl.substring(0, 80)}...`);
+          } catch (uploadError) {
+            console.error(`❌ [STEP 2/4] Firebase upload failed:`, uploadError);
+            throw new Error(`Firebase upload failed: ${uploadError instanceof Error ? uploadError.message : String(uploadError)}`);
+          }
         } else {
           console.log(`🎬 Generating video with visual prompt...`);
           
@@ -208,17 +222,27 @@ export async function POST(request: NextRequest) {
         const caption = `${quoteData.quoteText}\n\n${quoteData.author ? `— ${quoteData.author}` : ''}\n\n#motivation #inspiration #quotes #motivationalquotes #success #mindset #positivevibes`;
 
         // Post to Instagram using InstagramService directly
-        console.log(`📸 Posting to Instagram account: ${instagramAccount.id}...`);
-        const instagramPostId = await InstagramService.postImage(
-          mediaUrl,
-          caption,
-          instagramAccount.id,
-          actualContentType === 'video' // isVideo flag
-        );
+        console.log(`📸 [STEP 3/4] Posting to Instagram account: ${instagramAccount.id}...`);
+        console.log(`   Media URL: ${mediaUrl.substring(0, 100)}...`);
+        console.log(`   Caption length: ${caption.length} chars`);
+        console.log(`   Is Video: ${actualContentType === 'video'}`);
         
-        console.log(`✅ Posted to Instagram! Post ID: ${instagramPostId}`);
+        let instagramPostId: string;
+        try {
+          instagramPostId = await InstagramService.postImage(
+            mediaUrl,
+            caption,
+            instagramAccount.id,
+            actualContentType === 'video' // isVideo flag
+          );
+          console.log(`✅ [STEP 3/4] Posted to Instagram! Post ID: ${instagramPostId}`);
+        } catch (igError) {
+          console.error(`❌ [STEP 3/4] Instagram posting failed:`, igError);
+          throw new Error(`Instagram posting failed: ${igError instanceof Error ? igError.message : String(igError)}`);
+        }
 
         // Update log with success
+        console.log(`💾 [STEP 4/4] Updating database log...`);
         await APIBook.motivationalAutoPostLog.updateLog(logId, {
           status: 'success',
           quoteText: quoteData.quoteText,
@@ -226,14 +250,14 @@ export async function POST(request: NextRequest) {
           mediaUrl: firebaseMediaUrl, // Store Firebase URL
           generatedPrompt: quoteData.visualPrompt,
           caption,
-          instagramPostId: postData.postId,
+          instagramPostId: instagramPostId,
           instagramAccountName: instagramAccount.name,
         });
 
         results.push({
           accountId: accountConfig.accountId,
           accountName: instagramAccount.name,
-          status: 'success'instagramP
+          status: 'success',
           quoteText: quoteData.quoteText,
         });
 
