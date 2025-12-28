@@ -6,6 +6,7 @@ import { UnifiedVideoGenerationService } from '@/lib/services/video-generation/u
 import { UserPreferencesService } from '@/lib/firebase/services/user-preferences.service';
 import { UnifiedImageStorageService } from '@/lib/services/unified/image-storage.service';
 import { VideoStorageService } from '@/lib/services/video-storage.service';
+import { InstagramService } from '@/lib/services/instagram.service';
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://autogram-orpin.vercel.app';
 
@@ -206,23 +207,16 @@ export async function POST(request: NextRequest) {
         // Create caption with quote
         const caption = `${quoteData.quoteText}\n\n${quoteData.author ? `— ${quoteData.author}` : ''}\n\n#motivation #inspiration #quotes #motivationalquotes #success #mindset #positivevibes`;
 
-        // Post to Instagram
-        const postResult = await fetch(`${BASE_URL}/api/instagram/post`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            accountId: instagramAccount.id,
-            mediaUrl,
-            caption,
-            mediaType: actualContentType === 'image' ? 'IMAGE' : 'VIDEO',
-          }),
-        });
-
-        if (!postResult.ok) {
-          throw new Error('Failed to post to Instagram');
-        }
-
-        const postData = await postResult.json();
+        // Post to Instagram using InstagramService directly
+        console.log(`📸 Posting to Instagram account: ${instagramAccount.id}...`);
+        const instagramPostId = await InstagramService.postImage(
+          mediaUrl,
+          caption,
+          instagramAccount.id,
+          actualContentType === 'video' // isVideo flag
+        );
+        
+        console.log(`✅ Posted to Instagram! Post ID: ${instagramPostId}`);
 
         // Update log with success
         await APIBook.motivationalAutoPostLog.updateLog(logId, {
@@ -239,7 +233,7 @@ export async function POST(request: NextRequest) {
         results.push({
           accountId: accountConfig.accountId,
           accountName: instagramAccount.name,
-          status: 'success',
+          status: 'success'instagramP
           quoteText: quoteData.quoteText,
         });
 
