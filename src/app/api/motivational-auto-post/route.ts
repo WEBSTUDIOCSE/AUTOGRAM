@@ -153,19 +153,17 @@ export async function POST(request: NextRequest) {
         
         if (actualContentType === 'image') {
           console.log(`📸 [STEP 1/4] Generating image with visual prompt...`);
-          console.log(`   Model: ${userPreferences?.textToImageModel || 'default (will be gemini or kieai)'}`);
+          console.log(`   FORCING GEMINI PROVIDER (bypassing KieAI 404 issue)`);
           console.log(`   Prompt (first 100 chars): ${quoteData.visualPrompt.substring(0, 100)}...`);
-          console.log(`   ImageSize: square_hd`);
           
           let imageResult;
           try {
-            console.log(`🔧 [DEBUG] Calling unifiedImageGeneration.generateImage()...`);
-            // Generate image using unified image generation service
+            // FORCE GEMINI provider until KieAI API key issue is resolved
             imageResult = await unifiedImageGeneration.generateImage({
               prompt: quoteData.visualPrompt,
-              model: userPreferences?.textToImageModel, // Use user's selected model
+              model: userPreferences?.textToImageModel,
               imageSize: 'square_hd',
-            });
+            }, 'gemini'); // FORCE GEMINI PROVIDER
             console.log(`✅ [STEP 1/4] Image generation complete`);
           } catch (imgError) {
             console.error(`❌ [STEP 1/4] Image generation failed:`, imgError);
