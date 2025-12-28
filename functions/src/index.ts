@@ -186,6 +186,67 @@ const MODULES: AutoPostModule[] = [
       return results;
     },
   },
+
+  // Module 9: Motivational Quotes Auto Poster
+  {
+    moduleId: "module9",
+    moduleName: "Motivational Quotes Auto Poster",
+    collection: "motivational_quote_prompts",
+    apiEndpoint: "/api/motivational-auto-post",
+    getScheduledItems: async (currentTime: string) => {
+      const results: Array<{
+        userId: string;
+        itemId: string;
+        displayName: string;
+        payload: Record<string, any>;
+      }> = [];
+
+      // Get all active motivational prompts with posting times
+      const promptsSnapshot = await db
+        .collection("motivational_quote_prompts")
+        .where("isActive", "==", true)
+        .get();
+
+      // Check each prompt
+      for (const doc of promptsSnapshot.docs) {
+        const prompt = doc.data();
+        const promptId = doc.id;
+
+        // Check if prompt has this posting time
+        if (prompt.postingTimes?.includes(currentTime)) {
+          // Check if auto-posting is enabled for this user
+          const configDoc = await db
+            .collection("users")
+            .doc(prompt.userId)
+            .collection("motivational_auto_post_configs")
+            .doc("default")
+            .get();
+          
+          const config = configDoc.data();
+          
+          // Only add if auto-posting is enabled and this prompt is in activePromptIds
+          if (config?.isEnabled === true && config?.activePromptIds?.includes(promptId)) {
+            results.push({
+              userId: prompt.userId,
+              itemId: promptId,
+              displayName: `${prompt.category}: ${prompt.themeDescription?.substring(0, 40)}...` || "Motivational Quote",
+              payload: {
+                userId: prompt.userId,
+                scheduledTime: currentTime,
+                promptId: promptId,
+                category: prompt.category,
+                themeDescription: prompt.themeDescription,
+                contentType: prompt.contentType,
+                assignedAccountId: prompt.assignedAccountId,
+              },
+            });
+          }
+        }
+      }
+
+      return results;
+    },
+  },
 ];
 
 /**

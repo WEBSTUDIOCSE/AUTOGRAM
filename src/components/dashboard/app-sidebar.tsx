@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LogOut, Home, KeyRound, User, Sparkles, UserCircle, Zap, Users, Settings, Video, Film, Image, ChevronRight } from 'lucide-react';
+import { LogOut, Home, KeyRound, User, Sparkles, UserCircle, Zap, Users, Settings, Video, Film, Image, ChevronRight, CalendarClock, MessageSquareQuote } from 'lucide-react';
 
 import {
   Sidebar,
@@ -71,6 +71,14 @@ const videoItems = [
     title: 'Video Auto Poster',
     url: '/dashboard/video-auto-poster',
     icon: Zap,
+  },
+];
+
+const motivationalItems = [
+  {
+    title: 'Auto Poster',
+    url: '/dashboard/motivational-quotes',
+    icon: CalendarClock,
   },
 ];
 
@@ -175,6 +183,36 @@ export function AppSidebar({ user }: AppSidebarProps) {
                   <CollapsibleContent>
                     <SidebarMenuSub>
                       {videoItems.map((item) => (
+                        <SidebarMenuSubItem key={item.url}>
+                          <SidebarMenuSubButton
+                            asChild
+                            isActive={pathname === item.url}
+                          >
+                            <Link href={item.url}>
+                              <item.icon />
+                              <span>{item.title}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
+
+              {/* Motivational Quotes Section */}
+              <Collapsible defaultOpen className="group/collapsible">
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton tooltip="Motivational Quotes">
+                      <MessageSquareQuote />
+                      <span>Motivational Quotes</span>
+                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {motivationalItems.map((item) => (
                         <SidebarMenuSubItem key={item.url}>
                           <SidebarMenuSubButton
                             asChild

@@ -23,6 +23,7 @@
 - Automate Instagram posting with scheduling
 - Generate family group content
 - Create video content (text-to-video and image-to-video)
+- Generate motivational quotes with visual content
 
 ### Key Features
 - ✅ Multi-AI provider support (Gemini, ByteDance, Flux, Kling, Veo)
@@ -30,6 +31,7 @@
 - ✅ Character-based content generation
 - ✅ Family profile group content
 - ✅ Video generation (text-to-video & image-to-video)
+- ✅ Motivational quote generation with images/videos
 - ✅ Prompt variation with AI to avoid repetition
 - ✅ Retry mechanism for failed posts
 - ✅ Comprehensive logging and history
@@ -445,6 +447,140 @@ Update Status: 'success' or 'instagram_failed'
 
 ---
 
+### Module 9: Motivational Quotes Auto Poster
+**Location**: `src/app/(protected)/dashboard/motivational-quotes`
+
+**Purpose**: Automated motivational quote generation with visual content and Instagram posting
+
+**Features**:
+- AI-powered unique quote generation
+- Image and video support for quotes
+- Category-based quote themes (success, mindset, motivation, inspiration, life, wisdom)
+- Visual style customization
+- Prompt library management
+- Scheduled automated posting
+- Comprehensive history tracking
+
+**Architecture**:
+```
+Prompt Library (Categories & Themes)
+      ↓
+Scheduler Triggers (Hourly)
+      ↓
+Generate Unique Quote (Gemini AI)
+      ↓
+Create Visual Prompt
+      ↓
+Generate Media (Image/Video via Kie.ai)
+      ↓
+Post to Instagram
+      ↓
+Log Result & Save Quote
+```
+
+**Key Collections**:
+
+1. **Motivational Quotes** (`motivational_quotes`)
+   ```typescript
+   {
+     id: string,
+     userId: string,
+     quoteText: string,
+     author?: string,
+     category: string,
+     contentType: 'image' | 'video',
+     mediaUrl: string,
+     instagramPostId?: string,
+     instagramAccountId: string,
+     promptId: string,
+     createdAt: Timestamp
+   }
+   ```
+
+2. **Motivational Quote Prompts** (`motivational_quote_prompts`)
+   ```typescript
+   {
+     id: string,
+     userId: string,
+     category: string,
+     themeDescription: string,
+     contentType: 'image' | 'video',
+     style: string,
+     postingTimes: string[],
+     assignedAccountId: string,
+     isActive: boolean,
+     usageCount: number,
+     lastUsedAt: Timestamp,
+     createdAt: Timestamp
+   }
+   ```
+
+3. **Motivational Auto Post Configs** (`users/{userId}/motivational_auto_post_configs/default`)
+   ```typescript
+   {
+     isEnabled: boolean,
+     activePromptIds: string[],
+     updatedAt: Timestamp
+   }
+   ```
+
+4. **Motivational Auto Post Logs** (`motivational_auto_post_logs`)
+   ```typescript
+   {
+     id: string,
+     userId: string,
+     promptId: string,
+     quoteText?: string,
+     author?: string,
+     category: string,
+     themeDescription: string,
+     contentType: 'image' | 'video',
+     mediaUrl?: string,
+     instagramPostId?: string,
+     instagramAccountId: string,
+     instagramAccountUsername?: string,
+     status: 'success' | 'failed' | 'media_generated' | 'instagram_failed' | 'skipped',
+     error?: string,
+     executionTime?: number,
+     createdAt: Timestamp
+   }
+   ```
+
+**Quote Generation Service** (`src/lib/services/module9/motivational-prompt-refiner.service.ts`):
+- Analyzes recent quotes to ensure uniqueness
+- Uses Gemini AI to generate original motivational quotes
+- Creates visual prompts optimized for image/video generation
+- Supports 6 categories: success, mindset, motivation, inspiration, life, wisdom
+- Includes safety rules for appropriate content
+- JSON output parsing for structured data
+
+**API Endpoint**: `POST /api/motivational-auto-post`
+
+**Workflow**:
+1. Receive request from scheduler
+2. Fetch active prompts with scheduled times
+3. For each active prompt:
+   - Generate unique quote using AI
+   - Create visual prompt for media
+   - Generate image or video
+   - Post to assigned Instagram account
+   - Save quote to database
+   - Log complete result
+4. Return processing summary
+
+**Categories**:
+- **success**: Achievement, winning, reaching goals
+- **mindset**: Mental strength, positive thinking, growth
+- **motivation**: Drive, action, perseverance
+- **inspiration**: Uplifting messages, hope, dreams
+- **life**: Life lessons, wisdom, experiences
+- **wisdom**: Deep insights, philosophical quotes
+
+**Visual Styles**:
+- modern, minimalist, vibrant, elegant, bold, serene
+
+---
+
 ## 🤖 Auto-Posting System
 
 ### Unified Scheduler Architecture
@@ -501,6 +637,15 @@ const MODULES = [
     apiEndpoint: '/api/video-auto-post',
     getScheduledItems: async (currentTime) => {
       // Find video prompts with postingTimes including currentTime
+    }
+  },
+  {
+    moduleId: 'module9',
+    moduleName: 'Motivational Quotes Auto Poster',
+    collection: 'motivational_quote_prompts',
+    apiEndpoint: '/api/motivational-auto-post',
+    getScheduledItems: async (currentTime) => {
+      // Find motivational prompts with postingTimes including currentTime
     }
   }
 ];

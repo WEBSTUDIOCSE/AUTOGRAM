@@ -51,6 +51,13 @@ export { VideoAutoPostLogService } from './video-auto-post-log.service';
 export { VideoPromptLibraryService } from '@/lib/services/module8/video-prompt-library.service';
 export { Module8PromptGenerator } from '@/lib/services/module8/video-prompt-generator.service';
 
+// Import Motivational Quote services (Module 9)
+export { MotivationalQuoteService } from '@/lib/services/module9/motivational-quote.service';
+export { MotivationalPromptLibraryService } from '@/lib/services/module9/motivational-prompt-library.service';
+export { MotivationalAutoPostConfigService } from '@/lib/services/module9/motivational-auto-post-config.service';
+export { MotivationalAutoPostLogService } from '@/lib/services/module9/motivational-auto-post-log.service';
+export { MotivationalPromptRefinerService } from '@/lib/services/module9/motivational-prompt-refiner.service';
+
 // Import types
 export type { AppUser } from './auth.service';
 export type { PaymentRecord } from './payment.service';
@@ -84,6 +91,11 @@ import { VideoAutoPostConfigService } from './video-auto-post-config.service';
 import { VideoAutoPostLogService } from './video-auto-post-log.service';
 import { VideoPromptLibraryService } from '@/lib/services/module8/video-prompt-library.service';
 import { Module8PromptGenerator } from '@/lib/services/module8/video-prompt-generator.service';
+import { MotivationalQuoteService } from '@/lib/services/module9/motivational-quote.service';
+import { MotivationalPromptLibraryService } from '@/lib/services/module9/motivational-prompt-library.service';
+import { MotivationalAutoPostConfigService } from '@/lib/services/module9/motivational-auto-post-config.service';
+import { MotivationalAutoPostLogService } from '@/lib/services/module9/motivational-auto-post-log.service';
+import { MotivationalPromptRefinerService } from '@/lib/services/module9/motivational-prompt-refiner.service';
 
 /**
  * Centralized APIBook for Firebase services
@@ -128,6 +140,12 @@ export const APIBook = {
   autoPostLog: AutoPostLogService,
   autoPostScheduler: AutoPostSchedulerService,
   errorNotification: ErrorNotificationService,
+  // Motivational Quotes (Module 9)
+  motivationalQuote: MotivationalQuoteService,
+  motivationalPromptLibrary: MotivationalPromptLibraryService,
+  motivationalAutoPostConfig: MotivationalAutoPostConfigService,
+  motivationalAutoPostLog: MotivationalAutoPostLogService,
+  motivationalPromptRefiner: MotivationalPromptRefinerService,
   // Video Auto-Post (Module 8)
   videoAutoPostConfig: VideoAutoPostConfigService,
   videoPromptLibrary: VideoPromptLibraryService,
