@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create caption
-    const caption = `${quoteData.quoteText}\n\n${quoteData.author ? `— ${quoteData.author}` : ''}\n\n#motivation #inspiration #quotes #motivationalquotes #success #mindset #positivevibes`;
+    const caption = `${quoteData.title}\n\n${quoteData.author ? `— ${quoteData.author}` : ''}\n\n#motivation #inspiration #quotes #motivationalquotes #success #mindset #positivevibes`;
 
     const duration = Date.now() - startTime;
     console.log(`[Manual Quote Generator] ===== COMPLETED in ${duration}ms =====`);

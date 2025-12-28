@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/dialog';
 
 const CATEGORIES = ['success', 'mindset', 'motivation', 'inspiration', 'life', 'wisdom', 'mixed'];
-const VISUAL_STYLES = ['modern', 'minimalist', 'vibrant', 'elegant', 'bold', 'serene', 'mixed'];
+const VISUAL_STYLES = ['modern', 'minimalist', 'vibrant', 'elegant', 'bold', 'serene', 'custom', 'mixed'];
 
 // Generate time options with 15-minute intervals
 const generateTimeOptions = () => {

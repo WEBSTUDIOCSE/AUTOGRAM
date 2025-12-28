@@ -119,6 +119,7 @@ export function MotivationalQuoteGenerator() {
                 <SelectItem value="nature">Nature & Serene</SelectItem>
                 <SelectItem value="urban">Urban & Modern</SelectItem>
                 <SelectItem value="abstract">Abstract & Artistic</SelectItem>
+                <SelectItem value="custom">Custom (Black Theme)</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -16,6 +16,7 @@ interface MotivationalGenerationContext {
 
 interface GeneratedMotivationalContent {
   quoteText: string;
+  title: string; // Short catchy title for caption
   author?: string;
   visualPrompt: string; // For AI image/video generation
   suggestedHashtags: string;
@@ -94,6 +95,12 @@ export const MotivationalPromptRefinerService = {
    - Make it instantly shareable and memorable
    - Attribution: "Unknown" (or real famous person if naturally fitting)
    - Vary the structure: try different formats each time
+
+📝 **Title Requirements**:
+   - Create a SHORT catchy title (3-6 words)
+   - This will be the Instagram caption header
+   - Should capture the essence of the quote
+   - Examples: "Rise Above Limits", "Your Power Moment", "Break The Cycle"
    
 💡 **Creative Techniques to Use**:
    - Play with contrasts and paradoxes
@@ -104,6 +111,13 @@ export const MotivationalPromptRefinerService = {
    - Avoid: "Don't", "Never", negative phrasing (stay positive)
 
 🎨 **Visual Prompt Requirements** (for AI ${context.contentType} generation):
+   ${context.style === 'custom' ? `
+   - CUSTOM STYLE: Pure black background (#000000)
+   - Typography: White, clean, bold sans-serif font
+   - Layout: Centered text with generous padding
+   - Simplicity: Minimal design, quote is the hero
+   - Contrast: High contrast for maximum readability
+   - No decorations, no graphics - just powerful typography on black` : `
    - Style: ${context.style} aesthetic with modern Instagram appeal
    ${context.contentType === 'image' ? `
    - Composition: Rule of thirds, dynamic balance
@@ -117,7 +131,7 @@ export const MotivationalPromptRefinerService = {
    - Transitions: Seamless flow between scenes
    - Dynamics: Kinetic typography, morphing shapes
    - Effects: Glow, light leaks, bokeh, film grain
-   - Duration: 5-10 second loop potential`}
+   - Duration: 5-10 second loop potential`}`}
    - Professional quality, Instagram-optimized
    - NO people, faces, or hands (purely abstract/symbolic)
    - Make it VISUALLY DISTINCTIVE from typical motivational posts
@@ -141,6 +155,7 @@ export const MotivationalPromptRefinerService = {
 📦 OUTPUT FORMAT (Valid JSON):
 {
   "quoteText": "Your completely unique quote here",
+  "title": "Short Catchy Title",
   "author": "Unknown",
   "visualPrompt": "Ultra-detailed visual description for AI generation (150+ words)",
   "suggestedHashtags": "#motivation #success #inspiration #mindset ..."
@@ -217,6 +232,7 @@ export const MotivationalPromptRefinerService = {
 
       return {
         quoteText: parsed.quoteText.trim(),
+        title: parsed.title?.trim() || this.generateTitleFromQuote(parsed.quoteText),
         author: parsed.author || 'Unknown',
         visualPrompt: parsed.visualPrompt.trim(),
         suggestedHashtags: parsed.suggestedHashtags || '#motivation #inspiration #success',
@@ -251,10 +267,20 @@ export const MotivationalPromptRefinerService = {
 
     return {
       quoteText,
+      title: this.generateTitleFromQuote(quoteText),
       author: 'Unknown',
       visualPrompt,
       suggestedHashtags: '#motivation #inspiration #success #mindset #quotes #dailyinspiration #personalgrowth #positivevibes #lifequotes #wisdom',
     };
+  },
+
+  /**
+   * Generate a short title from quote text
+   */
+  generateTitleFromQuote(quoteText: string): string {
+    // Take first 3-6 words as title
+    const words = quoteText.split(' ').slice(0, 4);
+    return words.join(' ').replace(/[.,!?]$/, '');
   },
 
   /**
