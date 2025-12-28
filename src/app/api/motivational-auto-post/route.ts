@@ -152,32 +152,23 @@ export async function POST(request: NextRequest) {
         let mediaUrl: string;
         
         if (actualContentType === 'image') {
-          console.log(`📸 [STEP 1/4] Generating image from AI settings...`);
+          console.log(`📸 [STEP 1/4] Generating image with AI settings...`);
           
-          let imageResult;
-          try {
-            // Use unified image generation based on user's AI settings
-            imageResult = await unifiedImageGeneration.generateImage({
-              prompt: quoteData.visualPrompt,
-              model: userPreferences?.textToImageModel,
-              imageSize: 'square_hd',
-            });
-            console.log(`✅ [STEP 1/4] Image generation complete`);
-          } catch (imgError) {
-            console.error(`❌ [STEP 1/4] Image generation failed:`, imgError);
-            throw new Error(`Image generation failed: ${imgError instanceof Error ? imgError.message : String(imgError)}`);
+          const response = await APIBook.ai.generateImage(quoteData.visualPrompt);
+          
+          if (!response.success || !response.data) {
+            throw new Error(`Image generation failed: ${response.error || 'No data returned'}`);
           }
 
-          if (!imageResult.imageBase64) {
-            throw new Error('Failed to generate image - no image data returned');
-          }
+          const imageBase64 = response.data.imageBase64;
+          console.log(`✅ [STEP 1/4] Image generated with ${response.data.provider}`);
 
           console.log(`📤 [STEP 2/4] Uploading to Firebase Storage...`);
           
           try {
             // Upload to Firebase Storage (even if Instagram post fails later)
             const uploadResult = await UnifiedImageStorageService.uploadImage(
-              imageResult.imageBase64,
+              imageBase64,
               effectiveUserId,
               'module9/generated-quotes',
               `quote_${Date.now()}`

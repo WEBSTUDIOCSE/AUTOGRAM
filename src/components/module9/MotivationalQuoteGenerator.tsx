@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Loader2, Sparkles, Copy, Download } from 'lucide-react';
 
 interface GeneratedQuote {
@@ -19,7 +19,6 @@ interface GeneratedQuote {
 }
 
 export function MotivationalQuoteGenerator() {
-  const { toast } = useToast();
   const [category, setCategory] = useState<string>('motivation');
   const [style, setStyle] = useState<string>('bold');
   const [contentType, setContentType] = useState<'image' | 'video'>('image');
@@ -49,8 +48,7 @@ export function MotivationalQuoteGenerator() {
 
       if (result.success) {
         setGeneratedQuote(result.data);
-        toast({
-          title: "Quote Generated!",
+        toast.success("Quote Generated!", {
           description: "Your motivational quote has been created successfully.",
         });
       } else {
@@ -58,10 +56,8 @@ export function MotivationalQuoteGenerator() {
       }
     } catch (error) {
       console.error('Generation error:', error);
-      toast({
-        title: "Generation Failed",
+      toast.error("Generation Failed", {
         description: error instanceof Error ? error.message : 'Failed to generate quote',
-        variant: "destructive",
       });
     } finally {
       setIsGenerating(false);
@@ -71,8 +67,7 @@ export function MotivationalQuoteGenerator() {
   const handleCopyCaption = () => {
     if (generatedQuote) {
       navigator.clipboard.writeText(generatedQuote.caption);
-      toast({
-        title: "Copied!",
+      toast.success("Copied!", {
         description: "Caption copied to clipboard",
       });
     }

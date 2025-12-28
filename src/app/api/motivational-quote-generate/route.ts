@@ -61,22 +61,16 @@ export async function POST(request: NextRequest) {
 
     // Generate media based on content type
     if (contentType === 'image') {
-      console.log(`📸 Generating image...`);
+      console.log(`📸 Generating image with AI settings...`);
       
-      // Try image generation with fallback
-      let imageResult;
-      try {
-        imageResult = await unifiedImageGeneration.generateImage({
-          prompt: quoteData.visualPrompt,
-          model: userPreferences?.textToImageModel,
-          imageSize: 'square_hd',
-        });
-      } catch (error) {
-        console.error(`❌ Image generation failed:`, error);
+      // Use AIService which properly handles model selection from user preferences
+      const response = await APIBook.ai.generateImage(quoteData.visualPrompt);
+      
+      if (!response.success || !response.data) {
         return NextResponse.json({
           success: false,
           error: 'Image generation failed',
-          details: error instanceof Error ? error.message : String(error),
+          details: response.error || 'AI returned no data',
           quoteData: {
             quoteText: quoteData.quoteText,
             author: quoteData.author,
@@ -85,10 +79,13 @@ export async function POST(request: NextRequest) {
         }, { status: 500 });
       }
 
+      const imageBase64 = response.data.imageBase64;
+      console.log(`✅ Image generated successfully with ${response.data.provider}`);
+
       // Upload to Firebase
       console.log(`📤 Uploading to Firebase Storage...`);
       const uploadResult = await UnifiedImageStorageService.uploadImage(
-        imageResult.imageBase64,
+        imageBase64,
         user.uid,
         'module9/manual-quotes',
         `quote_${Date.now()}`
