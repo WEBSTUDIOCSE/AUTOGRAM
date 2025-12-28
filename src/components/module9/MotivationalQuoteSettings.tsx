@@ -24,11 +24,20 @@ import {
 const CATEGORIES = ['success', 'mindset', 'motivation', 'inspiration', 'life', 'wisdom', 'mixed'];
 const VISUAL_STYLES = ['modern', 'minimalist', 'vibrant', 'elegant', 'bold', 'serene', 'mixed'];
 
-// Time options for posting (24-hour format)
-const TIME_OPTIONS = Array.from({ length: 24 }, (_, i) => {
-  const hour = i.toString().padStart(2, '0');
-  return `${hour}:00`;
-});
+// Generate time options with 15-minute intervals
+const generateTimeOptions = () => {
+  const times: string[] = [];
+  for (let hour = 0; hour < 24; hour++) {
+    for (let minute = 0; minute < 60; minute += 15) {
+      const hourStr = hour.toString().padStart(2, '0');
+      const minuteStr = minute.toString().padStart(2, '0');
+      times.push(`${hourStr}:${minuteStr}`);
+    }
+  }
+  return times;
+};
+
+const TIME_OPTIONS = generateTimeOptions();
 
 interface AccountConfig {
   accountId: string;
@@ -60,6 +69,8 @@ export function MotivationalQuoteSettings() {
   const [contentType, setContentType] = React.useState<'image' | 'video'>('image');
   const [postingTimes, setPostingTimes] = React.useState<string[]>([]);
   const [selectedTime, setSelectedTime] = React.useState('');
+  const [selectedHour, setSelectedHour] = React.useState('');
+  const [selectedMinute, setSelectedMinute] = React.useState('');
   const [selectedModel, setSelectedModel] = React.useState<string>('');
 
   React.useEffect(() => {
@@ -134,9 +145,12 @@ export function MotivationalQuoteSettings() {
   };
 
   const handleAddPostingTime = () => {
-    if (selectedTime && !postingTimes.includes(selectedTime)) {
-      setPostingTimes([...postingTimes, selectedTime].sort());
+    const timeString = selectedHour && selectedMinute ? `${selectedHour}:${selectedMinute}` : selectedTime;
+    if (timeString && !postingTimes.includes(timeString)) {
+      setPostingTimes([...postingTimes, timeString].sort());
       setSelectedTime('');
+      setSelectedHour('');
+      setSelectedMinute('');
     }
   };
 
@@ -434,24 +448,47 @@ export function MotivationalQuoteSettings() {
                   {/* Posting Schedule */}
                   <div className="space-y-2">
                     <Label className="text-base font-semibold">Posting Schedule (IST)</Label>
-                    <div className="flex gap-2">
-                      <Select value={selectedTime} onValueChange={setSelectedTime}>
-                        <SelectTrigger className="flex-1 h-11">
-                          <SelectValue placeholder="Select time" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-[200px]">
-                          {TIME_OPTIONS.filter(time => !postingTimes.includes(time)).map((time) => (
-                            <SelectItem key={time} value={time}>
-                              {time}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 flex-1">
+                        <Label className="text-sm text-muted-foreground">Hour:</Label>
+                        <Select value={selectedHour} onValueChange={setSelectedHour}>
+                          <SelectTrigger className="w-24 h-11">
+                            <SelectValue placeholder="HH" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[200px]">
+                            {Array.from({ length: 24 }, (_, i) => {
+                              const hour = i.toString().padStart(2, '0');
+                              return (
+                                <SelectItem key={hour} value={hour}>
+                                  {hour}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                        <span className="text-lg font-medium">:</span>
+                        <Label className="text-sm text-muted-foreground">Min:</Label>
+                        <Select value={selectedMinute} onValueChange={setSelectedMinute}>
+                          <SelectTrigger className="w-24 h-11">
+                            <SelectValue placeholder="MM" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[200px]">
+                            {Array.from({ length: 60 }, (_, i) => {
+                              const minute = i.toString().padStart(2, '0');
+                              return (
+                                <SelectItem key={minute} value={minute}>
+                                  {minute}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                      </div>
                       <Button
                         type="button"
                         variant="outline"
                         onClick={handleAddPostingTime}
-                        disabled={!selectedTime}
+                        disabled={!selectedHour || !selectedMinute}
                         className="h-11 px-4"
                       >
                         <Plus className="h-4 w-4 mr-1" />
