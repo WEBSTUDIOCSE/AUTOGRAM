@@ -37,8 +37,13 @@ export class UnifiedImageGenerationService {
     provider?: ProviderType
   ): Promise<ImageGenerationResult> {
     // If no provider specified, load from Firebase preferences
+    console.log(`🔍 [UnifiedImageGeneration] Provider parameter: ${provider || 'NOT PROVIDED - will load from preferences'}`);
+    
     const effectiveProvider = provider || await this.loadProviderFromPreferences();
+    console.log(`🔍 [UnifiedImageGeneration] Effective provider after preferences: ${effectiveProvider}`);
+    
     const selectedProvider = await this.selectProvider(effectiveProvider, options);
+    console.log(`🔍 [UnifiedImageGeneration] Selected provider instance: ${selectedProvider.name}`);
     
     console.log(`🎨 Generating image with ${selectedProvider.name}...`);
     

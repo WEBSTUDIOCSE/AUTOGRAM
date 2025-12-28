@@ -82,6 +82,15 @@ export class KieAIProvider implements ImageGenerationProvider {
     const { prompt, model, imageSize = 'square_hd', guidanceScale = 2.5 } = options;
     const selectedModel = model || this.defaultModel;
     
+    console.log(`🔍 [KieAI Provider] Configuration:`, {
+      apiKeyPresent: !!this.apiKey,
+      apiKeyLength: this.apiKey?.length || 0,
+      baseUrl: this.baseUrl,
+      selectedModel: selectedModel,
+      defaultModel: this.defaultModel,
+      imageSize: imageSize
+    });
+    
     if (!prompt || prompt.trim().length === 0) {
       throw new Error('Prompt cannot be empty');
     }
@@ -120,6 +129,14 @@ export class KieAIProvider implements ImageGenerationProvider {
       }
 
       // Create task
+      console.log(`📤 [KieAI] Calling API:`, {
+        url: `${this.baseUrl}/jobs/createTask`,
+        method: 'POST',
+        model: selectedModel,
+        hasAuth: !!this.apiKey,
+        inputKeys: Object.keys(inputPayload)
+      });
+      
       const taskResponse = await fetch(`${this.baseUrl}/jobs/createTask`, {
         method: 'POST',
         headers: {
@@ -132,8 +149,11 @@ export class KieAIProvider implements ImageGenerationProvider {
         })
       });
 
+      console.log(`📥 [KieAI] Response status: ${taskResponse.status} ${taskResponse.statusText}`);
+      
       if (!taskResponse.ok) {
         const error = await taskResponse.json();
+        console.error(`❌ [KieAI] API error response:`, error);
         throw new Error(`Kie.ai API error: ${error.msg || taskResponse.statusText}`);
       }
 

@@ -142,17 +142,24 @@ export async function POST(request: NextRequest) {
         // Get user preferences for AI models
         const preferencesResponse = await UserPreferencesService.getPreferences(effectiveUserId);
         const userPreferences = preferencesResponse.data;
+        
+        console.log(`🔍 [DEBUG] User Preferences:`, {
+          textToImageModel: userPreferences?.textToImageModel || 'NOT SET - will use default',
+          textToVideoModel: userPreferences?.textToVideoModel || 'NOT SET - will use default'
+        });
 
         // Generate media (image or video) using unified services
         let mediaUrl: string;
         
         if (actualContentType === 'image') {
           console.log(`📸 [STEP 1/4] Generating image with visual prompt...`);
-          console.log(`   Model: ${userPreferences?.textToImageModel || 'default'}`);
-          console.log(`   Prompt: ${quoteData.visualPrompt.substring(0, 100)}...`);
+          console.log(`   Model: ${userPreferences?.textToImageModel || 'default (will be gemini or kieai)'}`);
+          console.log(`   Prompt (first 100 chars): ${quoteData.visualPrompt.substring(0, 100)}...`);
+          console.log(`   ImageSize: square_hd`);
           
           let imageResult;
           try {
+            console.log(`🔧 [DEBUG] Calling unifiedImageGeneration.generateImage()...`);
             // Generate image using unified image generation service
             imageResult = await unifiedImageGeneration.generateImage({
               prompt: quoteData.visualPrompt,
