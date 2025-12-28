@@ -203,6 +203,7 @@ const MODULES: AutoPostModule[] = [
 
       // Get all users with motivational auto-post configs
       const usersSnapshot = await db.collection("users").get();
+      logger.info(`[Module 9] Found ${usersSnapshot.size} total users`);
 
       // Check each user's config
       for (const userDoc of usersSnapshot.docs) {
@@ -218,18 +219,25 @@ const MODULES: AutoPostModule[] = [
             .get();
 
           if (!configDoc.exists) {
+            logger.info(`[Module 9] User ${userId}: No config found`);
             continue;
           }
 
           const config = configDoc.data();
+          logger.info(`[Module 9] User ${userId}: Config found, isEnabled=${config?.isEnabled}, accountConfigs=${config?.accountConfigs?.length || 0}`);
 
           // Check if auto-posting is enabled and has account configs
           if (config?.isEnabled === true && config?.accountConfigs && Array.isArray(config.accountConfigs)) {
+            logger.info(`[Module 9] User ${userId}: Checking ${config.accountConfigs.length} account(s)`);
+            
             // Check each account config for matching posting time
             for (const accountConfig of config.accountConfigs) {
+              logger.info(`[Module 9] Account ${accountConfig.accountId}: postingTimes=${JSON.stringify(accountConfig.postingTimes)}, currentTime=${currentTime}`);
+              
               if (accountConfig.postingTimes && Array.isArray(accountConfig.postingTimes)) {
                 // Check if current time matches any posting time for this account
                 if (accountConfig.postingTimes.includes(currentTime)) {
+                  logger.info(`[Module 9] ✅ MATCH! Account ${accountConfig.accountId} scheduled for ${currentTime}`);
                   results.push({
                     userId: userId,
                     itemId: accountConfig.accountId,
@@ -243,6 +251,8 @@ const MODULES: AutoPostModule[] = [
                       contentType: accountConfig.contentType,
                     },
                   });
+                } else {
+                  logger.info(`[Module 9] ❌ No match for ${accountConfig.accountId}`);
                 }
               }
             }

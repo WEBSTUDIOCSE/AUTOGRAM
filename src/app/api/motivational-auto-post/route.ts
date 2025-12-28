@@ -3,14 +3,52 @@ import { getCurrentUser } from '@/lib/auth/server';
 import { APIBook } from '@/lib/firebase/services';
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  console.log(`[Module 9 API] ===== NEW REQUEST RECEIVED =====`);
+  console.log(`[Module 9 API] Timestamp: ${new Date().toISOString()}`);
+
   try {
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Parse request body
+    const body = await request.json();
+    console.log(`[Module 9 API] Request body:`, JSON.stringify(body, null, 2));
+
+    const { userId, scheduledTime, authToken, accountId, category, style, contentType } = body;
+
+    // Validate auth token if provided (from Firebase Functions)
+    const expectedToken = process.env.AUTO_POST_SECRET_TOKEN || 'autogram-auto-post-secret-2024';
+    
+    let effectiveUserId: string;
+
+    if (authToken) {
+      console.log(`[Module 9 API] 🔐 Token verification - Match: ${authToken === expectedToken}`);
+      
+      if (authToken !== expectedToken) {
+        console.error(`[Module 9 API] ❌ Invalid auth token`);
+        console.error(`[Module 9 API] Expected token: ${expectedToken?.substring(0, 10)}...`);
+        console.error(`[Module 9 API] Received token: ${authToken?.substring(0, 10)}...`);
+        return NextResponse.json({ error: 'Invalid authentication token' }, { status: 401 });
+      }
+
+      // Using userId from request body (from Firebase Functions)
+      if (!userId) {
+        console.error(`[Module 9 API] ❌ Missing userId in request`);
+        return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
+      }
+      effectiveUserId = userId;
+      console.log(`[Module 9 API] ✅ Authenticated via authToken for user: ${effectiveUserId}`);
+    } else {
+      // Using authenticated user (from web app)
+      const user = await getCurrentUser();
+      if (!user) {
+        console.error(`[Module 9 API] ❌ Unauthorized - no user session`);
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      effectiveUserId = user.uid;
+      console.log(`[Module 9 API] ✅ Authenticated via session for user: ${effectiveUserId}`);
     }
 
     // Get auto-post configuration
-    const config = await APIBook.motivationalAutoPostConfig.getConfig(user.uid);
+    const config = await APIBook.motivationalAutoPostConfig.getConfig(effectiveUserId);
     
     if (!config?.isEnabled || !config.accountConfigs || config.accountConfigs.length === 0) {
       return NextResponse.json({ 
@@ -49,7 +87,7 @@ export async function POST(request: NextRequest) {
 
         // Create log entry
         const logId = await APIBook.motivationalAutoPostLog.createLog({
-          userId: user.uid,
+          userId: effectiveUserId,
           accountId: accountConfig.accountId,
           category: accountConfig.category,
           style: accountConfig.style,
@@ -66,7 +104,7 @@ export async function POST(request: NextRequest) {
 
         // Get recent quotes to avoid duplication (last 20 for better variety)
         const recentLogs = await APIBook.motivationalAutoPostLog.getRecentLogs(
-          user.uid,
+          effectiveUserId,
           accountConfig.accountId,
           20 // Increased from 10 to 20 for better duplication prevention
         );
@@ -164,8 +202,10 @@ export async function POST(request: NextRequest) {
           status: 'success',
           quoteText: quoteData.quoteText,
         });
+
+        console.log(`✅ [Module 9 API] Successfully posted for account ${instagramAccount.name}`);
       } catch (error) {
-        console.error(`Error processing account ${accountConfig.accountId}:`, error);
+        console.error(`❌ [Module 9 API] Error processing account ${accountConfig.accountId}:`, error);
         
         results.push({
           accountId: accountConfig.accountId,
@@ -175,18 +215,31 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const endTime = Date.now();
+    const duration = endTime - startTime;
+
+    console.log(`[Module 9 API] ===== REQUEST COMPLETED =====`);
+    console.log(`[Module 9 API] Duration: ${duration}ms`);
+    console.log(`[Module 9 API] Results:`, JSON.stringify(results, null, 2));
+
     return NextResponse.json({
       success: true,
       results,
       totalProcessed: results.length,
       timestamp: new Date().toISOString(),
+      duration: `${duration}ms`,
     });
   } catch (error) {
-    console.error('Error in motivational auto-post:', error);
+    const endTime = Date.now();
+    const duration = endTime - startTime;
+    
+    console.error(`❌ [Module 9 API] Error in motivational auto-post (${duration}ms):`, error);
     return NextResponse.json(
       { 
+        success: false,
         error: 'Internal server error',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
+        duration: `${duration}ms`,
       },
       { status: 500 }
     );
