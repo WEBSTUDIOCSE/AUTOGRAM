@@ -12,13 +12,13 @@ export const VideoStorageService = {
    * Download video from URL and upload to Firebase Storage
    * @param videoUrl - Public URL of the video to download
    * @param userId - User ID for organizing files
-   * @param moduleType - Module type (module6 or module7)
+   * @param moduleType - Module type (module6, module7, or module9)
    * @returns Firebase Storage download URL
    */
   async uploadVideoFromUrl(
     videoUrl: string,
     userId: string,
-    moduleType: 'module6' | 'module7'
+    moduleType: 'module6' | 'module7' | 'module9'
   ): Promise<string> {
     try {
       console.log('📥 Downloading video from:', videoUrl);
@@ -73,7 +73,7 @@ export const VideoStorageService = {
   async uploadVideoBlob(
     videoBlob: Blob,
     userId: string,
-    moduleType: 'module6' | 'module7'
+    moduleType: 'module6' | 'module7' | 'module9'
   ): Promise<string> {
     try {
       const timestamp = Date.now();

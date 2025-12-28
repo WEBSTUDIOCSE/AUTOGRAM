@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
           firebaseMediaUrl = await VideoStorageService.uploadVideoFromUrl(
             videoResult.videoUrl,
             effectiveUserId,
-            'module7'
+            'module9'
           );
           
           mediaUrl = firebaseMediaUrl; // Use Firebase URL for Instagram
