@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth/server';
 import { APIBook } from '@/lib/firebase/services';
 
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://autogram-orpin.vercel.app';
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   console.log(`[Module 9 API] ===== NEW REQUEST RECEIVED =====`);
@@ -131,7 +133,7 @@ export async function POST(request: NextRequest) {
         let mediaUrl: string;
         if (actualContentType === 'image') {
           // Generate image using selected AI model
-          const imageResult = await fetch('/api/generate-image', {
+          const imageResult = await fetch(`${BASE_URL}/api/generate-image`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -148,7 +150,7 @@ export async function POST(request: NextRequest) {
           mediaUrl = imageData.imageUrl;
         } else {
           // Generate video using selected AI model
-          const videoResult = await fetch('/api/generate-video', {
+          const videoResult = await fetch(`${BASE_URL}/api/generate-video`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -169,7 +171,7 @@ export async function POST(request: NextRequest) {
         const caption = `${quoteData.quoteText}\n\n${quoteData.author ? `— ${quoteData.author}` : ''}\n\n#motivation #inspiration #quotes #motivationalquotes #success #mindset #positivevibes`;
 
         // Post to Instagram
-        const postResult = await fetch('/api/instagram/post', {
+        const postResult = await fetch(`${BASE_URL}/api/instagram/post`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
