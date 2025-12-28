@@ -130,17 +130,17 @@ export function ModuleAIModelSelector({
               Image Generation Model
             </Label>
             <Select
-              value={selectedImageModel}
-              onValueChange={onImageModelChange}
+              value={selectedImageModel || '__global__'}
+              onValueChange={(value) => onImageModelChange?.(value === '__global__' ? '' : value)}
               disabled={disabled}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select image model">
-                  {selectedImageModel && getSelectedModelName(selectedImageModel, imageModels)}
+                  {selectedImageModel ? getSelectedModelName(selectedImageModel, imageModels) : 'Use Global AI Settings'}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">
+                <SelectItem value="__global__">
                   <span className="text-muted-foreground">Use Global AI Settings (Fallback)</span>
                 </SelectItem>
                 {Object.entries(groupedImageModels).map(([category, models]) => (
@@ -169,17 +169,17 @@ export function ModuleAIModelSelector({
               Video Generation Model
             </Label>
             <Select
-              value={selectedVideoModel}
-              onValueChange={onVideoModelChange}
+              value={selectedVideoModel || '__global__'}
+              onValueChange={(value) => onVideoModelChange?.(value === '__global__' ? '' : value)}
               disabled={disabled}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select video model">
-                  {selectedVideoModel && getSelectedModelName(selectedVideoModel, videoModels)}
+                  {selectedVideoModel ? getSelectedModelName(selectedVideoModel, videoModels) : 'Use Global AI Settings'}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">
+                <SelectItem value="__global__">
                   <span className="text-muted-foreground">Use Global AI Settings (Fallback)</span>
                 </SelectItem>
                 {Object.entries(groupedVideoModels).map(([category, models]) => (
