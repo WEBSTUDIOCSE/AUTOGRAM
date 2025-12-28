@@ -75,8 +75,10 @@ export function MotivationalQuoteSettings() {
   const [selectedModel, setSelectedModel] = React.useState<string>('');
   
   // Module-specific AI model settings
-  const [moduleImageModel, setModuleImageModel] = React.useState('');
-  const [moduleVideoModel, setModuleVideoModel] = React.useState('');
+  const [moduleTextToImageModel, setModuleTextToImageModel] = React.useState('');
+  const [moduleImageToImageModel, setModuleImageToImageModel] = React.useState('');
+  const [moduleTextToVideoModel, setModuleTextToVideoModel] = React.useState('');
+  const [moduleImageToVideoModel, setModuleImageToVideoModel] = React.useState('');
   const [savingModels, setSavingModels] = React.useState(false);
 
   React.useEffect(() => {
@@ -100,8 +102,10 @@ export function MotivationalQuoteSettings() {
       
       // Load module-specific AI model settings
       if (config?.aiModelConfig) {
-        setModuleImageModel(config.aiModelConfig.textToImageModel || '');
-        setModuleVideoModel(config.aiModelConfig.textToVideoModel || '');
+        setModuleTextToImageModel(config.aiModelConfig.textToImageModel || '');
+        setModuleImageToImageModel(config.aiModelConfig.imageToImageModel || '');
+        setModuleTextToVideoModel(config.aiModelConfig.textToVideoModel || '');
+        setModuleImageToVideoModel(config.aiModelConfig.imageToVideoModel || '');
       }
       
       // Load Instagram accounts
@@ -281,45 +285,102 @@ export function MotivationalQuoteSettings() {
   };
 
   // Handle module-specific AI model changes
-  const handleImageModelChange = async (model: string) => {
+  const handleTextToImageModelChange = async (model: string) => {
     if (!user?.uid) return;
     
-    setModuleImageModel(model);
+    setModuleTextToImageModel(model);
     setSavingModels(true);
     
     try {
+      // Filter out empty values to avoid undefined in Firebase
+      const aiModelConfig: any = {};
+      if (model) aiModelConfig.textToImageModel = model;
+      if (moduleImageToImageModel) aiModelConfig.imageToImageModel = moduleImageToImageModel;
+      if (moduleTextToVideoModel) aiModelConfig.textToVideoModel = moduleTextToVideoModel;
+      if (moduleImageToVideoModel) aiModelConfig.imageToVideoModel = moduleImageToVideoModel;
+      
       await APIBook.motivationalAutoPostConfig.updateConfig(user.uid, {
-        aiModelConfig: {
-          textToImageModel: model || undefined,
-          textToVideoModel: moduleVideoModel || undefined,
-        },
+        aiModelConfig: Object.keys(aiModelConfig).length > 0 ? aiModelConfig : undefined,
       });
-      toast.success(model ? 'Image model updated' : 'Image model reset to global settings');
+      toast.success(model ? 'Text-to-image model updated' : 'Text-to-image model reset to global settings');
     } catch (error) {
-      console.error('Error saving image model:', error);
-      toast.error('Failed to save image model');
+      console.error('Error saving text-to-image model:', error);
+      toast.error('Failed to save text-to-image model');
     } finally {
       setSavingModels(false);
     }
   };
 
-  const handleVideoModelChange = async (model: string) => {
+  const handleImageToImageModelChange = async (model: string) => {
     if (!user?.uid) return;
     
-    setModuleVideoModel(model);
+    setModuleImageToImageModel(model);
     setSavingModels(true);
     
     try {
+      const aiModelConfig: any = {};
+      if (moduleTextToImageModel) aiModelConfig.textToImageModel = moduleTextToImageModel;
+      if (model) aiModelConfig.imageToImageModel = model;
+      if (moduleTextToVideoModel) aiModelConfig.textToVideoModel = moduleTextToVideoModel;
+      if (moduleImageToVideoModel) aiModelConfig.imageToVideoModel = moduleImageToVideoModel;
+      
       await APIBook.motivationalAutoPostConfig.updateConfig(user.uid, {
-        aiModelConfig: {
-          textToImageModel: moduleImageModel || undefined,
-          textToVideoModel: model || undefined,
-        },
+        aiModelConfig: Object.keys(aiModelConfig).length > 0 ? aiModelConfig : undefined,
       });
-      toast.success(model ? 'Video model updated' : 'Video model reset to global settings');
+      toast.success(model ? 'Image-to-image model updated' : 'Image-to-image model reset to global settings');
     } catch (error) {
-      console.error('Error saving video model:', error);
-      toast.error('Failed to save video model');
+      console.error('Error saving image-to-image model:', error);
+      toast.error('Failed to save image-to-image model');
+    } finally {
+      setSavingModels(false);
+    }
+  };
+
+  const handleTextToVideoModelChange = async (model: string) => {
+    if (!user?.uid) return;
+    
+    setModuleTextToVideoModel(model);
+    setSavingModels(true);
+    
+    try {
+      const aiModelConfig: any = {};
+      if (moduleTextToImageModel) aiModelConfig.textToImageModel = moduleTextToImageModel;
+      if (moduleImageToImageModel) aiModelConfig.imageToImageModel = moduleImageToImageModel;
+      if (model) aiModelConfig.textToVideoModel = model;
+      if (moduleImageToVideoModel) aiModelConfig.imageToVideoModel = moduleImageToVideoModel;
+      
+      await APIBook.motivationalAutoPostConfig.updateConfig(user.uid, {
+        aiModelConfig: Object.keys(aiModelConfig).length > 0 ? aiModelConfig : undefined,
+      });
+      toast.success(model ? 'Text-to-video model updated' : 'Text-to-video model reset to global settings');
+    } catch (error) {
+      console.error('Error saving text-to-video model:', error);
+      toast.error('Failed to save text-to-video model');
+    } finally {
+      setSavingModels(false);
+    }
+  };
+
+  const handleImageToVideoModelChange = async (model: string) => {
+    if (!user?.uid) return;
+    
+    setModuleImageToVideoModel(model);
+    setSavingModels(true);
+    
+    try {
+      const aiModelConfig: any = {};
+      if (moduleTextToImageModel) aiModelConfig.textToImageModel = moduleTextToImageModel;
+      if (moduleImageToImageModel) aiModelConfig.imageToImageModel = moduleImageToImageModel;
+      if (moduleTextToVideoModel) aiModelConfig.textToVideoModel = moduleTextToVideoModel;
+      if (model) aiModelConfig.imageToVideoModel = model;
+      
+      await APIBook.motivationalAutoPostConfig.updateConfig(user.uid, {
+        aiModelConfig: Object.keys(aiModelConfig).length > 0 ? aiModelConfig : undefined,
+      });
+      toast.success(model ? 'Image-to-video model updated' : 'Image-to-video model reset to global settings');
+    } catch (error) {
+      console.error('Error saving image-to-video model:', error);
+      toast.error('Failed to save image-to-video model');
     } finally {
       setSavingModels(false);
     }
@@ -713,12 +774,14 @@ export function MotivationalQuoteSettings() {
         moduleId="module9"
         moduleName="Motivational Quotes"
         description="Select AI models specifically for motivational quote generation. These models will be used instead of global AI settings for this module."
-        showImageModel={true}
-        showVideoModel={true}
-        selectedImageModel={moduleImageModel}
-        selectedVideoModel={moduleVideoModel}
-        onImageModelChange={handleImageModelChange}
-        onVideoModelChange={handleVideoModelChange}
+        showTextToImageModel={true}
+        showImageToImageModel={false}
+        showTextToVideoModel={true}
+        showImageToVideoModel={false}
+        selectedTextToImageModel={moduleTextToImageModel}
+        selectedTextToVideoModel={moduleTextToVideoModel}
+        onTextToImageModelChange={handleTextToImageModelChange}
+        onTextToVideoModelChange={handleTextToVideoModelChange}
         disabled={savingModels}
       />
     </div>

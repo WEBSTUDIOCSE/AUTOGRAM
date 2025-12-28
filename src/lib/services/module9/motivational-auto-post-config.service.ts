@@ -15,7 +15,9 @@ export interface AccountConfig {
 
 export interface ModuleAIModelConfig {
   textToImageModel?: string;
+  imageToImageModel?: string;
   textToVideoModel?: string;
+  imageToVideoModel?: string;
 }
 
 export interface MotivationalAutoPostConfig {

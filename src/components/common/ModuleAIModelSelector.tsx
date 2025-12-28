@@ -10,19 +10,27 @@ import { getModelsByType, type ModelMetadata } from '@/lib/services/image-genera
 
 export interface ModuleModelPreferences {
   textToImageModel?: string;
+  imageToImageModel?: string;
   textToVideoModel?: string;
+  imageToVideoModel?: string;
 }
 
 interface ModuleAIModelSelectorProps {
   moduleId: string;
   moduleName: string;
   description?: string;
-  showImageModel?: boolean;
-  showVideoModel?: boolean;
-  selectedImageModel?: string;
-  selectedVideoModel?: string;
-  onImageModelChange?: (model: string) => void;
-  onVideoModelChange?: (model: string) => void;
+  showTextToImageModel?: boolean;
+  showImageToImageModel?: boolean;
+  showTextToVideoModel?: boolean;
+  showImageToVideoModel?: boolean;
+  selectedTextToImageModel?: string;
+  selectedImageToImageModel?: string;
+  selectedTextToVideoModel?: string;
+  selectedImageToVideoModel?: string;
+  onTextToImageModelChange?: (model: string) => void;
+  onImageToImageModelChange?: (model: string) => void;
+  onTextToVideoModelChange?: (model: string) => void;
+  onImageToVideoModelChange?: (model: string) => void;
   disabled?: boolean;
 }
 
@@ -57,38 +65,66 @@ export function ModuleAIModelSelector({
   moduleId,
   moduleName,
   description = 'Select AI models specific to this module. These models will be used instead of global AI settings.',
-  showImageModel = true,
-  showVideoModel = true,
-  selectedImageModel = '',
-  selectedVideoModel = '',
-  onImageModelChange,
-  onVideoModelChange,
+  showTextToImageModel = true,
+  showImageToImageModel = false,
+  showTextToVideoModel = true,
+  showImageToVideoModel = false,
+  selectedTextToImageModel = '',
+  selectedImageToImageModel = '',
+  selectedTextToVideoModel = '',
+  selectedImageToVideoModel = '',
+  onTextToImageModelChange,
+  onImageToImageModelChange,
+  onTextToVideoModelChange,
+  onImageToVideoModelChange,
   disabled = false
 }: ModuleAIModelSelectorProps) {
   // Get available models
-  const imageModels = React.useMemo(() => getModelsByType('text-to-image'), []);
-  const videoModels = React.useMemo(() => getModelsByType('text-to-video'), []);
+  const textToImageModels = React.useMemo(() => getModelsByType('text-to-image'), []);
+  const imageToImageModels = React.useMemo(() => getModelsByType('image-to-image'), []);
+  const textToVideoModels = React.useMemo(() => getModelsByType('text-to-video'), []);
+  const imageToVideoModels = React.useMemo(() => getModelsByType('image-to-video'), []);
 
   // Group models by category
-  const groupedImageModels = React.useMemo(() => {
+  const groupedTextToImageModels = React.useMemo(() => {
     const groups: Record<string, ModelMetadata[]> = {};
-    imageModels.forEach(model => {
+    textToImageModels.forEach(model => {
       const category = model.category || model.provider;
       if (!groups[category]) groups[category] = [];
       groups[category].push(model);
     });
     return groups;
-  }, [imageModels]);
+  }, [textToImageModels]);
 
-  const groupedVideoModels = React.useMemo(() => {
+  const groupedImageToImageModels = React.useMemo(() => {
     const groups: Record<string, ModelMetadata[]> = {};
-    videoModels.forEach(model => {
+    imageToImageModels.forEach(model => {
       const category = model.category || model.provider;
       if (!groups[category]) groups[category] = [];
       groups[category].push(model);
     });
     return groups;
-  }, [videoModels]);
+  }, [imageToImageModels]);
+
+  const groupedTextToVideoModels = React.useMemo(() => {
+    const groups: Record<string, ModelMetadata[]> = {};
+    textToVideoModels.forEach(model => {
+      const category = model.category || model.provider;
+      if (!groups[category]) groups[category] = [];
+      groups[category].push(model);
+    });
+    return groups;
+  }, [textToVideoModels]);
+
+  const groupedImageToVideoModels = React.useMemo(() => {
+    const groups: Record<string, ModelMetadata[]> = {};
+    imageToVideoModels.forEach(model => {
+      const category = model.category || model.provider;
+      if (!groups[category]) groups[category] = [];
+      groups[category].push(model);
+    });
+    return groups;
+  }, [imageToVideoModels]);
 
   const renderModelOption = (model: ModelMetadata) => (
     <SelectItem key={model.id} value={model.id}>
@@ -122,28 +158,28 @@ export function ModuleAIModelSelector({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Image Model Selection */}
-        {showImageModel && (
+        {/* Text-to-Image Model Selection */}
+        {showTextToImageModel && (
           <div className="space-y-2">
             <Label className="flex items-center gap-2 text-sm font-medium">
               <Image className="h-4 w-4" />
-              Image Generation Model
+              Text-to-Image Generation Model
             </Label>
             <Select
-              value={selectedImageModel || '__global__'}
-              onValueChange={(value) => onImageModelChange?.(value === '__global__' ? '' : value)}
+              value={selectedTextToImageModel || '__global__'}
+              onValueChange={(value) => onTextToImageModelChange?.(value === '__global__' ? '' : value)}
               disabled={disabled}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select image model">
-                  {selectedImageModel ? getSelectedModelName(selectedImageModel, imageModels) : 'Use Global AI Settings'}
+                <SelectValue placeholder="Select text-to-image model">
+                  {selectedTextToImageModel ? getSelectedModelName(selectedTextToImageModel, textToImageModels) : 'Use Global AI Settings'}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="__global__">
                   <span className="text-muted-foreground">Use Global AI Settings (Fallback)</span>
                 </SelectItem>
-                {Object.entries(groupedImageModels).map(([category, models]) => (
+                {Object.entries(groupedTextToImageModels).map(([category, models]) => (
                   <React.Fragment key={category}>
                     <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50 sticky top-0">
                       {category}
@@ -153,36 +189,36 @@ export function ModuleAIModelSelector({
                 ))}
               </SelectContent>
             </Select>
-            {selectedImageModel && (
+            {selectedTextToImageModel && (
               <p className="text-xs text-muted-foreground">
-                {imageModels.find(m => m.id === selectedImageModel)?.description}
+                {textToImageModels.find(m => m.id === selectedTextToImageModel)?.description}
               </p>
             )}
           </div>
         )}
 
-        {/* Video Model Selection */}
-        {showVideoModel && (
+        {/* Image-to-Image Model Selection */}
+        {showImageToImageModel && (
           <div className="space-y-2">
             <Label className="flex items-center gap-2 text-sm font-medium">
-              <Video className="h-4 w-4" />
-              Video Generation Model
+              <Image className="h-4 w-4" />
+              Image-to-Image Generation Model
             </Label>
             <Select
-              value={selectedVideoModel || '__global__'}
-              onValueChange={(value) => onVideoModelChange?.(value === '__global__' ? '' : value)}
+              value={selectedImageToImageModel || '__global__'}
+              onValueChange={(value) => onImageToImageModelChange?.(value === '__global__' ? '' : value)}
               disabled={disabled}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select video model">
-                  {selectedVideoModel ? getSelectedModelName(selectedVideoModel, videoModels) : 'Use Global AI Settings'}
+                <SelectValue placeholder="Select image-to-image model">
+                  {selectedImageToImageModel ? getSelectedModelName(selectedImageToImageModel, imageToImageModels) : 'Use Global AI Settings'}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="__global__">
                   <span className="text-muted-foreground">Use Global AI Settings (Fallback)</span>
                 </SelectItem>
-                {Object.entries(groupedVideoModels).map(([category, models]) => (
+                {Object.entries(groupedImageToImageModels).map(([category, models]) => (
                   <React.Fragment key={category}>
                     <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50 sticky top-0">
                       {category}
@@ -192,9 +228,87 @@ export function ModuleAIModelSelector({
                 ))}
               </SelectContent>
             </Select>
-            {selectedVideoModel && (
+            {selectedImageToImageModel && (
               <p className="text-xs text-muted-foreground">
-                {videoModels.find(m => m.id === selectedVideoModel)?.description}
+                {imageToImageModels.find(m => m.id === selectedImageToImageModel)?.description}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Text-to-Video Model Selection */}
+        {showTextToVideoModel && (
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2 text-sm font-medium">
+              <Video className="h-4 w-4" />
+              Text-to-Video Generation Model
+            </Label>
+            <Select
+              value={selectedTextToVideoModel || '__global__'}
+              onValueChange={(value) => onTextToVideoModelChange?.(value === '__global__' ? '' : value)}
+              disabled={disabled}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select text-to-video model">
+                  {selectedTextToVideoModel ? getSelectedModelName(selectedTextToVideoModel, textToVideoModels) : 'Use Global AI Settings'}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__global__">
+                  <span className="text-muted-foreground">Use Global AI Settings (Fallback)</span>
+                </SelectItem>
+                {Object.entries(groupedTextToVideoModels).map(([category, models]) => (
+                  <React.Fragment key={category}>
+                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50 sticky top-0">
+                      {category}
+                    </div>
+                    {models.map(renderModelOption)}
+                  </React.Fragment>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedTextToVideoModel && (
+              <p className="text-xs text-muted-foreground">
+                {textToVideoModels.find(m => m.id === selectedTextToVideoModel)?.description}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Image-to-Video Model Selection */}
+        {showImageToVideoModel && (
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2 text-sm font-medium">
+              <Video className="h-4 w-4" />
+              Image-to-Video Generation Model
+            </Label>
+            <Select
+              value={selectedImageToVideoModel || '__global__'}
+              onValueChange={(value) => onImageToVideoModelChange?.(value === '__global__' ? '' : value)}
+              disabled={disabled}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select image-to-video model">
+                  {selectedImageToVideoModel ? getSelectedModelName(selectedImageToVideoModel, imageToVideoModels) : 'Use Global AI Settings'}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__global__">
+                  <span className="text-muted-foreground">Use Global AI Settings (Fallback)</span>
+                </SelectItem>
+                {Object.entries(groupedImageToVideoModels).map(([category, models]) => (
+                  <React.Fragment key={category}>
+                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50 sticky top-0">
+                      {category}
+                    </div>
+                    {models.map(renderModelOption)}
+                  </React.Fragment>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedImageToVideoModel && (
+              <p className="text-xs text-muted-foreground">
+                {imageToVideoModels.find(m => m.id === selectedImageToVideoModel)?.description}
               </p>
             )}
           </div>

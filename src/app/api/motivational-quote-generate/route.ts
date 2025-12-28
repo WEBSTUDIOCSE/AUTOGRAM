@@ -45,10 +45,10 @@ export async function POST(request: NextRequest) {
     const globalPreferences = preferencesResponse.data;
 
     // Determine which models to use (module-specific > global)
-    const imageModel = moduleAIConfig?.textToImageModel || globalPreferences?.textToImageModel;
-    const videoModel = moduleAIConfig?.textToVideoModel || globalPreferences?.textToVideoModel;
+    const textToImageModel = moduleAIConfig?.textToImageModel || globalPreferences?.textToImageModel;
+    const textToVideoModel = moduleAIConfig?.textToVideoModel || globalPreferences?.textToVideoModel;
 
-    console.log(`🔧 [AI Models] Image: ${imageModel || 'default'} | Video: ${videoModel || 'default'}`);
+    console.log(`🔧 [AI Models] Text-to-Image: ${textToImageModel || 'default'} | Text-to-Video: ${textToVideoModel || 'default'}`);
     console.log(`   Source: ${moduleAIConfig?.textToImageModel ? 'Module-specific' : 'Global settings'}`);
 
     // Get recent quotes to avoid duplication
@@ -73,12 +73,12 @@ export async function POST(request: NextRequest) {
 
     // Generate media based on content type
     if (contentType === 'image') {
-      console.log(`📸 Generating image with model: ${imageModel || 'default'}...`);
+      console.log(`📸 Generating image with model: ${textToImageModel || 'default'}...`);
       
       // Determine provider from model
       let provider: 'gemini' | 'kieai' | undefined;
-      if (imageModel) {
-        const modelInfo = getModelById(imageModel);
+      if (textToImageModel) {
+        const modelInfo = getModelById(textToImageModel);
         provider = modelInfo?.provider;
       }
       
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
         prompt: quoteData.visualPrompt,
         quality: 'high',
         imageSize: 'square_hd',
-        model: imageModel,
+        model: textToImageModel,
       }, provider);
       
       if (!result.imageBase64) {
@@ -118,12 +118,12 @@ export async function POST(request: NextRequest) {
       console.log(`✅ Image uploaded: ${mediaUrl.substring(0, 80)}...`);
       
     } else {
-      console.log(`🎬 Generating video with model: ${videoModel || 'default'}...`);
+      console.log(`🎬 Generating video with model: ${textToVideoModel || 'default'}...`);
       
       const videoService = new UnifiedVideoGenerationService();
       const videoResult = await videoService.generateVideo({
         prompt: quoteData.visualPrompt,
-        model: videoModel,
+        model: textToVideoModel,
         duration: '5',
         aspectRatio: '1:1',
       });
