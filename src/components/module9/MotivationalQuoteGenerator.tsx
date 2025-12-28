@@ -1,13 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Loader2, Sparkles, Copy, Download } from 'lucide-react';
+import { Loader2, Sparkles, Copy, Download, Send } from 'lucide-react';
+import { APIBook } from '@/lib/firebase/services';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface GeneratedQuote {
   quoteText: string;
@@ -18,12 +20,22 @@ interface GeneratedQuote {
   caption: string;
 }
 
+interface InstagramAccount {
+  id: string;
+  name: string;
+  username?: string;
+}
+
 export function MotivationalQuoteGenerator() {
+  const { user } = useAuth();
   const [category, setCategory] = useState<string>('motivation');
   const [style, setStyle] = useState<string>('bold');
   const [contentType, setContentType] = useState<'image' | 'video'>('image');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedQuote, setGeneratedQuote] = useState<GeneratedQuote | null>(null);
+  const [instagramAccounts, setInstagramAccounts] = useState<InstagramAccount[]>([]);
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+  const [isPosting, setIsPosting] = useState(false);
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -76,6 +88,44 @@ export function MotivationalQuoteGenerator() {
   const handleDownload = () => {
     if (generatedQuote) {
       window.open(generatedQuote.mediaUrl, '_blank');
+    }
+  };
+
+  const handlePost = async () => {
+    if (!generatedQuote || !selectedAccountId) {
+      toast.error('Please generate a quote and select an Instagram account');
+      return;
+    }
+
+    setIsPosting(true);
+    try {
+      const response = await fetch('/api/instagram-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mediaUrl: generatedQuote.mediaUrl,
+          caption: generatedQuote.caption,
+          accountId: selectedAccountId,
+          isVideo: generatedQuote.mediaType === 'video'
+        })
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        toast.success('Posted Successfully!', {
+          description: 'Your motivational quote has been posted to Instagram.'
+        });
+      } else {
+        throw new Error(result.error || 'Failed to post');
+      }
+    } catch (error) {
+      console.error('Post error:', error);
+      toast.error('Post Failed', {
+        description: error instanceof Error ? error.message : 'Failed to post to Instagram'
+      });
+    } finally {
+      setIsPosting(false);
     }
   };
 
@@ -218,15 +268,51 @@ export function MotivationalQuoteGenerator() {
               </div>
 
               {/* Actions */}
-              <div className="flex gap-2">
-                <Button onClick={handleCopyCaption} variant="outline" className="flex-1">
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copy Caption
-                </Button>
-                <Button onClick={handleDownload} variant="outline" className="flex-1">
-                  <Download className="mr-2 h-4 w-4" />
-                  Download
-                </Button>
+              <div className="space-y-3">
+                {/* Instagram Account Selection */}
+                {instagramAccounts.length > 0 && (
+                  <div className="space-y-2">
+                    <Label>Post to Instagram Account</Label>
+                    <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Instagram account" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {instagramAccounts.map((account) => (
+                          <SelectItem key={account.id} value={account.id}>
+                            @{account.username || account.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex gap-2">
+                  <Button onClick={handleCopyCaption} variant="outline" className="flex-1">
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy Caption
+                  </Button>
+                  <Button onClick={handleDownload} variant="outline" className="flex-1">
+                    <Download className="mr-2 h-4 w-4" />
+                    Download
+                  </Button>
+                  {instagramAccounts.length > 0 && (
+                    <Button 
+                      onClick={handlePost} 
+                      disabled={isPosting || !selectedAccountId}
+                      className="flex-1"
+                    >
+                      {isPosting ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Send className="mr-2 h-4 w-4" />
+                      )}
+                      {isPosting ? 'Posting...' : 'Post Now'}
+                    </Button>
+                  )}
+                </div>
               </div>
 
               {/* Visual Prompt */}

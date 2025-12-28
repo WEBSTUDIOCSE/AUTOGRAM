@@ -112,29 +112,45 @@ export const MotivationalPromptRefinerService = {
 
 🎨 **Visual Prompt Requirements** (for AI ${context.contentType} generation):
    ${context.style === 'custom' ? `
-   - CUSTOM STYLE: Pure black background (#000000)
-   - Typography: White, clean, bold sans-serif font
-   - Layout: Centered text with generous padding
-   - Simplicity: Minimal design, quote is the hero
-   - Contrast: High contrast for maximum readability
-   - No decorations, no graphics - just powerful typography on black` : `
-   - Style: ${context.style} aesthetic with modern Instagram appeal
+   - BACKGROUND: Pure black background (#000000), completely solid
+   - QUOTE TEXT: The complete quote must be prominently displayed as the main element
+   - TYPOGRAPHY: White, bold, modern sans-serif font (like Helvetica or Open Sans)
+   - TEXT SIZE: Large enough to be easily readable on mobile (minimum 24px equivalent)
+   - TEXT PLACEMENT: Perfectly centered both horizontally and vertically
+   - TEXT FORMATTING: Multi-line layout if needed, with proper line spacing (1.4x line height)
+   - CONTRAST: Maximum contrast - pure white text on pure black background
+   - NO DECORATIONS: No graphics, icons, shapes, or decorative elements
+   - NO AUTHOR ON IMAGE: Only the quote text, author will be in caption
+   - PADDING: Generous margins around text (20% minimum from all edges)
+   - TEXT HIERARCHY: Quote text should be the only visual element
+   - READABILITY: Font weight should be bold/semi-bold for clarity
+   - PROFESSIONAL: Clean, minimalist design focusing purely on typography` : `
+   - QUOTE INTEGRATION: The complete motivational quote MUST be embedded in the image as readable text
+   - TYPOGRAPHY: Professional, bold fonts with high readability
+   - TEXT PLACEMENT: Quote text should be the focal point - large, prominent, and perfectly readable
+   - FONT STYLE: Modern sans-serif or elegant serif fonts (like Montserrat, Poppins, or Playfair Display)
+   - TEXT SIZE: Large enough to read easily on mobile devices
+   - TEXT COLOR: High contrast with background (white on dark, dark on light)
+   - TEXT EFFECTS: Subtle shadows, outlines, or glows if needed for readability
+   - BACKGROUND: ${context.style} aesthetic with Instagram-worthy visual appeal
    ${context.contentType === 'image' ? `
-   - Composition: Rule of thirds, dynamic balance
-   - Typography: Bold, readable, artistically placed
-   - Colors: Trending palettes (gradients, neons, pastels, or bold contrasts)
-   - Elements: Abstract shapes, geometric patterns, natural textures
-   - Depth: Layered composition with foreground/background separation
-   - Lighting: Dramatic or soft mood lighting` : `
-   - Motion: Smooth, cinematic camera movements
-   - Animation: Text reveals, zoom effects, particle systems
-   - Transitions: Seamless flow between scenes
-   - Dynamics: Kinetic typography, morphing shapes
-   - Effects: Glow, light leaks, bokeh, film grain
-   - Duration: 5-10 second loop potential`}`}
-   - Professional quality, Instagram-optimized
-   - NO people, faces, or hands (purely abstract/symbolic)
-   - Make it VISUALLY DISTINCTIVE from typical motivational posts
+   - COMPOSITION: Balanced layout with quote as the hero element
+   - VISUAL ELEMENTS: Abstract shapes, gradients, or textures that complement but don't compete with text
+   - COLOR PALETTE: Trending Instagram colors - gradients, pastels, or bold contrasts
+   - DEPTH: Layered design with text in foreground, visuals in background
+   - MOOD: Inspiring and uplifting visual atmosphere
+   - LIGHTING: Soft or dramatic lighting that enhances text readability` : `
+   - MOTION: Smooth text animations, kinetic typography
+   - TEXT REVEAL: Dynamic text appearance effects
+   - BACKGROUND ANIMATION: Subtle moving elements that don't distract from text
+   - TRANSITIONS: Elegant text transitions and effects
+   - CINEMATIC: Professional video quality with smooth movements
+   - DURATION: 5-10 second loops with text fully visible for reading`}
+   - MOBILE OPTIMIZED: Perfect for Instagram square (1:1) format
+   - NO FACES/PEOPLE: Abstract, symbolic, or landscape elements only
+   - TEXT READABILITY: Ensure quote is 100% readable and prominent
+   - BRAND QUALITY: Professional, polished, and visually striking
+   - QUOTE PROMINENCE: The quote text should be the undisputed main element`}
 
 📱 **Hashtag Strategy**:
    - 12-15 hashtags total
@@ -155,11 +171,17 @@ export const MotivationalPromptRefinerService = {
 📦 OUTPUT FORMAT (Valid JSON):
 {
   "quoteText": "Your completely unique quote here",
-  "title": "Short Catchy Title",
+  "title": "Short Catchy Title", 
   "author": "Unknown",
-  "visualPrompt": "Ultra-detailed visual description for AI generation (150+ words)",
+  "visualPrompt": "Create a ${context.style === 'custom' ? 'minimalist black background image' : `${context.style} style ${context.contentType}`} with the text '[INSERT COMPLETE QUOTE TEXT HERE]' prominently displayed. [Continue with detailed 150+ word visual description including typography, layout, colors, and styling specifications. The quote text must be the main focal point and completely readable.]",
   "suggestedHashtags": "#motivation #success #inspiration #mindset ..."
 }
+
+🔑 CRITICAL INSTRUCTION FOR VISUAL PROMPT:
+- You MUST include the exact quote text in the visualPrompt using the placeholder "[INSERT COMPLETE QUOTE TEXT HERE]"
+- Replace this placeholder with the actual quote you generated
+- The visual prompt should describe HOW to display this specific quote text beautifully
+- Example: "Create a modern gradient background with the motivational text 'Your dreams are closer than you think' displayed in bold white Montserrat font, centered vertically..."
 
 🚀 REMEMBER: The goal is to create something that makes people stop scrolling. Be bold, be different, be memorable!`;
 
@@ -200,6 +222,27 @@ export const MotivationalPromptRefinerService = {
         throw new Error('AI response missing required fields');
       }
 
+      // Ensure visual prompt includes the actual quote text
+      let processedVisualPrompt = parsed.visualPrompt;
+      if (!processedVisualPrompt.includes(parsed.quoteText) && 
+          !processedVisualPrompt.includes('[INSERT COMPLETE QUOTE TEXT HERE]')) {
+        // Add quote text to visual prompt if not included
+        processedVisualPrompt = `Create a ${context.style === 'custom' ? 'minimalist black background image' : `${context.style} style ${context.contentType}`} featuring the motivational quote "${parsed.quoteText}" as the main text element. ${processedVisualPrompt}`;
+      } else if (processedVisualPrompt.includes('[INSERT COMPLETE QUOTE TEXT HERE]')) {
+        // Replace placeholder with actual quote
+        processedVisualPrompt = processedVisualPrompt.replace('[INSERT COMPLETE QUOTE TEXT HERE]', parsed.quoteText);
+      }
+
+      // Enhance visual prompt with specific typography instructions
+      if (!processedVisualPrompt.toLowerCase().includes('font') && !processedVisualPrompt.toLowerCase().includes('typography')) {
+        const typographyEnhancement = context.style === 'custom' 
+          ? ' Use clean, bold sans-serif typography in pure white color against the black background.'
+          : ' Use modern, readable typography with high contrast and professional styling.';
+        processedVisualPrompt += typographyEnhancement;
+      }
+
+      console.log('✅ [Module 9] Visual prompt enhanced with quote text integration');
+
       // Check for similarity with recent quotes (basic deduplication)
       const generatedQuote = parsed.quoteText.toLowerCase().trim();
       const isTooSimilar = context.recentQuotes.some(recent => {
@@ -234,7 +277,7 @@ export const MotivationalPromptRefinerService = {
         quoteText: parsed.quoteText.trim(),
         title: parsed.title?.trim() || this.generateTitleFromQuote(parsed.quoteText),
         author: parsed.author || 'Unknown',
-        visualPrompt: parsed.visualPrompt.trim(),
+        visualPrompt: processedVisualPrompt.trim(),
         suggestedHashtags: parsed.suggestedHashtags || '#motivation #inspiration #success',
       };
 
@@ -262,8 +305,8 @@ export const MotivationalPromptRefinerService = {
     const quoteText = fallbackQuotes[context.category as keyof typeof fallbackQuotes] || fallbackQuotes.motivation;
 
     const visualPrompt = context.contentType === 'image'
-      ? `Minimalist ${context.style} design with centered text, gradient background, elegant typography, modern aesthetic`
-      : `Smooth text animation, ${context.style} style, gradient transitions, kinetic typography, professional motion graphics`;
+      ? `Create a ${context.style === 'custom' ? 'minimalist black background image' : `${context.style} style image`} featuring the motivational quote "${quoteText}" as the main text element. Use ${context.style === 'custom' ? 'clean white typography on pure black background' : 'modern, readable typography with high contrast'}. Center the text with generous padding and ensure maximum readability on mobile devices.`
+      : `Create a ${context.style} style video with the motivational text "${quoteText}" prominently displayed. Use smooth text animations, elegant transitions, and modern typography. The quote should be the focal point with cinematic quality.`;
 
     return {
       quoteText,

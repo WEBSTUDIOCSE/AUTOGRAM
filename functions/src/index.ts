@@ -275,7 +275,7 @@ const MODULES: AutoPostModule[] = [
  */
 export const scheduledUnifiedAutoPost = onSchedule(
   {
-    schedule: "* * * * *", // Every minute for testing purposes
+    schedule: "0 * * * *", // Every hour at minute 0
     timeZone: "Asia/Kolkata", // India Standard Time (IST)
   },
   async (event) => {

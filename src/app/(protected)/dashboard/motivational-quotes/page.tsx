@@ -1,7 +1,5 @@
 import { redirect } from "next/navigation";
-import { MotivationalQuoteSettings } from "@/components/module9/MotivationalQuoteSettings";
-import { MotivationalQuoteHistory } from "@/components/module9/MotivationalQuoteHistory";
-import { MotivationalQuoteGenerator } from "@/components/module9/MotivationalQuoteGenerator";
+import { MotivationalQuoteSettings, MotivationalQuoteHistory, MotivationalQuoteGenerator } from "@/components/module9";
 import { getCurrentUser } from "@/lib/auth/server";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
