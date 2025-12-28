@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
       mediaUrl = await VideoStorageService.uploadVideoFromUrl(
         videoResult.videoUrl,
         user.uid,
-        'module9/manual-quotes'
+        'module9'
       );
       
       console.log(`✅ Video uploaded: ${mediaUrl.substring(0, 80)}...`);
