@@ -191,7 +191,7 @@ const MODULES: AutoPostModule[] = [
   {
     moduleId: "module9",
     moduleName: "Motivational Quotes Auto Poster",
-    collection: "motivational_quote_prompts",
+    collection: "motivational_auto_post_configs",
     apiEndpoint: "/api/motivational-auto-post",
     getScheduledItems: async (currentTime: string) => {
       const results: Array<{
@@ -201,46 +201,55 @@ const MODULES: AutoPostModule[] = [
         payload: Record<string, any>;
       }> = [];
 
-      // Get all active motivational prompts with posting times
-      const promptsSnapshot = await db
-        .collection("motivational_quote_prompts")
-        .where("isActive", "==", true)
-        .get();
+      // Get all users with motivational auto-post configs
+      const usersSnapshot = await db.collection("users").get();
 
-      // Check each prompt
-      for (const doc of promptsSnapshot.docs) {
-        const prompt = doc.data();
-        const promptId = doc.id;
+      // Check each user's config
+      for (const userDoc of usersSnapshot.docs) {
+        const userId = userDoc.id;
 
-        // Check if prompt has this posting time
-        if (prompt.postingTimes?.includes(currentTime)) {
-          // Check if auto-posting is enabled for this user
+        try {
+          // Get user's motivational auto-post config
           const configDoc = await db
             .collection("users")
-            .doc(prompt.userId)
+            .doc(userId)
             .collection("motivational_auto_post_configs")
             .doc("default")
             .get();
-          
-          const config = configDoc.data();
-          
-          // Only add if auto-posting is enabled and this prompt is in activePromptIds
-          if (config?.isEnabled === true && config?.activePromptIds?.includes(promptId)) {
-            results.push({
-              userId: prompt.userId,
-              itemId: promptId,
-              displayName: `${prompt.category}: ${prompt.themeDescription?.substring(0, 40)}...` || "Motivational Quote",
-              payload: {
-                userId: prompt.userId,
-                scheduledTime: currentTime,
-                promptId: promptId,
-                category: prompt.category,
-                themeDescription: prompt.themeDescription,
-                contentType: prompt.contentType,
-                assignedAccountId: prompt.assignedAccountId,
-              },
-            });
+
+          if (!configDoc.exists) {
+            continue;
           }
+
+          const config = configDoc.data();
+
+          // Check if auto-posting is enabled and has account configs
+          if (config?.isEnabled === true && config?.accountConfigs && Array.isArray(config.accountConfigs)) {
+            // Check each account config for matching posting time
+            for (const accountConfig of config.accountConfigs) {
+              if (accountConfig.postingTimes && Array.isArray(accountConfig.postingTimes)) {
+                // Check if current time matches any posting time for this account
+                if (accountConfig.postingTimes.includes(currentTime)) {
+                  results.push({
+                    userId: userId,
+                    itemId: accountConfig.accountId,
+                    displayName: `${accountConfig.category} (${accountConfig.style})` || "Motivational Quote",
+                    payload: {
+                      userId: userId,
+                      scheduledTime: currentTime,
+                      accountId: accountConfig.accountId,
+                      category: accountConfig.category,
+                      style: accountConfig.style,
+                      contentType: accountConfig.contentType,
+                    },
+                  });
+                }
+              }
+            }
+          }
+        } catch (error) {
+          logger.error(`Error processing user ${userId} for motivational quotes:`, error);
+          // Continue to next user
         }
       }
 
