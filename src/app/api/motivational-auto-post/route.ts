@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth/server';
 import { APIBook } from '@/lib/firebase/services';
+import { unifiedImageGeneration } from '@/lib/services/image-generation';
+import { UnifiedVideoGenerationService } from '@/lib/services/video-generation/unified-video-generation.service';
+import { UserPreferencesService } from '@/lib/firebase/services/user-preferences.service';
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://autogram-orpin.vercel.app';
 
@@ -129,42 +132,47 @@ export async function POST(request: NextRequest) {
         console.log(`✨ Generated quote: "${quoteData.quoteText.substring(0, 60)}..."`);
         console.log(`🎨 Visual style: ${accountConfig.style}`);
 
-        // Generate media (image or video)
+        // Get user preferences for AI models
+        const preferencesResponse = await UserPreferencesService.getPreferences(effectiveUserId);
+        const userPreferences = preferencesResponse.data;
+
+        // Generate media (image or video) using unified services
         let mediaUrl: string;
         if (actualContentType === 'image') {
-          // Generate image using selected AI model
-          const imageResult = await fetch(`${BASE_URL}/api/generate-image`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              prompt: quoteData.visualPrompt,
-              style: accountConfig.style,
-            }),
+          console.log(`📸 Generating image with visual prompt...`);
+          
+          // Generate image using unified image generation service
+          const imageResult = await unifiedImageGeneration.generateImage({
+            prompt: quoteData.visualPrompt,
+            model: userPreferences?.textToImageModel, // Use user's selected model
+            imageSize: 'square_hd',
           });
 
-          if (!imageResult.ok) {
-            throw new Error('Failed to generate image');
+          if (!imageResult.imageBase64) {
+            throw new Error('Failed to generate image - no image data returned');
           }
 
-          const imageData = await imageResult.json();
-          mediaUrl = imageData.imageUrl;
+          // For now, use the base64 data directly (you may want to upload to storage)
+          mediaUrl = imageResult.imageBase64;
+          console.log(`✅ Image generated successfully`);
         } else {
-          // Generate video using selected AI model
-          const videoResult = await fetch(`${BASE_URL}/api/generate-video`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              prompt: quoteData.visualPrompt,
-              style: accountConfig.style,
-            }),
+          console.log(`🎬 Generating video with visual prompt...`);
+          
+          // Generate video using unified video generation service
+          const videoService = new UnifiedVideoGenerationService();
+          const videoResult = await videoService.generateVideo({
+            prompt: quoteData.visualPrompt,
+            model: userPreferences?.textToVideoModel, // Use user's selected model
+            duration: '5',
+            aspectRatio: '1:1',
           });
 
-          if (!videoResult.ok) {
-            throw new Error('Failed to generate video');
+          if (!videoResult.videoUrl) {
+            throw new Error('Failed to generate video - no video URL returned');
           }
 
-          const videoData = await videoResult.json();
-          mediaUrl = videoData.videoUrl;
+          mediaUrl = videoResult.videoUrl;
+          console.log(`✅ Video generated successfully`);
         }
 
         // Create caption with quote
