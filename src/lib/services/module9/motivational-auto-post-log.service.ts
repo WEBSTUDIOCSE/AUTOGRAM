@@ -69,15 +69,26 @@ export const MotivationalAutoPostLogService = {
   /**
    * Get recent logs for an account (for variation)
    */
-  async getRecentLogs(userId: string, accountId: string, count: number = 10): Promise<string[]> {
+  async getRecentLogs(userId: string, accountId?: string, count: number = 10): Promise<string[]> {
     try {
-      const q = query(
-        collection(db, 'motivational_auto_post_logs'),
-        where('userId', '==', userId),
-        where('accountId', '==', accountId),
-        orderBy('timestamp', 'desc'),
-        limit(count)
-      );
+      let q;
+      if (accountId) {
+        q = query(
+          collection(db, 'motivational_auto_post_logs'),
+          where('userId', '==', userId),
+          where('accountId', '==', accountId),
+          orderBy('timestamp', 'desc'),
+          limit(count)
+        );
+      } else {
+        // Get all logs for user if no accountId specified
+        q = query(
+          collection(db, 'motivational_auto_post_logs'),
+          where('userId', '==', userId),
+          orderBy('timestamp', 'desc'),
+          limit(count)
+        );
+      }
 
       const snapshot = await getDocs(q);
       return snapshot.docs
