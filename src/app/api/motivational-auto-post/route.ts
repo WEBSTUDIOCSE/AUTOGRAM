@@ -231,7 +231,9 @@ export async function POST(request: NextRequest) {
         }
 
         // Create caption with quote
-        const caption = `${quoteData.title}\n\n${quoteData.author ? `— ${quoteData.author}` : ''}\n\n#motivation #inspiration #quotes #motivationalquotes #success #mindset #positivevibes`;
+        const hashtags = quoteData.suggestedHashtags || '#motivation #inspiration #quotes #motivationalquotes #success #mindset #positivevibes';
+        const authorLine = quoteData.author ? `— ${quoteData.author}\n\n` : '';
+        const caption = `${quoteData.title}\n\n${authorLine}${hashtags}`;
 
         // Post to Instagram using InstagramService directly
         console.log(`📸 [STEP 3/4] Posting to Instagram account: ${instagramAccount.id}...`);
