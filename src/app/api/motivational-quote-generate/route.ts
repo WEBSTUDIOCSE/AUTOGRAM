@@ -24,10 +24,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { category, style, contentType } = body;
+    const { category, style, contentType, language } = body;
 
     console.log(`[Manual Quote Generator] User: ${user.uid}`);
-    console.log(`[Manual Quote Generator] Category: ${category}, Style: ${style}, Type: ${contentType}`);
+    console.log(`[Manual Quote Generator] Category: ${category}, Style: ${style}, Type: ${contentType}, Language: ${language || 'english'}`);
 
     // Validate inputs
     if (!category || !style || !contentType) {
@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
       themeDescription: `${category.charAt(0).toUpperCase() + category.slice(1)} quotes in ${style} style`,
       contentType: contentType as 'image' | 'video',
       style,
+      language: language || 'english', // Default to English if not specified
       recentQuotes,
     });
 
@@ -150,6 +151,28 @@ export async function POST(request: NextRequest) {
     const duration = Date.now() - startTime;
     console.log(`[Manual Quote Generator] ===== COMPLETED in ${duration}ms =====`);
 
+    // Save to log for tracking and future deduplication
+    try {
+      await APIBook.motivationalAutoPostLog.createLog({
+        userId: user.uid,
+        accountId: 'manual', // Special account ID for manual generations
+        category, // Save category
+        style,
+        contentType: mediaType, // Save content type (image or video)
+        language: language || 'english', // Save language
+        quoteText: quoteData.quoteText,
+        author: quoteData.author || '', // Save author (empty string if none)
+        generatedPrompt: quoteData.visualPrompt,
+        mediaUrl,
+        caption,
+        status: 'success',
+      });
+      console.log(`✅ Manual quote saved to log`);
+    } catch (logError) {
+      console.error(`⚠️ Failed to save manual quote to log:`, logError);
+      // Don't fail the request if logging fails
+    }
+
     return NextResponse.json({
       success: true,
       data: {
@@ -159,6 +182,8 @@ export async function POST(request: NextRequest) {
         mediaUrl,
         mediaType,
         caption,
+        category, // Include in response
+        language: language || 'english', // Include in response
       },
       duration: `${duration}ms`,
     });

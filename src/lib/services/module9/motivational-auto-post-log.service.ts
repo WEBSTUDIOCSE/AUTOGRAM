@@ -9,11 +9,12 @@ export interface MotivationalAutoPostLog {
   id: string;
   userId: string;
   accountId: string;
-  category: string;
+  category: string; // Always saved: success, mindset, motivation, inspiration, life, wisdom
   style: string;
-  contentType: 'image' | 'video';
+  contentType: 'image' | 'video'; // Always saved: image or video type
+  language?: string; // Language of the quote (english, hindi, marathi)
   quoteText: string;
-  author?: string;
+  author: string; // Always saved: author name or empty string if none
   generatedPrompt: string;
   mediaUrl: string;
   caption: string;
@@ -32,6 +33,7 @@ export const MotivationalAutoPostLogService = {
     try {
       const logData = {
         ...data,
+        author: data.author || '', // Ensure author is always a string (empty if not provided)
         timestamp: Timestamp.now(),
       };
 

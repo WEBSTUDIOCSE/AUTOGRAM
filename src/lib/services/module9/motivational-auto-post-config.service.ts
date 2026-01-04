@@ -11,6 +11,7 @@ export interface AccountConfig {
   style: string;
   contentType: 'image' | 'video';
   postingTimes: string[];
+  language?: 'english' | 'hindi' | 'marathi'; // Language preference for quote generation
 }
 
 export interface ModuleAIModelConfig {

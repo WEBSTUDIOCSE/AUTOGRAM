@@ -10,6 +10,7 @@ interface MotivationalGenerationContext {
   themeDescription: string;
   contentType: 'image' | 'video';
   style: string;
+  language?: 'english' | 'hindi' | 'marathi'; // Language preference for quote generation
   recentQuotes: string[]; // Last 10 quotes to avoid repetition
   quoteTemplate?: string; // Optional template to base on
 }
@@ -75,6 +76,28 @@ export const MotivationalPromptRefinerService = {
       ];
       const randomVariation = variations[Math.floor(Math.random() * variations.length)];
 
+      // Language configuration
+      const language = context.language || 'english';
+      const languageInstructions = {
+        english: {
+          quoteLanguage: 'English',
+          instruction: 'Generate the quote in English only. Use clear, grammatically correct English.',
+          textInstruction: 'ALL TEXT MUST BE IN ENGLISH. No Chinese, Arabic, or any other language characters.',
+        },
+        hindi: {
+          quoteLanguage: 'Hindi (Devanagari script)',
+          instruction: 'Generate the quote in Hindi using Devanagari script. Ensure proper Hindi grammar and authentic expressions.',
+          textInstruction: 'ALL TEXT MUST BE IN HINDI (Devanagari script). Use proper Hindi words and grammar.',
+        },
+        marathi: {
+          quoteLanguage: 'Marathi (Devanagari script)',
+          instruction: 'Generate the quote in Marathi using Devanagari script. Ensure proper Marathi grammar and authentic expressions.',
+          textInstruction: 'ALL TEXT MUST BE IN MARATHI (Devanagari script). Use proper Marathi words and grammar.',
+        },
+      };
+
+      const langConfig = languageInstructions[language];
+
       const generationPrompt = `You are an elite motivational quote creator specializing in profound, meaningful wisdom that resonates deeply with audiences.
 
 STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
@@ -86,6 +109,7 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
 "Character is like a tree and reputation like its shadow. The shadow is what we think of it; the tree is the real thing."
 
 📊 GENERATION PARAMETERS:
+• LANGUAGE: ${langConfig.quoteLanguage} - ${langConfig.instruction}
 • CATEGORY: ${context.category}
 • THEME: ${context.themeDescription}
 • CONTENT TYPE: ${context.contentType}
@@ -93,7 +117,7 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
 • TIME CONTEXT: ${timeContext}${dayContext}
 • VARIATION TYPE: ${randomVariation}${templateText}${avoidanceText}
 
-🎯 YOUR MISSION: Create a profound, ORIGINAL quote that delivers deep wisdom and actionable insight.
+🎯 YOUR MISSION: Create a profound, ORIGINAL quote IN ${langConfig.quoteLanguage.toUpperCase()} that delivers deep wisdom and actionable insight.
 
 ✨ **Quote Requirements**:
    - Length: 80-180 characters (dynamic based on message complexity)
@@ -122,6 +146,8 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
    - Balance simple language with profound meaning
 
 🎨 **Visual Prompt Requirements** (for AI ${context.contentType} generation):
+   
+   🚨 CRITICAL LANGUAGE REQUIREMENT: ${langConfig.textInstruction}
    
    CRITICAL: Analyze the quote's meaning and theme FIRST, then design visuals that REFLECT that meaning.
    

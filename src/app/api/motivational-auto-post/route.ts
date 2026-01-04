@@ -105,7 +105,9 @@ export async function POST(request: NextRequest) {
           category: accountConfig.category,
           style: accountConfig.style,
           contentType: accountConfig.contentType,
+          language: accountConfig.language || 'english', // Default to English if not specified
           quoteText: '',
+          author: '', // Initialize as empty string
           generatedPrompt: '',
           mediaUrl: '',
           caption: '',
@@ -134,6 +136,7 @@ export async function POST(request: NextRequest) {
           themeDescription: `${accountConfig.category.charAt(0).toUpperCase() + accountConfig.category.slice(1)} quotes in ${accountConfig.style} style`,
           contentType: actualContentType,
           style: accountConfig.style,
+          language: accountConfig.language || 'english', // Use account language preference
           recentQuotes,
         });
 
@@ -153,6 +156,7 @@ export async function POST(request: NextRequest) {
             themeDescription: `${accountConfig.category.charAt(0).toUpperCase() + accountConfig.category.slice(1)} quotes in ${accountConfig.style} style - MUST BE COMPLETELY DIFFERENT`,
             contentType: actualContentType,
             style: accountConfig.style,
+            language: accountConfig.language || 'english',
             recentQuotes: [...recentQuotes, quoteData.quoteText, '__FORCE_UNIQUE__'],
           });
         }
@@ -280,7 +284,7 @@ export async function POST(request: NextRequest) {
         await APIBook.motivationalAutoPostLog.updateLog(logId, {
           status: 'success',
           quoteText: quoteData.quoteText,
-          author: quoteData.author,
+          author: quoteData.author || '', // Always save as empty string if no author
           mediaUrl: firebaseMediaUrl, // Store Firebase URL
           generatedPrompt: quoteData.visualPrompt,
           caption,
@@ -311,7 +315,7 @@ export async function POST(request: NextRequest) {
             }),
             ...(quoteData && { 
               quoteText: quoteData.quoteText,
-              author: quoteData.author,
+              author: quoteData.author || '', // Always save as empty string if no author
             }),
           });
         } catch (updateError) {
