@@ -130,16 +130,16 @@ export function MotivationalQuoteGenerator() {
   };
 
   return (
-    <div className="grid gap-6 md:grid-cols-2">
+    <div className="grid gap-4 lg:grid-cols-2">
       {/* Generation Settings */}
       <Card>
-        <CardHeader>
-          <CardTitle>Generate Motivational Quote</CardTitle>
-          <CardDescription>
+        <CardHeader className="space-y-1 pb-4">
+          <CardTitle className="text-lg sm:text-xl">Generate Motivational Quote</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">
             Create a unique motivational quote with AI-generated image or video
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 sm:space-y-4">
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
             <Select value={category} onValueChange={setCategory}>
@@ -209,28 +209,28 @@ export function MotivationalQuoteGenerator() {
 
       {/* Preview */}
       <Card>
-        <CardHeader>
-          <CardTitle>Preview</CardTitle>
-          <CardDescription>
+        <CardHeader className="space-y-1 pb-4">
+          <CardTitle className="text-lg sm:text-xl">Preview</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">
             Generated quote preview and download
           </CardDescription>
         </CardHeader>
         <CardContent>
           {!generatedQuote && !isGenerating && (
-            <div className="flex items-center justify-center h-64 border-2 border-dashed rounded-lg">
-              <p className="text-muted-foreground">No quote generated yet</p>
+            <div className="flex items-center justify-center h-48 sm:h-64 border-2 border-dashed rounded-lg">
+              <p className="text-sm text-muted-foreground">No quote generated yet</p>
             </div>
           )}
 
           {isGenerating && (
-            <div className="flex flex-col items-center justify-center h-64 border-2 border-dashed rounded-lg">
-              <Loader2 className="h-8 w-8 animate-spin mb-4" />
-              <p className="text-muted-foreground">Generating your quote...</p>
+            <div className="flex flex-col items-center justify-center h-48 sm:h-64 border-2 border-dashed rounded-lg">
+              <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin mb-3 sm:mb-4" />
+              <p className="text-sm text-muted-foreground">Generating your quote...</p>
             </div>
           )}
 
           {generatedQuote && (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {/* Media Preview */}
               <div className="relative rounded-lg overflow-hidden border">
                 {generatedQuote.mediaType === 'image' ? (
@@ -249,21 +249,21 @@ export function MotivationalQuoteGenerator() {
               </div>
 
               {/* Quote Text */}
-              <div className="p-4 bg-muted rounded-lg">
-                <p className="text-lg font-medium mb-2">{generatedQuote.quoteText}</p>
+              <div className="p-3 sm:p-4 bg-muted rounded-lg">
+                <p className="text-base sm:text-lg font-medium mb-1 sm:mb-2">{generatedQuote.quoteText}</p>
                 {generatedQuote.author && (
-                  <p className="text-sm text-muted-foreground">— {generatedQuote.author}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground">— {generatedQuote.author}</p>
                 )}
               </div>
 
               {/* Caption */}
               <div className="space-y-2">
-                <Label>Caption</Label>
+                <Label className="text-sm">Caption</Label>
                 <Textarea 
                   value={generatedQuote.caption} 
                   readOnly 
-                  rows={6}
-                  className="text-sm"
+                  rows={4}
+                  className="text-xs sm:text-sm resize-none"
                 />
               </div>
 
@@ -272,9 +272,9 @@ export function MotivationalQuoteGenerator() {
                 {/* Instagram Account Selection */}
                 {instagramAccounts.length > 0 && (
                   <div className="space-y-2">
-                    <Label>Post to Instagram Account</Label>
+                    <Label className="text-sm">Post to Instagram Account</Label>
                     <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
-                      <SelectTrigger>
+                      <SelectTrigger className="h-10">
                         <SelectValue placeholder="Select Instagram account" />
                       </SelectTrigger>
                       <SelectContent>
@@ -289,27 +289,28 @@ export function MotivationalQuoteGenerator() {
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex gap-2">
-                  <Button onClick={handleCopyCaption} variant="outline" className="flex-1">
-                    <Copy className="mr-2 h-4 w-4" />
-                    Copy Caption
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button onClick={handleCopyCaption} variant="outline" className="flex-1 h-10" size="sm">
+                    <Copy className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="text-xs sm:text-sm">Copy</span>
                   </Button>
-                  <Button onClick={handleDownload} variant="outline" className="flex-1">
-                    <Download className="mr-2 h-4 w-4" />
-                    Download
+                  <Button onClick={handleDownload} variant="outline" className="flex-1 h-10" size="sm">
+                    <Download className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="text-xs sm:text-sm">Download</span>
                   </Button>
                   {instagramAccounts.length > 0 && (
                     <Button 
                       onClick={handlePost} 
                       disabled={isPosting || !selectedAccountId}
-                      className="flex-1"
+                      className="flex-1 h-10"
+                      size="sm"
                     >
                       {isPosting ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
                       ) : (
-                        <Send className="mr-2 h-4 w-4" />
+                        <Send className="mr-1 sm:mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                       )}
-                      {isPosting ? 'Posting...' : 'Post Now'}
+                      <span className="text-xs sm:text-sm">{isPosting ? 'Posting...' : 'Post Now'}</span>
                     </Button>
                   )}
                 </div>

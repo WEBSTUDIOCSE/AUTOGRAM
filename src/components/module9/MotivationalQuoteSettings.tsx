@@ -437,43 +437,43 @@ export function MotivationalQuoteSettings() {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5" />
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+            <div className="space-y-1">
+              <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
+                <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" />
                 Motivational Quotes Configuration
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs sm:text-sm">
                 Configure the theme and style for automatic quote generation
               </CardDescription>
             </div>
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
               <DialogTrigger asChild>
-                <Button onClick={() => handleOpenDialog()}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Account
+                <Button onClick={() => handleOpenDialog()} className="w-full sm:w-auto" size="sm">
+                  <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <span className="text-xs sm:text-sm">Add Account</span>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>
+              <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+                <DialogHeader className="space-y-2">
+                  <DialogTitle className="text-lg sm:text-xl">
                     {editingConfigIndex !== null ? 'Edit Configuration' : 'Add Account Configuration'}
                   </DialogTitle>
-                  <DialogDescription>
+                  <DialogDescription className="text-xs sm:text-sm">
                     Configure posting settings for an Instagram account
                   </DialogDescription>
                 </DialogHeader>
 
-                <div className="space-y-6 py-4">
+                <div className="space-y-4 sm:space-y-6 py-2 sm:py-4">
                   {/* Instagram Account */}
                   <div className="space-y-2">
-                    <Label htmlFor="account" className="text-base font-semibold">Instagram Account</Label>
+                    <Label htmlFor="account" className="text-sm sm:text-base font-semibold">Instagram Account</Label>
                     <Select 
                       value={selectedAccountId} 
                       onValueChange={setSelectedAccountId}
                       disabled={editingConfigIndex !== null}
                     >
-                      <SelectTrigger id="account" className="h-11">
+                      <SelectTrigger id="account" className="h-10 sm:h-11">
                         <SelectValue placeholder="Select account" />
                       </SelectTrigger>
                       <SelectContent>
@@ -501,9 +501,9 @@ export function MotivationalQuoteSettings() {
 
                   {/* Category Selection */}
                   <div className="space-y-2">
-                    <Label htmlFor="category" className="text-base font-semibold">Quote Category</Label>
+                    <Label htmlFor="category" className="text-sm sm:text-base font-semibold">Quote Category</Label>
                     <Select value={category} onValueChange={setCategory}>
-                      <SelectTrigger id="category" className="h-11">
+                      <SelectTrigger id="category" className="h-10 sm:h-11">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -518,9 +518,9 @@ export function MotivationalQuoteSettings() {
 
                   {/* Visual Style */}
                   <div className="space-y-2">
-                    <Label htmlFor="style" className="text-base font-semibold">Visual Style</Label>
+                    <Label htmlFor="style" className="text-sm sm:text-base font-semibold">Visual Style</Label>
                     <Select value={style} onValueChange={setStyle}>
-                      <SelectTrigger id="style" className="h-11">
+                      <SelectTrigger id="style" className="h-10 sm:h-11">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -535,12 +535,12 @@ export function MotivationalQuoteSettings() {
 
                   {/* Content Type */}
                   <div className="space-y-2">
-                    <Label htmlFor="content-type" className="text-base font-semibold">Content Type</Label>
+                    <Label htmlFor="content-type" className="text-sm sm:text-base font-semibold">Content Type</Label>
                     <Select
                       value={contentType}
                       onValueChange={(value) => setContentType(value as 'image' | 'video')}
                     >
-                      <SelectTrigger id="content-type" className="h-11">
+                      <SelectTrigger id="content-type" className="h-10 sm:h-11">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -565,12 +565,12 @@ export function MotivationalQuoteSettings() {
 
                   {/* Posting Schedule */}
                   <div className="space-y-2">
-                    <Label className="text-base font-semibold">Posting Schedule (IST)</Label>
-                    <div className="flex items-center gap-2">
-                      <div className="flex items-center gap-1 flex-1">
-                        <Label className="text-sm text-muted-foreground">Hour:</Label>
+                    <Label className="text-sm sm:text-base font-semibold">Posting Schedule (IST)</Label>
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                      <div className="flex items-center gap-1 w-full sm:flex-1">
+                        <Label className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">Hour:</Label>
                         <Select value={selectedHour} onValueChange={setSelectedHour}>
-                          <SelectTrigger className="w-24 h-11">
+                          <SelectTrigger className="w-20 sm:w-24 h-9 sm:h-10">
                             <SelectValue placeholder="HH" />
                           </SelectTrigger>
                           <SelectContent className="max-h-[200px]">
@@ -584,10 +584,10 @@ export function MotivationalQuoteSettings() {
                             })}
                           </SelectContent>
                         </Select>
-                        <span className="text-lg font-medium">:</span>
-                        <Label className="text-sm text-muted-foreground">Min:</Label>
+                        <span className="text-base sm:text-lg font-medium">:</span>
+                        <Label className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">Min:</Label>
                         <Select value={selectedMinute} onValueChange={setSelectedMinute}>
-                          <SelectTrigger className="w-24 h-11">
+                          <SelectTrigger className="w-20 sm:w-24 h-9 sm:h-10">
                             <SelectValue placeholder="MM" />
                           </SelectTrigger>
                           <SelectContent className="max-h-[200px]">
@@ -607,17 +607,18 @@ export function MotivationalQuoteSettings() {
                         variant="outline"
                         onClick={handleAddPostingTime}
                         disabled={!selectedHour || !selectedMinute}
-                        className="h-11 px-4"
+                        className="h-9 sm:h-10 px-3 sm:px-4 w-full sm:w-auto"
+                        size="sm"
                       >
-                        <Plus className="h-4 w-4 mr-1" />
-                        Add
+                        <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                        <span className="text-xs sm:text-sm">Add Time</span>
                       </Button>
                     </div>
                     
                     {postingTimes.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-3 p-3 bg-muted rounded-md">
+                      <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-3 p-2 sm:p-3 bg-muted rounded-md">
                         {postingTimes.map((time) => (
-                          <Badge key={time} variant="secondary" className="text-sm py-1.5 px-3">
+                          <Badge key={time} variant="secondary" className="text-xs sm:text-sm py-1 sm:py-1.5 px-2 sm:px-3">
                             🕐 {time}
                             <button
                               type="button"
@@ -633,11 +634,11 @@ export function MotivationalQuoteSettings() {
                   </div>
                 </div>
 
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
+                  <Button variant="outline" onClick={() => setDialogOpen(false)} className="w-full sm:w-auto">
                     Cancel
                   </Button>
-                  <Button onClick={handleSaveAccountConfig} disabled={saving}>
+                  <Button onClick={handleSaveAccountConfig} disabled={saving} className="w-full sm:w-auto">
                     {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                     {editingConfigIndex !== null ? 'Update' : 'Add'}
                   </Button>
@@ -648,12 +649,12 @@ export function MotivationalQuoteSettings() {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Enable/Disable Toggle */}
-          <div className="flex items-center justify-between space-x-2 p-4 rounded-lg border bg-muted/30">
-            <div className="space-y-0.5">
-              <Label htmlFor="auto-posting" className="text-base font-semibold">
+          <div className="flex items-center justify-between space-x-2 p-3 sm:p-4 rounded-lg border bg-muted/30">
+            <div className="space-y-0.5 flex-1 min-w-0">
+              <Label htmlFor="auto-posting" className="text-sm sm:text-base font-semibold">
                 Enable Auto-Posting
               </Label>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {isEnabled
                   ? `Active for ${accountConfigs.length} account${accountConfigs.length !== 1 ? 's' : ''}`
                   : accountConfigs.length > 0
@@ -671,25 +672,25 @@ export function MotivationalQuoteSettings() {
 
           {/* Account Configurations List */}
           {accountConfigs.length === 0 ? (
-            <div className="text-center py-8 border-2 border-dashed rounded-lg">
-              <p className="text-muted-foreground">
+            <div className="text-center py-6 sm:py-8 border-2 border-dashed rounded-lg">
+              <p className="text-xs sm:text-sm text-muted-foreground px-4">
                 No account configurations yet. Click "Add Account" to get started.
               </p>
             </div>
           ) : (
             <div className="space-y-3">
-              <Label className="text-base font-semibold">Configured Accounts</Label>
+              <Label className="text-sm sm:text-base font-semibold">Configured Accounts</Label>
               {accountConfigs.map((config, index) => (
                 <Card key={index} className="overflow-hidden">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 space-y-3">
+                  <CardContent className="p-3 sm:p-4 sm:pt-6">
+                    <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                      <div className="flex-1 space-y-2 sm:space-y-3 min-w-0">
                         {/* Account Name */}
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-lg font-semibold text-primary">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                          <h4 className="text-base sm:text-lg font-semibold text-primary truncate">
                             @{getAccountName(config.accountId)}
                           </h4>
-                          <Badge variant="outline">
+                          <Badge variant="outline" className="text-xs">
                             {config.contentType === 'image' ? (
                               <><Image className="h-3 w-3 mr-1" /> IMAGE</>
                             ) : (
@@ -699,7 +700,7 @@ export function MotivationalQuoteSettings() {
                         </div>
 
                         {/* Configuration Details */}
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 sm:gap-y-2 text-xs sm:text-sm">
                           <div>
                             <span className="text-muted-foreground">Category:</span>{' '}
                             <span className="font-medium">{config.category.charAt(0).toUpperCase() + config.category.slice(1)}</span>
@@ -712,10 +713,10 @@ export function MotivationalQuoteSettings() {
 
                         {/* Posting Times */}
                         <div className="space-y-1">
-                          <p className="text-xs text-muted-foreground font-medium">Posting Times (IST):</p>
-                          <div className="flex flex-wrap gap-1.5">
+                          <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">Posting Times (IST):</p>
+                          <div className="flex flex-wrap gap-1 sm:gap-1.5">
                             {config.postingTimes.map((time, idx) => (
-                              <Badge key={idx} variant="secondary" className="text-xs">
+                              <Badge key={idx} variant="secondary" className="text-[10px] sm:text-xs py-0.5 px-1.5 sm:px-2">
                                 🕐 {time}
                               </Badge>
                             ))}
@@ -724,22 +725,24 @@ export function MotivationalQuoteSettings() {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex items-start gap-2">
+                      <div className="flex sm:flex-col items-center sm:items-start gap-1 sm:gap-2 shrink-0">
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleOpenDialog(index)}
                           title="Edit configuration"
+                          className="h-8 w-8 sm:h-9 sm:w-9"
                         >
-                          <Edit className="h-4 w-4" />
+                          <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDeleteConfig(index)}
                           title="Delete configuration"
+                          className="h-8 w-8 sm:h-9 sm:w-9"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
                         </Button>
                       </div>
                     </div>

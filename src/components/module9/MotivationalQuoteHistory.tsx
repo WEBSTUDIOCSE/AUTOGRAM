@@ -99,30 +99,30 @@ export function MotivationalQuoteHistory() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Post History</CardTitle>
-        <CardDescription>
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-lg sm:text-xl">Post History</CardTitle>
+        <CardDescription className="text-xs sm:text-sm">
           View all generated motivational quotes and their posting status
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-3 sm:px-6">
         {logs.length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">
+          <div className="text-center py-6 sm:py-8">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               No posts yet. Enable auto-posting and add prompts to get started.
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {logs.map((log) => (
               <Card key={log.id}>
-                <CardContent className="pt-6">
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-center gap-2">
+                <CardContent className="p-3 sm:p-4 sm:pt-6">
+                  <div className="space-y-2 sm:space-y-3">
+                    <div className="flex flex-col sm:flex-row items-start gap-3">
+                      <div className="flex-1 space-y-2 w-full min-w-0">
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                           {getStatusBadge(log.status)}
-                          <Badge variant="outline">
+                          <Badge variant="outline" className="text-xs">
                             {log.contentType === 'image' ? (
                               <Image className="h-3 w-3 mr-1" />
                             ) : (
@@ -130,23 +130,23 @@ export function MotivationalQuoteHistory() {
                             )}
                             {log.contentType}
                           </Badge>
-                          <Badge variant="secondary">{log.category}</Badge>
+                          <Badge variant="secondary" className="text-xs">{log.category}</Badge>
                         </div>
                         
                         {log.quoteText && (
-                          <div className="rounded-md border bg-muted/50 p-3">
-                            <p className="text-sm font-medium italic">"{log.quoteText}"</p>
+                          <div className="rounded-md border bg-muted/50 p-2 sm:p-3">
+                            <p className="text-xs sm:text-sm font-medium italic line-clamp-3">"{log.quoteText}"</p>
                             {log.author && (
-                              <p className="text-xs text-muted-foreground mt-1">— {log.author}</p>
+                              <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">— {log.author}</p>
                             )}
                           </div>
                         )}
 
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-[10px] sm:text-xs text-muted-foreground">
                           {log.instagramAccountName && (
-                            <span>@{log.instagramAccountName}</span>
+                            <span className="truncate">@{log.instagramAccountName}</span>
                           )}
-                          <span>{log.timestamp?.toDate ? log.timestamp.toDate().toLocaleString() : 'N/A'}</span>
+                          <span className="truncate">{log.timestamp?.toDate ? log.timestamp.toDate().toLocaleString() : 'N/A'}</span>
                         </div>
 
                         {log.error && (
@@ -157,16 +157,16 @@ export function MotivationalQuoteHistory() {
                       </div>
 
                       {log.mediaUrl && (
-                        <div className="ml-4">
+                        <div className="w-full sm:w-auto sm:ml-4">
                           {log.contentType === 'image' ? (
                             <img
                               src={log.mediaUrl}
                               alt="Generated content"
-                              className="w-24 h-24 object-cover rounded-md"
+                              className="w-full sm:w-20 md:w-24 h-auto sm:h-20 md:h-24 object-cover rounded-md"
                             />
                           ) : (
-                            <div className="w-24 h-24 bg-muted rounded-md flex items-center justify-center">
-                              <Video className="h-8 w-8 text-muted-foreground" />
+                            <div className="w-full sm:w-20 md:w-24 h-32 sm:h-20 md:h-24 bg-muted rounded-md flex items-center justify-center">
+                              <Video className="h-6 w-6 sm:h-8 sm:w-8 text-muted-foreground" />
                             </div>
                           )}
                         </div>
@@ -178,6 +178,7 @@ export function MotivationalQuoteHistory() {
                         <Button
                           variant="outline"
                           size="sm"
+                          className="h-8 sm:h-9 text-xs w-full sm:w-auto"
                           asChild
                         >
                           <a
@@ -185,8 +186,8 @@ export function MotivationalQuoteHistory() {
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            <ExternalLink className="h-3 w-3 mr-2" />
-                            View on Instagram
+                            <ExternalLink className="h-3 w-3 mr-1 sm:mr-2" />
+                            <span className="text-xs">View on Instagram</span>
                           </a>
                         </Button>
                       </div>
