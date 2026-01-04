@@ -115,11 +115,11 @@ export async function POST(request: NextRequest) {
         // Determine actual content type (for future 'both' support)
         const actualContentType: 'image' | 'video' = accountConfig.contentType as 'image' | 'video';
 
-        // Get recent quotes to avoid duplication (last 20 for better variety)
+        // Get recent quotes to avoid duplication (last 50 for better variety)
         const recentLogs = await APIBook.motivationalAutoPostLog.getRecentLogs(
           effectiveUserId,
           accountConfig.accountId,
-          20 // Increased from 10 to 20 for better duplication prevention
+          50 // Increased to 50 to prevent quote repetition even with different backgrounds
         );
         const recentQuotes = recentLogs
           .filter((log): log is string => typeof log === 'string' && !!log);
@@ -136,6 +136,26 @@ export async function POST(request: NextRequest) {
           style: accountConfig.style,
           recentQuotes,
         });
+
+        // Additional safety check: Verify the generated quote is not an exact duplicate
+        const isDuplicate = await APIBook.motivationalAutoPostLog.isQuoteDuplicate(
+          effectiveUserId,
+          quoteData.quoteText,
+          accountConfig.accountId,
+          30 // Check last 30 days
+        );
+
+        if (isDuplicate) {
+          console.warn(`⚠️ [Module 9] Generated quote is a duplicate, generating a new one...`);
+          // Force retry with the duplicate added to avoidance list
+          quoteData = await APIBook.motivationalPromptRefiner.generateUniqueQuote({
+            category: accountConfig.category,
+            themeDescription: `${accountConfig.category.charAt(0).toUpperCase() + accountConfig.category.slice(1)} quotes in ${accountConfig.style} style - MUST BE COMPLETELY DIFFERENT`,
+            contentType: actualContentType,
+            style: accountConfig.style,
+            recentQuotes: [...recentQuotes, quoteData.quoteText, '__FORCE_UNIQUE__'],
+          });
+        }
 
         console.log(`✨ Generated quote: "${quoteData.quoteText.substring(0, 60)}..."`);
         console.log(`🎨 Visual style: ${accountConfig.style}`);

@@ -91,12 +91,69 @@ export const MotivationalAutoPostLogService = {
       }
 
       const snapshot = await getDocs(q);
-      return snapshot.docs
+      const quotes = snapshot.docs
         .map(doc => doc.data().quoteText)
         .filter((text): text is string => typeof text === 'string' && !!text);
+      
+      // Log for debugging duplicate issues
+      console.log(`📊 [Module 9 Log] Retrieved ${quotes.length} recent quotes for deduplication check`);
+      
+      return quotes;
     } catch (error) {
       console.error('Error getting recent logs:', error);
       return [];
+    }
+  },
+
+  /**
+   * Check if a quote text already exists in recent logs (exact match)
+   */
+  async isQuoteDuplicate(userId: string, quoteText: string, accountId?: string, daysToCheck: number = 30): Promise<boolean> {
+    try {
+      // Calculate timestamp for X days ago
+      const daysAgo = new Date();
+      daysAgo.setDate(daysAgo.getDate() - daysToCheck);
+      const timestampLimit = Timestamp.fromDate(daysAgo);
+
+      // Normalize quote text for comparison (remove extra spaces, lowercase)
+      const normalizedQuote = quoteText.toLowerCase().trim().replace(/\s+/g, ' ');
+
+      let q;
+      if (accountId) {
+        q = query(
+          collection(db, 'motivational_auto_post_logs'),
+          where('userId', '==', userId),
+          where('accountId', '==', accountId),
+          where('timestamp', '>=', timestampLimit),
+          orderBy('timestamp', 'desc')
+        );
+      } else {
+        q = query(
+          collection(db, 'motivational_auto_post_logs'),
+          where('userId', '==', userId),
+          where('timestamp', '>=', timestampLimit),
+          orderBy('timestamp', 'desc')
+        );
+      }
+
+      const snapshot = await getDocs(q);
+      
+      // Check for exact match (normalized)
+      for (const doc of snapshot.docs) {
+        const existingQuote = doc.data().quoteText;
+        if (existingQuote) {
+          const normalizedExisting = existingQuote.toLowerCase().trim().replace(/\s+/g, ' ');
+          if (normalizedExisting === normalizedQuote) {
+            console.warn(`⚠️ [Module 9 Log] Duplicate quote detected: "${quoteText.substring(0, 60)}..."`);
+            return true;
+          }
+        }
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error checking quote duplicate:', error);
+      return false; // On error, allow posting (better than blocking)
     }
   },
 

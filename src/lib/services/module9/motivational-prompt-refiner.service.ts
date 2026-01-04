@@ -57,7 +57,7 @@ export const MotivationalPromptRefinerService = {
       }
 
       const avoidanceText = context.recentQuotes.length > 0
-        ? `\n\n🚫 RECENT QUOTES (MUST BE COMPLETELY DIFFERENT - use different words, structures, and themes):\n${context.recentQuotes.map((q, i) => `${i + 1}. "${q}"`).join('\n')}`
+        ? `\n\n🚫 RECENT QUOTES - CRITICAL: MUST AVOID THESE (DO NOT use same words, themes, or similar structures):\n${context.recentQuotes.map((q, i) => `${i + 1}. "${q}"`).join('\n')}\n\n⚠️ ANTI-DUPLICATION RULES:\n- Your quote MUST have <60% word overlap with any recent quote\n- Use DIFFERENT themes, metaphors, and message angles\n- If a recent quote talks about 'dreams', talk about 'action' or 'character' instead\n- Vary sentence structure: if recent quotes use statements, try questions or imperatives\n- Think of completely new angles and perspectives on ${context.category}`
         : '';
 
       const templateText = context.quoteTemplate
@@ -304,17 +304,23 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
         const intersection = new Set(genWordsArray.filter(w => recentWords.has(w)));
         const similarity = intersection.size / Math.min(genWords.size, recentWords.size);
         
-        return similarity > 0.7; // 70% word overlap threshold
+        // Stricter threshold: 60% similarity triggers duplicate detection
+        return similarity > 0.6; // Lowered from 0.7 to prevent near-duplicate quotes
       });
 
       if (isTooSimilar) {
-        console.warn('⚠️ [Module 9] Generated quote too similar to recent ones, retrying...');
+        console.warn('⚠️ [Module 9] Generated quote too similar to recent ones');
+        console.warn('   Generated:', generatedQuote.substring(0, 80));
+        console.warn('   Retrying with more strict uniqueness requirements...');
         // Retry once with different variation
         if (!context.recentQuotes.includes('__RETRY__')) {
           return this.generateUniqueQuote({
             ...context,
             recentQuotes: [...context.recentQuotes, generatedQuote, '__RETRY__'],
           });
+        } else {
+          console.warn('⚠️ [Module 9] Retry limit reached, using fallback quote');
+          return this.generateFallbackQuote(context);
         }
       }
 
