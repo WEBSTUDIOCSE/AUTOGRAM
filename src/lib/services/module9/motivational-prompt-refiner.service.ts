@@ -58,7 +58,7 @@ export const MotivationalPromptRefinerService = {
       }
 
       const avoidanceText = context.recentQuotes.length > 0
-        ? `\n\n🚫 RECENT QUOTES - CRITICAL: MUST AVOID THESE (DO NOT use same words, themes, or similar structures):\n${context.recentQuotes.map((q, i) => `${i + 1}. "${q}"`).join('\n')}\n\n⚠️ ANTI-DUPLICATION RULES:\n- Your quote MUST have <60% word overlap with any recent quote\n- Use DIFFERENT themes, metaphors, and message angles\n- If a recent quote talks about 'dreams', talk about 'action' or 'character' instead\n- Vary sentence structure: if recent quotes use statements, try questions or imperatives\n- Think of completely new angles and perspectives on ${context.category}`
+        ? `\n\n🚫 RECENT QUOTES - CRITICAL: MUST AVOID THESE (DO NOT use same words, themes, or similar structures):\n${context.recentQuotes.map((q, i) => `${i + 1}. "${q}"`).join('\n')}\n\n⚠️ ANTI-DUPLICATION RULES:\n- Your quote MUST have <50% word overlap with any recent quote (STRICTER than before)\n- Use COMPLETELY DIFFERENT themes, metaphors, and message angles\n- If a recent quote talks about 'dreams', talk about 'action', 'character', 'wisdom', or 'preparation' instead\n- Vary sentence structure: if recent quotes use statements, try questions or imperatives\n- Think of completely new angles and perspectives on ${context.category}\n- Avoid common motivational clichés already in the list\n- Each quote must feel FRESH and UNIQUE in message and delivery`
         : '';
 
       const templateText = context.quoteTemplate
@@ -75,6 +75,16 @@ export const MotivationalPromptRefinerService = {
         'a future-focused vision statement',
       ];
       const randomVariation = variations[Math.floor(Math.random() * variations.length)];
+
+      // Add unique timestamp-based seed to prevent AI caching
+      const uniqueSeed = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
+      
+      // Add randomness context to force variation
+      const randomnessBoost = Math.random() > 0.5 
+        ? 'Be bold and unexpected in your word choices.' 
+        : 'Use fresh perspectives and uncommon phrasing.';
+
+      console.log(`🎲 [Generation Seed] ${uniqueSeed} | Variation: ${randomVariation}`);
 
       // Language configuration
       const language = context.language || 'english';
@@ -99,6 +109,9 @@ export const MotivationalPromptRefinerService = {
       const langConfig = languageInstructions[language];
 
       const generationPrompt = `You are an elite motivational quote creator specializing in profound, meaningful wisdom that resonates deeply with audiences.
+
+🎲 GENERATION SEED: ${uniqueSeed} - This ensures every generation is unique
+🔀 RANDOMNESS BOOST: ${randomnessBoost}
 
 STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
 "The best way to predict your future is to create it."
@@ -321,7 +334,7 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
       const generatedQuote = parsed.quoteText.toLowerCase().trim();
       const isTooSimilar = context.recentQuotes.some(recent => {
         const recentLower = recent.toLowerCase().trim();
-        // Check if quotes are identical or very similar (>70% word overlap)
+        // Check if quotes are identical or very similar (>50% word overlap)
         if (generatedQuote === recentLower) return true;
         
         const genWords = new Set(generatedQuote.split(/\s+/));
@@ -330,8 +343,14 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
         const intersection = new Set(genWordsArray.filter(w => recentWords.has(w)));
         const similarity = intersection.size / Math.min(genWords.size, recentWords.size);
         
-        // Stricter threshold: 60% similarity triggers duplicate detection
-        return similarity > 0.6; // Lowered from 0.7 to prevent near-duplicate quotes
+        // Much stricter threshold: 50% similarity triggers duplicate detection (was 60%)
+        if (similarity > 0.5) {
+          console.warn(`⚠️ [Similarity Check] ${(similarity * 100).toFixed(1)}% overlap detected`);
+          console.warn(`   Generated: "${generatedQuote.substring(0, 60)}..."`);
+          console.warn(`   Similar to: "${recentLower.substring(0, 60)}..."`);
+          return true;
+        }
+        return false;
       });
 
       if (isTooSimilar) {

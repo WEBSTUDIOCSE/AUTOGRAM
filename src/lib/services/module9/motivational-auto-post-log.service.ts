@@ -79,6 +79,7 @@ export const MotivationalAutoPostLogService = {
           collection(db, 'motivational_auto_post_logs'),
           where('userId', '==', userId),
           where('accountId', '==', accountId),
+          where('status', '==', 'success'), // ✅ Only fetch successfully posted quotes
           orderBy('timestamp', 'desc'),
           limit(count)
         );
@@ -87,6 +88,7 @@ export const MotivationalAutoPostLogService = {
         q = query(
           collection(db, 'motivational_auto_post_logs'),
           where('userId', '==', userId),
+          where('status', '==', 'success'), // ✅ Only fetch successfully posted quotes
           orderBy('timestamp', 'desc'),
           limit(count)
         );
@@ -98,7 +100,10 @@ export const MotivationalAutoPostLogService = {
         .filter((text): text is string => typeof text === 'string' && !!text);
       
       // Log for debugging duplicate issues
-      console.log(`📊 [Module 9 Log] Retrieved ${quotes.length} recent quotes for deduplication check`);
+      console.log(`📊 [Module 9 Log] Retrieved ${quotes.length} recent SUCCESSFUL quotes for deduplication check`);
+      if (quotes.length > 0) {
+        console.log(`   Last 3 quotes: ${quotes.slice(0, 3).map(q => `"${q.substring(0, 40)}..."`).join(', ')}`);
+      }
       
       return quotes;
     } catch (error) {
