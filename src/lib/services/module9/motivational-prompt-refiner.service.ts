@@ -147,6 +147,9 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
    - Create a SHORT catchy title (2-5 words)
    - Should capture the essence of the wisdom
    - Examples: "Shape Your Future", "The Real Thing", "Walk Forward Always"
+   - NOTE: This title will be used in Instagram caption (not the full quote)
+   - The Instagram caption will be: Title + Author (if any) + Hashtags
+   - The full quote text MUST be embedded in the image itself (compulsory)
    
 💡 **Creative Techniques to Use**:
    - Use concrete metaphors (like tree/shadow, walking, building, etc.)
@@ -162,11 +165,14 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
    
    🚨 CRITICAL LANGUAGE REQUIREMENT: ${langConfig.textInstruction}
    
+   🚨 CRITICAL: The COMPLETE quote text MUST be embedded as readable text in the image - this is MANDATORY!
+   
    CRITICAL: Analyze the quote's meaning and theme FIRST, then design visuals that REFLECT that meaning.
    
    ${context.style === 'custom' ? `
    - BACKGROUND: Pure black background (#000000), completely solid
-   - QUOTE TEXT: The complete quote must be prominently displayed as the main element
+   - QUOTE TEXT: The COMPLETE quote must be prominently displayed as the MAIN and ONLY element
+   - IMPORTANT: The quote will NOT appear in Instagram caption, so it MUST be fully readable in the image
    - TYPOGRAPHY: Select font that matches quote's tone (modern sans-serif for action quotes, elegant serif for wisdom quotes)
    - FONT EXAMPLES: Helvetica/Open Sans for bold action, Playfair Display/Merriweather for wisdom, Montserrat for balance
    - TEXT SIZE: Large enough to be easily readable on mobile (minimum 24px equivalent)
@@ -186,7 +192,8 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
      * Action/Success quotes → Dynamic elements, movement, energy, vibrant gradients
      * Reflection/Life quotes → Calm scenes, water, horizons, peaceful atmospheres
    
-   - QUOTE INTEGRATION: The complete motivational quote MUST be embedded in the image as readable text
+   - QUOTE INTEGRATION: The COMPLETE motivational quote MUST be embedded in the image as readable text (MANDATORY!)
+   - IMPORTANT: The quote will NOT appear in Instagram caption, so it MUST be fully readable in the image
    - TYPOGRAPHY: Font choice must match quote personality:
      * Wisdom/Philosophy → Elegant serif fonts (Playfair Display, Merriweather, Crimson Text)
      * Action/Motivation → Strong sans-serif (Montserrat Bold, Poppins SemiBold, Raleway Bold)
@@ -199,6 +206,7 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
      * Gold/Warm tones for wisdom quotes
      * Bold colors for action quotes
    - TEXT EFFECTS: Subtle shadows, outlines, or glows if needed for readability
+   - NO AUTHOR TEXT ON IMAGE: Author attribution will be in caption only
    - BACKGROUND DETAILS: ${context.style} aesthetic that CONNECTS to the quote's metaphor or message
    ${context.contentType === 'image' ? `
    - COMPOSITION: Balanced layout with quote as the hero element

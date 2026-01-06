@@ -254,10 +254,15 @@ export async function POST(request: NextRequest) {
           console.log(`✅ Video uploaded to Firebase: ${firebaseMediaUrl.substring(0, 80)}...`);
         }
 
-        // Create caption with quote
+        // Create short caption (quote is in the image itself)
         const hashtags = quoteData.suggestedHashtags || '#motivation #inspiration #quotes #motivationalquotes #success #mindset #positivevibes';
-        const authorLine = quoteData.author ? `— ${quoteData.author}\n\n` : '';
-        const caption = `${quoteData.title}\n\n${authorLine}${hashtags}`;
+        
+        // Build caption: title + author (if any) + hashtags
+        let caption = quoteData.title;
+        if (quoteData.author && quoteData.author.trim() !== '') {
+          caption += `\n— ${quoteData.author}`;
+        }
+        caption += `\n\n${hashtags}`;
 
         // Post to Instagram using InstagramService directly
         console.log(`📸 [STEP 3/4] Posting to Instagram account: ${instagramAccount.id}...`);
