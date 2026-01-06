@@ -364,8 +364,8 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
             recentQuotes: [...context.recentQuotes, generatedQuote, '__RETRY__'],
           });
         } else {
-          console.warn('⚠️ [Module 9] Retry limit reached, using fallback quote');
-          return this.generateFallbackQuote(context);
+          console.error('❌ [Module 9] Retry limit reached, failed to generate unique quote');
+          throw new Error('Failed to generate unique quote after multiple attempts');
         }
       }
 
@@ -382,37 +382,92 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
 
     } catch (error) {
       console.error('❌ [Module 9] Quote generation error:', error);
+      console.error('❌ [Module 9] Error details:', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        category: context.category,
+        style: context.style,
+        language: context.language,
+      });
       
-      // Fallback to simple generation
-      return this.generateFallbackQuote(context);
+      // Try one more time with a simpler prompt
+      try {
+        console.log('🔄 [Module 9] Retrying with simplified prompt...');
+        return await this.generateSimpleQuote(context);
+      } catch (retryError) {
+        console.error('❌ [Module 9] Both generation attempts failed. No fallback quotes available.');
+        console.error('❌ [Module 9] Retry error:', retryError);
+        // Throw error - no fallback quotes, only dynamic generation
+        throw new Error(`Failed to generate unique quote after retry. Original error: ${error instanceof Error ? error.message : String(error)}`);
+      }
     }
   },
 
   /**
-   * Fallback quote generation (if AI fails)
+   * Simplified quote generation (retry before fallback)
+   * Uses a much simpler prompt that's less likely to fail
    */
-  generateFallbackQuote(context: MotivationalGenerationContext): GeneratedMotivationalContent {
-    const fallbackQuotes = {
-      success: "The measure of success is not in never falling, but in rising every time we fall.",
-      mindset: "What we think, we become. What we feel, we attract. What we imagine, we create.",
-      motivation: "The difference between who you are and who you want to be is what you do.",
-      inspiration: "Your limitation is only your imagination. Push beyond what you think is possible.",
-      life: "Life is not about finding yourself. Life is about creating yourself with every choice you make.",
-      wisdom: "The only true wisdom is in knowing you know nothing, and being open to learning everything.",
-    };
+  async generateSimpleQuote(context: MotivationalGenerationContext): Promise<GeneratedMotivationalContent> {
+    const modelName = getTextModelName();
+    
+    const avoidQuotes = context.recentQuotes.slice(0, 10).join('"\n"');
+    const uniqueSeed = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
 
-    const quoteText = fallbackQuotes[context.category as keyof typeof fallbackQuotes] || fallbackQuotes.motivation;
+    const simplePrompt = `Generate a unique ${context.category} motivational quote.
 
-    const visualPrompt = context.contentType === 'image'
-      ? `Create a ${context.style === 'custom' ? 'minimalist black background image' : `${context.style} style image with thematic background elements that resonate with personal growth and ${context.category}`} featuring the motivational quote "${quoteText}" as the main text element. Use ${context.style === 'custom' ? 'clean white typography on pure black background' : 'modern, elegant typography that matches the wisdom tone of the quote with high contrast'}. Center the text with generous padding and ensure maximum readability on mobile devices.`
-      : `Create a ${context.style} style video with the motivational text "${quoteText}" prominently displayed. Use smooth text animations, elegant transitions, and typography that conveys wisdom and depth. The quote should be the focal point with cinematic quality.`;
+SEED: ${uniqueSeed}
+LANGUAGE: ${context.language || 'english'}
+STYLE: ${context.style}
 
+AVOID THESE RECENT QUOTES:
+"${avoidQuotes}"
+
+Requirements:
+- 80-180 characters
+- Original and unique
+- ${context.language || 'english'} language only
+- Deep, meaningful wisdom
+- Not a cliché
+
+Return ONLY valid JSON:
+{
+  "quoteText": "your unique quote here",
+  "title": "Short Title",
+  "author": "",
+  "visualPrompt": "Visual description for ${context.style} ${context.contentType} with the quote prominently displayed",
+  "suggestedHashtags": "#motivation #inspiration #${context.category}"
+}`;
+
+    const response = await genAI.models.generateContent({
+      model: modelName,
+      contents: simplePrompt,
+    });
+
+    let generatedText = '';
+    if (response.candidates && response.candidates[0]?.content?.parts) {
+      for (const part of response.candidates[0].content.parts) {
+        if (part.text) {
+          generatedText = part.text.trim();
+          break;
+        }
+      }
+    }
+
+    const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('Failed to parse simplified AI response');
+    }
+
+    const parsed = JSON.parse(jsonMatch[0]);
+    
+    console.log('✅ [Module 9] Simple quote generation successful');
+    
     return {
-      quoteText,
-      title: this.generateTitleFromQuote(quoteText),
-      author: undefined,
-      visualPrompt,
-      suggestedHashtags: '#motivation #inspiration #success #mindset #quotes #quoteoftheday #dailymotivation #quotestagram #motivationalquotes #lifequotes #wisdom #personalgrowth #growthmindset #positivevibes #successmindset',
+      quoteText: parsed.quoteText.trim(),
+      title: parsed.title?.trim() || this.generateTitleFromQuote(parsed.quoteText),
+      author: parsed.author && parsed.author.trim() !== '' && parsed.author.toLowerCase() !== 'unknown' ? parsed.author.trim() : undefined,
+      visualPrompt: parsed.visualPrompt.trim(),
+      suggestedHashtags: parsed.suggestedHashtags || '#motivation #inspiration #success',
     };
   },
 
