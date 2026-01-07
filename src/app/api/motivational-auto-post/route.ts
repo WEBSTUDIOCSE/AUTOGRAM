@@ -254,11 +254,11 @@ export async function POST(request: NextRequest) {
           console.log(`✅ Video uploaded to Firebase: ${firebaseMediaUrl.substring(0, 80)}...`);
         }
 
-        // Create short caption (quote is in the image itself)
+        // Create caption with the FULL QUOTE TEXT
         const hashtags = quoteData.suggestedHashtags || '#motivation #inspiration #quotes #motivationalquotes #success #mindset #positivevibes';
         
-        // Build caption: title + author (if any) + hashtags
-        let caption = quoteData.title;
+        // Build caption: title + full quote + author (if any) + hashtags
+        let caption = `${quoteData.title}\n\n"${quoteData.quoteText}"`;
         if (quoteData.author && quoteData.author.trim() !== '') {
           caption += `\n— ${quoteData.author}`;
         }

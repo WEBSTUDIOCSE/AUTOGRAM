@@ -143,10 +143,9 @@ export async function POST(request: NextRequest) {
       console.log(`✅ Video uploaded: ${mediaUrl.substring(0, 80)}...`);
     }
 
-    // Create caption
+    // Create caption with the FULL QUOTE TEXT
     const hashtags = quoteData.suggestedHashtags || '#motivation #inspiration #quotes #motivationalquotes #success #mindset #positivevibes';
-    const authorLine = quoteData.author ? `— ${quoteData.author}\n\n` : '';
-    const caption = `${quoteData.title}\n\n${authorLine}${hashtags}`;
+    const caption = `${quoteData.title}\n\n"${quoteData.quoteText}"${quoteData.author ? `\n— ${quoteData.author}` : ''}\n\n${hashtags}`;  
 
     const duration = Date.now() - startTime;
     console.log(`[Manual Quote Generator] ===== COMPLETED in ${duration}ms =====`);

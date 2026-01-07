@@ -165,14 +165,14 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
    
    🚨 CRITICAL LANGUAGE REQUIREMENT: ${langConfig.textInstruction}
    
-   🚨 CRITICAL: The COMPLETE quote text MUST be embedded as readable text in the image - this is MANDATORY!
+   🚨 IMPORTANT: Design the quote text as a beautiful, readable visual element in the image
    
    CRITICAL: Analyze the quote's meaning and theme FIRST, then design visuals that REFLECT that meaning.
    
    ${context.style === 'custom' ? `
    - BACKGROUND: Pure black background (#000000), completely solid
-   - QUOTE TEXT: The COMPLETE quote must be prominently displayed as the MAIN and ONLY element
-   - IMPORTANT: The quote will NOT appear in Instagram caption, so it MUST be fully readable in the image
+   - QUOTE TEXT: The COMPLETE quote should be prominently displayed as the MAIN and ONLY element
+   - NOTE: The quote will also appear in Instagram caption, so focus on visual design excellence
    - TYPOGRAPHY: Select font that matches quote's tone (modern sans-serif for action quotes, elegant serif for wisdom quotes)
    - FONT EXAMPLES: Helvetica/Open Sans for bold action, Playfair Display/Merriweather for wisdom, Montserrat for balance
    - TEXT SIZE: Large enough to be easily readable on mobile (minimum 24px equivalent)
@@ -192,8 +192,8 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
      * Action/Success quotes → Dynamic elements, movement, energy, vibrant gradients
      * Reflection/Life quotes → Calm scenes, water, horizons, peaceful atmospheres
    
-   - QUOTE INTEGRATION: The COMPLETE motivational quote MUST be embedded in the image as readable text (MANDATORY!)
-   - IMPORTANT: The quote will NOT appear in Instagram caption, so it MUST be fully readable in the image
+   - QUOTE INTEGRATION: The COMPLETE motivational quote should be beautifully designed as readable text within the image
+   - NOTE: The quote will also appear in Instagram caption, so the image serves as a visual enhancement
    - TYPOGRAPHY: Font choice must match quote personality:
      * Wisdom/Philosophy → Elegant serif fonts (Playfair Display, Merriweather, Crimson Text)
      * Action/Motivation → Strong sans-serif (Montserrat Bold, Poppins SemiBold, Raleway Bold)
