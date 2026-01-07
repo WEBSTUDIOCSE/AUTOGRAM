@@ -156,11 +156,13 @@ export async function POST(request: NextRequest) {
         userId: user.uid,
         accountId: 'manual', // Special account ID for manual generations
         category, // Save category
+        subcategory: quoteData.subcategory || '', // Save subcategory
         style,
         contentType: mediaType, // Save content type (image or video)
         language: language || 'english', // Save language
         quoteText: quoteData.quoteText,
         author: quoteData.author || '', // Save author (empty string if none)
+        profession: quoteData.profession || '', // Save profession (empty string if none)
         generatedPrompt: quoteData.visualPrompt,
         mediaUrl,
         caption,

@@ -19,6 +19,8 @@ interface GeneratedMotivationalContent {
   quoteText: string;
   title: string; // Short catchy title for caption
   author?: string;
+  profession?: string; // Author's profession (e.g., "Entrepreneur", "Philosopher", "Author")
+  subcategory: string; // Specific theme within category (AI-generated based on quote content)
   visualPrompt: string; // For AI image/video generation
   suggestedHashtags: string;
 }
@@ -150,6 +152,20 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
    - NOTE: This title will be used in Instagram caption (not the full quote)
    - The Instagram caption will be: Title + Author (if any) + Hashtags
    - The full quote text MUST be embedded in the image itself (compulsory)
+
+🏷️ **Subcategory Requirements**:
+   - Generate a specific subcategory (single word or 2-word phrase) that captures the quote's CORE THEME
+   - Must be relevant to main category: ${context.category}
+   - Examples based on category:
+     * success → "achievement", "goals", "ambition", "excellence", "winning mindset"
+     * mindset → "growth", "resilience", "perspective", "mental strength", "attitude"
+     * motivation → "action", "perseverance", "determination", "drive", "hustle"
+     * inspiration → "dreams", "possibilities", "courage", "hope", "belief"
+     * life → "purpose", "balance", "gratitude", "journey", "fulfillment"
+     * wisdom → "knowledge", "truth", "understanding", "experience", "insight"
+     * productivity → "habits", "focus", "decision-making", "deep work", "efficiency"
+   - Choose subcategory based on the ACTUAL QUOTE CONTENT, not randomly
+   - Use lowercase, no special characters
    
 💡 **Creative Techniques to Use**:
    - Use concrete metaphors (like tree/shadow, walking, building, etc.)
@@ -253,6 +269,8 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
 ✓ Action-oriented, noprofound, meaningful quote here (80-180 characters)",
   "title": "Short Catchy Title", 
   "author": "",
+  "profession": "",
+  "subcategory": "specific-theme",
   "visualPrompt": "Create a ${context.style === 'custom' ? 'minimalist black background image' : `${context.style} style ${context.contentType}`} with the text '[INSERT COMPLETE QUOTE TEXT HERE]' prominently displayed. [Continue with detailed 200+ word visual description that ANALYZES the quote's meaning and designs visuals to MATCH that meaning. Include typography choice based on quote tone, background elements that symbolize the quote's message, color palette that evokes the right emotion, and complete styling specifications.]",
   "suggestedHashtags": "#motivation #success #category1 #category2 #category3 #quoteoftheday #quotestagram #quotesdaily #motivationalpost ... (15-20 total)"
 }
@@ -260,7 +278,11 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
 🔑 CRITICAL INSTRUCTIONS:
 1. **AUTHOR FIELD**: Leave author empty "" UNLESS the quote style genuinely matches a specific historical figure. Do NOT use "Unknown" or generic attributions.
 
-2. **VISUAL PROMPT**: Must be 200+ words and follow this structure:
+2. **PROFESSION FIELD**: If you provide an author, also provide their profession (e.g., "Entrepreneur", "Philosopher", "Author", "Scientist", "Business Leader", "Poet"). If no author, leave profession empty "".
+
+3. **SUBCATEGORY FIELD**: REQUIRED - Must provide a specific subcategory (lowercase, 1-2 words) that matches the quote's actual theme within the ${context.category} category. Analyze the quote content and choose the most relevant subcategory.
+
+4. **VISUAL PROMPT**: Must be 200+ words and follow this structure:
    - First, analyze what the quote means and its core message
    - Then specify background that SYMBOLIZES that message
    - Choose typography that matches the quote's personality (wisdom=serif, action=bold sans)
@@ -268,7 +290,7 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
    - Include exact quote text: "Display the text '[ACTUAL QUOTE]' in [specific font] font..."
    - Describe how ALL visual elements connect to the quote's theme
 
-3. **HASHTAGS**: Generate 15-20 hashtags with strong category relevance, mixing reach levels
+5. **HASHTAGS**: Generate 15-20 hashtags with strong category relevance, mixing reach levels
 
 🚀 REMEMBER: Create profound wisdom that resonates deeply, paired with visuals that amplify the messag
 
@@ -379,11 +401,14 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
 
       console.log('✅ [Module 9] Generated unique motivational quote');
       console.log('   Quote:', parsed.quoteText.substring(0, 60) + '...');
+      console.log('   Subcategory:', parsed.subcategory || 'not provided');
 
       return {
         quoteText: parsed.quoteText.trim(),
         title: parsed.title?.trim() || this.generateTitleFromQuote(parsed.quoteText),
         author: parsed.author && parsed.author.trim() !== '' && parsed.author.toLowerCase() !== 'unknown' ? parsed.author.trim() : undefined,
+        profession: parsed.profession && parsed.profession.trim() !== '' && parsed.profession.toLowerCase() !== 'unknown' ? parsed.profession.trim() : undefined,
+        subcategory: parsed.subcategory?.trim().toLowerCase() || 'general',
         visualPrompt: processedVisualPrompt.trim(),
         suggestedHashtags: parsed.suggestedHashtags || '#motivation #inspiration #success',
       };
@@ -442,6 +467,8 @@ Return ONLY valid JSON:
   "quoteText": "your unique quote here",
   "title": "Short Title",
   "author": "",
+  "profession": "",
+  "subcategory": "specific-theme",
   "visualPrompt": "Visual description for ${context.style} ${context.contentType} with the quote prominently displayed",
   "suggestedHashtags": "#motivation #inspiration #${context.category}"
 }`;
@@ -469,11 +496,14 @@ Return ONLY valid JSON:
     const parsed = JSON.parse(jsonMatch[0]);
     
     console.log('✅ [Module 9] Simple quote generation successful');
+    console.log('   Subcategory:', parsed.subcategory || 'not provided');
     
     return {
       quoteText: parsed.quoteText.trim(),
       title: parsed.title?.trim() || this.generateTitleFromQuote(parsed.quoteText),
       author: parsed.author && parsed.author.trim() !== '' && parsed.author.toLowerCase() !== 'unknown' ? parsed.author.trim() : undefined,
+      profession: parsed.profession && parsed.profession.trim() !== '' && parsed.profession.toLowerCase() !== 'unknown' ? parsed.profession.trim() : undefined,
+      subcategory: parsed.subcategory?.trim().toLowerCase() || 'general',
       visualPrompt: parsed.visualPrompt.trim(),
       suggestedHashtags: parsed.suggestedHashtags || '#motivation #inspiration #success',
     };

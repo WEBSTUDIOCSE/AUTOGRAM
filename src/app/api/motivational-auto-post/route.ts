@@ -103,11 +103,13 @@ export async function POST(request: NextRequest) {
           userId: effectiveUserId,
           accountId: accountConfig.accountId,
           category: accountConfig.category,
+          subcategory: '', // Will be updated after quote generation
           style: accountConfig.style,
           contentType: accountConfig.contentType,
           language: accountConfig.language || 'english', // Default to English if not specified
           quoteText: '',
           author: '', // Initialize as empty string
+          profession: '', // Initialize as empty string
           generatedPrompt: '',
           mediaUrl: '',
           caption: '',
@@ -290,6 +292,8 @@ export async function POST(request: NextRequest) {
           status: 'success',
           quoteText: quoteData.quoteText,
           author: quoteData.author || '', // Always save as empty string if no author
+          profession: quoteData.profession || '', // Save profession or empty string
+          subcategory: quoteData.subcategory || '', // Save subcategory
           mediaUrl: firebaseMediaUrl, // Store Firebase URL
           generatedPrompt: quoteData.visualPrompt,
           caption,
@@ -321,6 +325,8 @@ export async function POST(request: NextRequest) {
             ...(quoteData && { 
               quoteText: quoteData.quoteText,
               author: quoteData.author || '', // Always save as empty string if no author
+              profession: quoteData.profession || '', // Save profession
+              subcategory: quoteData.subcategory || '', // Save subcategory
             }),
           });
         } catch (updateError) {
