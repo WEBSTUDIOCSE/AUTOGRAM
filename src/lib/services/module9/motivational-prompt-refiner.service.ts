@@ -20,7 +20,8 @@ interface GeneratedMotivationalContent {
   title: string; // Short catchy title for caption
   author?: string;
   profession?: string; // Author's profession (e.g., "Entrepreneur", "Philosopher", "Author")
-  subcategory: string; // Specific theme within category (AI-generated based on quote content)
+  subcategory: string; // Primary subcategory (for backward compatibility)
+  subcategories: string[]; // 2-4 specific themes within category (AI-generated based on quote content)
   visualPrompt: string; // For AI image/video generation
   suggestedHashtags: string;
 }
@@ -153,8 +154,8 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
    - The Instagram caption will be: Title + Author (if any) + Hashtags
    - The full quote text MUST be embedded in the image itself (compulsory)
 
-🏷️ **Subcategory Requirements**:
-   - Generate a specific subcategory (single word or 2-word phrase) that captures the quote's CORE THEME
+🏷️ **Subcategories Requirements**:
+   - Generate 2-4 specific subcategories (single word or 2-word phrases) that capture different aspects of the quote's themes
    - Must be relevant to main category: ${context.category}
    - Examples based on category:
      * success → "achievement", "goals", "ambition", "excellence", "winning mindset"
@@ -164,8 +165,9 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
      * life → "purpose", "balance", "gratitude", "journey", "fulfillment"
      * wisdom → "knowledge", "truth", "understanding", "experience", "insight"
      * productivity → "habits", "focus", "decision-making", "deep work", "efficiency"
-   - Choose subcategory based on the ACTUAL QUOTE CONTENT, not randomly
+   - Choose subcategories based on the ACTUAL QUOTE CONTENT, analyzing different themes present
    - Use lowercase, no special characters
+   - Minimum 2, maximum 4 subcategories
    
 💡 **Creative Techniques to Use**:
    - Use concrete metaphors (like tree/shadow, walking, building, etc.)
@@ -270,7 +272,7 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
   "title": "Short Catchy Title", 
   "author": "",
   "profession": "",
-  "subcategory": "specific-theme",
+  "subcategories": ["theme1", "theme2", "theme3"],
   "visualPrompt": "Create a ${context.style === 'custom' ? 'minimalist black background image' : `${context.style} style ${context.contentType}`} with the text '[INSERT COMPLETE QUOTE TEXT HERE]' prominently displayed. [Continue with detailed 200+ word visual description that ANALYZES the quote's meaning and designs visuals to MATCH that meaning. Include typography choice based on quote tone, background elements that symbolize the quote's message, color palette that evokes the right emotion, and complete styling specifications.]",
   "suggestedHashtags": "#motivation #success #category1 #category2 #category3 #quoteoftheday #quotestagram #quotesdaily #motivationalpost ... (15-20 total)"
 }
@@ -280,7 +282,7 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
 
 2. **PROFESSION FIELD**: If you provide an author, also provide their profession (e.g., "Entrepreneur", "Philosopher", "Author", "Scientist", "Business Leader", "Poet"). If no author, leave profession empty "".
 
-3. **SUBCATEGORY FIELD**: REQUIRED - Must provide a specific subcategory (lowercase, 1-2 words) that matches the quote's actual theme within the ${context.category} category. Analyze the quote content and choose the most relevant subcategory.
+3. **SUBCATEGORIES FIELD**: REQUIRED - Must provide 2-4 specific subcategories (lowercase, 1-2 words each) in an array format that match different themes present in the quote within the ${context.category} category. Analyze the quote content and choose the most relevant subcategories.
 
 4. **VISUAL PROMPT**: Must be 200+ words and follow this structure:
    - First, analyze what the quote means and its core message
@@ -401,14 +403,27 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
 
       console.log('✅ [Module 9] Generated unique motivational quote');
       console.log('   Quote:', parsed.quoteText.substring(0, 60) + '...');
-      console.log('   Subcategory:', parsed.subcategory || 'not provided');
+      console.log('   Subcategories:', parsed.subcategories || 'not provided');
+
+      const subcategoriesArray = Array.isArray(parsed.subcategories) 
+        ? parsed.subcategories.map((s: string) => s.trim().toLowerCase())
+        : [];
+      
+      // Ensure we have 2-4 subcategories, add fallback if needed
+      if (subcategoriesArray.length < 2) {
+        subcategoriesArray.push('general');
+      }
+      if (subcategoriesArray.length < 2) {
+        subcategoriesArray.push('inspiration');
+      }
 
       return {
         quoteText: parsed.quoteText.trim(),
         title: parsed.title?.trim() || this.generateTitleFromQuote(parsed.quoteText),
         author: parsed.author && parsed.author.trim() !== '' && parsed.author.toLowerCase() !== 'unknown' ? parsed.author.trim() : undefined,
         profession: parsed.profession && parsed.profession.trim() !== '' && parsed.profession.toLowerCase() !== 'unknown' ? parsed.profession.trim() : undefined,
-        subcategory: parsed.subcategory?.trim().toLowerCase() || 'general',
+        subcategory: subcategoriesArray[0] || 'general', // Primary for backward compatibility
+        subcategories: subcategoriesArray.slice(0, 4), // Limit to max 4
         visualPrompt: processedVisualPrompt.trim(),
         suggestedHashtags: parsed.suggestedHashtags || '#motivation #inspiration #success',
       };
@@ -468,7 +483,7 @@ Return ONLY valid JSON:
   "title": "Short Title",
   "author": "",
   "profession": "",
-  "subcategory": "specific-theme",
+  "subcategories": ["theme1", "theme2"],
   "visualPrompt": "Visual description for ${context.style} ${context.contentType} with the quote prominently displayed",
   "suggestedHashtags": "#motivation #inspiration #${context.category}"
 }`;
@@ -496,14 +511,27 @@ Return ONLY valid JSON:
     const parsed = JSON.parse(jsonMatch[0]);
     
     console.log('✅ [Module 9] Simple quote generation successful');
-    console.log('   Subcategory:', parsed.subcategory || 'not provided');
+    console.log('   Subcategories:', parsed.subcategories || 'not provided');
+    
+    const subcategoriesArray = Array.isArray(parsed.subcategories) 
+      ? parsed.subcategories.map((s: string) => s.trim().toLowerCase())
+      : [];
+    
+    // Ensure we have 2-4 subcategories, add fallback if needed
+    if (subcategoriesArray.length < 2) {
+      subcategoriesArray.push('general');
+    }
+    if (subcategoriesArray.length < 2) {
+      subcategoriesArray.push('inspiration');
+    }
     
     return {
       quoteText: parsed.quoteText.trim(),
       title: parsed.title?.trim() || this.generateTitleFromQuote(parsed.quoteText),
       author: parsed.author && parsed.author.trim() !== '' && parsed.author.toLowerCase() !== 'unknown' ? parsed.author.trim() : undefined,
       profession: parsed.profession && parsed.profession.trim() !== '' && parsed.profession.toLowerCase() !== 'unknown' ? parsed.profession.trim() : undefined,
-      subcategory: parsed.subcategory?.trim().toLowerCase() || 'general',
+      subcategory: subcategoriesArray[0] || 'general', // Primary for backward compatibility
+      subcategories: subcategoriesArray.slice(0, 4), // Limit to max 4
       visualPrompt: parsed.visualPrompt.trim(),
       suggestedHashtags: parsed.suggestedHashtags || '#motivation #inspiration #success',
     };

@@ -156,7 +156,8 @@ export async function POST(request: NextRequest) {
         userId: user.uid,
         accountId: 'manual', // Special account ID for manual generations
         category, // Save category
-        subcategory: quoteData.subcategory || '', // Save subcategory
+        subcategory: quoteData.subcategory || '', // Save primary subcategory
+        subcategories: quoteData.subcategories || [], // Save all subcategories
         style,
         contentType: mediaType, // Save content type (image or video)
         language: language || 'english', // Save language

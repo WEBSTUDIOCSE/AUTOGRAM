@@ -293,7 +293,8 @@ export async function POST(request: NextRequest) {
           quoteText: quoteData.quoteText,
           author: quoteData.author || '', // Always save as empty string if no author
           profession: quoteData.profession || '', // Save profession or empty string
-          subcategory: quoteData.subcategory || '', // Save subcategory
+          subcategory: quoteData.subcategory || '', // Save primary subcategory
+          subcategories: quoteData.subcategories || [], // Save all subcategories
           mediaUrl: firebaseMediaUrl, // Store Firebase URL
           generatedPrompt: quoteData.visualPrompt,
           caption,
@@ -326,7 +327,8 @@ export async function POST(request: NextRequest) {
               quoteText: quoteData.quoteText,
               author: quoteData.author || '', // Always save as empty string if no author
               profession: quoteData.profession || '', // Save profession
-              subcategory: quoteData.subcategory || '', // Save subcategory
+              subcategory: quoteData.subcategory || '', // Save primary subcategory
+              subcategories: quoteData.subcategories || [], // Save all subcategories
             }),
           });
         } catch (updateError) {

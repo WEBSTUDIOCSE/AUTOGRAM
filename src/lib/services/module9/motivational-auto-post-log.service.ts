@@ -10,7 +10,8 @@ export interface MotivationalAutoPostLog {
   userId: string;
   accountId: string;
   category: string; // Always saved: success, mindset, motivation, inspiration, life, wisdom, productivity
-  subcategory: string; // Specific theme within category (e.g., habits, focus, decision-making)
+  subcategory: string; // Primary subcategory (for backward compatibility)
+  subcategories?: string[]; // 2-4 specific themes within category
   style: string;
   contentType: 'image' | 'video'; // Always saved: image or video type
   language?: string; // Language of the quote (english, hindi, marathi)
