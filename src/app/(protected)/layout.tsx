@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   description: 'Manage your account',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function ProtectedLayout({
   children,
 }: {

@@ -43,12 +43,34 @@ export function MotivationalQuoteGenerator() {
       if (!user) return;
       
       try {
-        const accounts = await APIBook.instagramAccounts.list(user.uid);
-        setInstagramAccounts(accounts);
+        const accounts = APIBook.instagram.getAccounts();
+        
+        // Fetch real usernames from Instagram API
+        const accountsWithUsernames = await Promise.all(
+          accounts.map(async (account) => {
+            try {
+              const response = await fetch(
+                `https://graph.facebook.com/v18.0/${account.accountId}?fields=username,name&access_token=${account.accessToken}`
+              );
+              const data = await response.json();
+              
+              return {
+                ...account,
+                username: data.username || account.username,
+                name: data.name || account.name
+              };
+            } catch (err) {
+              console.error(`Failed to fetch username for account ${account.accountId}:`, err);
+              return account;
+            }
+          })
+        );
+        
+        setInstagramAccounts(accountsWithUsernames);
         
         // Auto-select first account if available
-        if (accounts.length > 0 && !selectedAccountId) {
-          setSelectedAccountId(accounts[0].id);
+        if (accountsWithUsernames.length > 0 && !selectedAccountId) {
+          setSelectedAccountId(accountsWithUsernames[0].id);
         }
       } catch (error) {
         console.error('Failed to load Instagram accounts:', error);
