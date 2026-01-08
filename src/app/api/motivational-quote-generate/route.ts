@@ -7,6 +7,7 @@ import { UserPreferencesService } from '@/lib/firebase/services/user-preferences
 import { UnifiedImageStorageService } from '@/lib/services/unified/image-storage.service';
 import { VideoStorageService } from '@/lib/services/video-storage.service';
 import { getModelById } from '@/lib/services/image-generation/model-registry';
+import { MotivationalBlogGeneratorService } from '@/lib/services/module9/motivational-blog-generator.service';
 
 /**
  * Manual Motivational Quote Generator API
@@ -69,6 +70,16 @@ export async function POST(request: NextRequest) {
 
     console.log(`✨ Quote generated: "${quoteData.quoteText.substring(0, 60)}..."`);
 
+    // Strip markdown formatting from quote text (**, __, etc.)
+    const cleanQuoteText = quoteData.quoteText
+      .replace(/\*\*/g, '')  // Remove **
+      .replace(/__/g, '')      // Remove __
+      .replace(/\*/g, '')     // Remove *
+      .replace(/_/g, '')       // Remove _
+      .trim();
+    
+    quoteData.quoteText = cleanQuoteText;
+
     let mediaUrl: string;
     let mediaType: 'image' | 'video' = contentType;
 
@@ -83,9 +94,12 @@ export async function POST(request: NextRequest) {
         provider = modelInfo?.provider;
       }
       
+      // Create explicit prompt with exact quote text
+      const explicitPrompt = `CRITICAL: Display this EXACT text prominently on the image: "${cleanQuoteText}"\n\nStyle and composition: ${quoteData.visualPrompt}`;
+      
       // Generate image using unified service with specific model/provider
       const result = await unifiedImageGeneration.generateImage({
-        prompt: quoteData.visualPrompt,
+        prompt: explicitPrompt,
         quality: 'high',
         imageSize: 'square_hd',
         model: textToImageModel,
@@ -121,9 +135,12 @@ export async function POST(request: NextRequest) {
     } else {
       console.log(`🎬 Generating video with model: ${textToVideoModel || 'default'}...`);
       
+      // Create explicit prompt with exact quote text for video
+      const explicitVideoPrompt = `CRITICAL: Display this EXACT text prominently: "${cleanQuoteText}"\n\nStyle and motion: ${quoteData.visualPrompt}`;
+      
       const videoService = new UnifiedVideoGenerationService();
       const videoResult = await videoService.generateVideo({
-        prompt: quoteData.visualPrompt,
+        prompt: explicitVideoPrompt,
         model: textToVideoModel,
         duration: '5',
         aspectRatio: '1:1',
@@ -147,6 +164,31 @@ export async function POST(request: NextRequest) {
     const hashtags = quoteData.suggestedHashtags || '#motivation #inspiration #quotes #motivationalquotes #success #mindset #positivevibes';
     const caption = `${quoteData.title}${quoteData.author ? `\n— ${quoteData.author}` : ''}\n\n${hashtags}`;  
 
+    // Generate blog content
+    console.log(`📝 Generating blog content...`);
+    let blogContent;
+    try {
+      blogContent = await MotivationalBlogGeneratorService.generateBlogContent({
+        quoteText: quoteData.quoteText,
+        author: quoteData.author,
+        profession: quoteData.profession,
+        category,
+        subcategories: quoteData.subcategories || [quoteData.subcategory],
+        language,
+      });
+      console.log(`✅ Blog content generated successfully`);
+    } catch (blogError) {
+      console.error(`⚠️ Blog generation failed, using fallback:`, blogError);
+      blogContent = MotivationalBlogGeneratorService.generateFallbackContent({
+        quoteText: quoteData.quoteText,
+        author: quoteData.author,
+        profession: quoteData.profession,
+        category,
+        subcategories: quoteData.subcategories || [quoteData.subcategory],
+        language,
+      });
+    }
+
     const duration = Date.now() - startTime;
     console.log(`[Manual Quote Generator] ===== COMPLETED in ${duration}ms =====`);
 
@@ -167,9 +209,12 @@ export async function POST(request: NextRequest) {
         generatedPrompt: quoteData.visualPrompt,
         mediaUrl,
         caption,
+        quoteAnalysis: blogContent.quoteAnalysis,
+        practicalApplication: blogContent.practicalApplication,
+        relatedStories: blogContent.relatedStories,
         status: 'success',
       });
-      console.log(`✅ Manual quote saved to log`);
+      console.log(`✅ Manual quote saved to log with blog content`);
     } catch (logError) {
       console.error(`⚠️ Failed to save manual quote to log:`, logError);
       // Don't fail the request if logging fails
@@ -185,7 +230,12 @@ export async function POST(request: NextRequest) {
         mediaType,
         caption,
         category, // Include in response
+        subcategories: quoteData.subcategories || [], // Include subcategories
         language: language || 'english', // Include in response
+        // Include blog content for preview/display
+        quoteAnalysis: blogContent.quoteAnalysis,
+        practicalApplication: blogContent.practicalApplication,
+        relatedStories: blogContent.relatedStories,
       },
       duration: `${duration}ms`,
     });

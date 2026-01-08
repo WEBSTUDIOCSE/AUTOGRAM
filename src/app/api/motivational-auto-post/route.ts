@@ -8,6 +8,7 @@ import { UnifiedImageStorageService } from '@/lib/services/unified/image-storage
 import { VideoStorageService } from '@/lib/services/video-storage.service';
 import { InstagramService } from '@/lib/services/instagram.service';
 import { getModelById } from '@/lib/services/image-generation/model-registry';
+import { MotivationalBlogGeneratorService } from '@/lib/services/module9/motivational-blog-generator.service';
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://autogram-orpin.vercel.app';
 
@@ -166,6 +167,16 @@ export async function POST(request: NextRequest) {
         console.log(`✨ Generated quote: "${quoteData.quoteText.substring(0, 60)}..."`);
         console.log(`🎨 Visual style: ${accountConfig.style}`);
 
+        // Strip markdown formatting from quote text
+        const cleanQuoteText = quoteData.quoteText
+          .replace(/\*\*/g, '')  // Remove **
+          .replace(/__/g, '')      // Remove __
+          .replace(/\*/g, '')     // Remove *
+          .replace(/_/g, '')       // Remove _
+          .trim();
+        
+        quoteData.quoteText = cleanQuoteText;
+
         // Get module-specific AI config
         const moduleAIConfig = config.aiModelConfig;
         
@@ -193,9 +204,12 @@ export async function POST(request: NextRequest) {
             provider = modelInfo?.provider;
           }
           
+          // Create explicit prompt with exact quote text
+          const explicitPrompt = `CRITICAL: Display this EXACT text prominently on the image: "${cleanQuoteText}"\n\nStyle and composition: ${quoteData.visualPrompt}`;
+          
           // Generate image using unified service with specific model/provider
           const result = await unifiedImageGeneration.generateImage({
-            prompt: quoteData.visualPrompt,
+            prompt: explicitPrompt,
             quality: 'high',
             imageSize: 'square_hd',
             model: imageModel,
@@ -229,10 +243,13 @@ export async function POST(request: NextRequest) {
         } else {
           console.log(`🎬 Generating video with model: ${videoModel || 'default'}...`);
           
+          // Create explicit prompt with exact quote text for video
+          const explicitVideoPrompt = `CRITICAL: Display this EXACT text prominently: "${cleanQuoteText}"\n\nStyle and motion: ${quoteData.visualPrompt}`;
+          
           // Generate video using unified video generation service
           const videoService = new UnifiedVideoGenerationService();
           const videoResult = await videoService.generateVideo({
-            prompt: quoteData.visualPrompt,
+            prompt: explicitVideoPrompt,
             model: videoModel,
             duration: '5',
             aspectRatio: '1:1',
@@ -286,8 +303,33 @@ export async function POST(request: NextRequest) {
           throw new Error(`Instagram posting failed: ${igError instanceof Error ? igError.message : String(igError)}`);
         }
 
+        // Generate blog content
+        console.log(`📝 [STEP 4/5] Generating blog content...`);
+        let blogContent;
+        try {
+          blogContent = await MotivationalBlogGeneratorService.generateBlogContent({
+            quoteText: quoteData.quoteText,
+            author: quoteData.author,
+            profession: quoteData.profession,
+            category: accountConfig.category,
+            subcategories: quoteData.subcategories || [quoteData.subcategory],
+            language: accountConfig.language,
+          });
+          console.log(`✅ [STEP 4/5] Blog content generated successfully`);
+        } catch (blogError) {
+          console.error(`⚠️ [STEP 4/5] Blog generation failed, using fallback:`, blogError);
+          blogContent = MotivationalBlogGeneratorService.generateFallbackContent({
+            quoteText: quoteData.quoteText,
+            author: quoteData.author,
+            profession: quoteData.profession,
+            category: accountConfig.category,
+            subcategories: quoteData.subcategories || [quoteData.subcategory],
+            language: accountConfig.language,
+          });
+        }
+
         // Update log with success
-        console.log(`💾 [STEP 4/4] Updating database log...`);
+        console.log(`💾 [STEP 5/5] Updating database log...`);
         await APIBook.motivationalAutoPostLog.updateLog(logId, {
           status: 'success',
           quoteText: quoteData.quoteText,
@@ -298,6 +340,9 @@ export async function POST(request: NextRequest) {
           mediaUrl: firebaseMediaUrl, // Store Firebase URL
           generatedPrompt: quoteData.visualPrompt,
           caption,
+          quoteAnalysis: blogContent.quoteAnalysis,
+          practicalApplication: blogContent.practicalApplication,
+          relatedStories: blogContent.relatedStories,
           instagramPostId: instagramPostId,
           instagramAccountName: instagramAccount.name,
         });

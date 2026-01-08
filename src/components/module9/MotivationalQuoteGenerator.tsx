@@ -37,6 +37,27 @@ export function MotivationalQuoteGenerator() {
   const [selectedAccountId, setSelectedAccountId] = useState<string>('');
   const [isPosting, setIsPosting] = useState(false);
 
+  // Load Instagram accounts
+  useEffect(() => {
+    async function loadInstagramAccounts() {
+      if (!user) return;
+      
+      try {
+        const accounts = await APIBook.instagramAccounts.list(user.uid);
+        setInstagramAccounts(accounts);
+        
+        // Auto-select first account if available
+        if (accounts.length > 0 && !selectedAccountId) {
+          setSelectedAccountId(accounts[0].id);
+        }
+      } catch (error) {
+        console.error('Failed to load Instagram accounts:', error);
+      }
+    }
+    
+    loadInstagramAccounts();
+  }, [user, selectedAccountId]);
+
   const handleGenerate = async () => {
     setIsGenerating(true);
     setGeneratedQuote(null);
@@ -248,23 +269,18 @@ export function MotivationalQuoteGenerator() {
                 )}
               </div>
 
-              {/* Quote Text */}
-              <div className="p-3 sm:p-4 bg-muted rounded-lg">
-                <p className="text-base sm:text-lg font-medium mb-1 sm:mb-2">{generatedQuote.quoteText}</p>
-                {generatedQuote.author && (
-                  <p className="text-xs sm:text-sm text-muted-foreground">— {generatedQuote.author}</p>
-                )}
-              </div>
-
               {/* Caption */}
               <div className="space-y-2">
-                <Label className="text-sm">Caption</Label>
+                <Label className="text-sm">Caption for Instagram</Label>
                 <Textarea 
                   value={generatedQuote.caption} 
                   readOnly 
                   rows={4}
                   className="text-xs sm:text-sm resize-none"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Caption includes: Title + Author + Hashtags (Quote is on the image)
+                </p>
               </div>
 
               {/* Actions */}
