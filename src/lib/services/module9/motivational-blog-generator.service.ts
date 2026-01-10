@@ -47,6 +47,9 @@ Themes: ${context.subcategories.join(', ')}
 - Format HTML with proper line breaks and indentation for readability
 - Use \\n for line breaks between tags
 - Make the HTML human-readable with proper spacing
+- **IMPORTANT**: Use SINGLE QUOTES (') for ALL HTML attributes, NOT double quotes (")
+- Example: <div class='blog-post'> NOT <div class="blog-post">
+- This prevents JSON escaping issues
 
 REQUIREMENTS:
 
@@ -145,10 +148,16 @@ REQUIREMENTS:
    ✅ Actionable and practical
    ✅ Inspiring and engaging tone
 
-Return ONLY valid JSON with properly formatted HTML:
+Return ONLY valid JSON. CRITICAL: Escape all quotes and special characters properly:
 {
-  "htmlContent": "<article class=\\"blog-post\\">\\n  <header class=\\"post-header\\">\\n    ...rest of HTML with line breaks...\\n  </header>\\n</article>"
+  "htmlContent": "Your complete HTML string here with properly escaped quotes"
 }
+
+ESCAPING RULES:
+- Replace all " (double quotes) inside HTML attributes with ' (single quotes)
+- Use ' for HTML attribute quotes: class='blog-post' NOT class="blog-post"
+- Escape any remaining " as \\"
+- Use \\n for line breaks in the JSON string
 
 REMEMBER: Format the HTML with \\n line breaks so it's readable when displayed!`;
 
@@ -172,18 +181,59 @@ REMEMBER: Format the HTML with \\n line breaks so it's readable when displayed!`
         throw new Error('No response from AI model');
       }
 
-      // Extract JSON from response
+      console.log('📄 [Blog Generator] Raw response length:', generatedText.length);
+
+      // Try to extract JSON from response - handle markdown code blocks
+      let jsonString = '';
+      
+      // Remove markdown code blocks if present
+      generatedText = generatedText.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+      
+      // Find JSON object
       const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        console.error('Failed to parse AI response:', generatedText.substring(0, 200));
-        throw new Error('Failed to parse blog content response');
+        console.error('Failed to find JSON in response:', generatedText.substring(0, 300));
+        throw new Error('Failed to parse blog content response - no JSON found');
       }
 
-      const parsed = JSON.parse(jsonMatch[0]);
+      jsonString = jsonMatch[0];
+      
+      // Try to parse JSON with error recovery
+      let parsed;
+      try {
+        parsed = JSON.parse(jsonString);
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        console.error('Problematic JSON substring:', jsonString.substring(0, 500));
+        
+        // Attempt to fix common JSON issues
+        // 1. Fix unescaped quotes in HTML content
+        try {
+          // Extract the htmlContent value more carefully
+          const contentMatch = jsonString.match(/"htmlContent"\s*:\s*"([\s\S]*?)"\s*\}/);
+          if (contentMatch) {
+            let htmlContent = contentMatch[1];
+            
+            // The content is already in the JSON, so we just need to extract it properly
+            // Try parsing with a more lenient approach
+            const fixedJson = jsonString
+              .replace(/\\n/g, '\\n')  // Ensure line breaks are properly escaped
+              .replace(/\\'/g, "'")    // Unescape single quotes
+              .replace(/\\"/g, '"');   // Handle escaped quotes
+            
+            parsed = JSON.parse(fixedJson);
+          } else {
+            throw parseError; // Re-throw if we can't extract content
+          }
+        } catch (fixError) {
+          console.error('Failed to fix JSON:', fixError);
+          throw new Error(`JSON parsing failed: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
+        }
+      }
 
       // Validate content
       if (!parsed.htmlContent) {
-        throw new Error('Incomplete blog content generated');
+        throw new Error('Incomplete blog content generated - missing htmlContent field');
       }
 
       console.log('✅ [Blog Generator] Blog content generated successfully');
