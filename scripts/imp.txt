@@ -1,0 +1,9 @@
+# Make your changes
+git add .
+git commit -m "Your feature description"
+
+# When ready to test in UAT
+.\scripts\merge-to-uat.ps1
+
+# After testing, deploy to production
+.\scripts\deploy-to-production.ps1
