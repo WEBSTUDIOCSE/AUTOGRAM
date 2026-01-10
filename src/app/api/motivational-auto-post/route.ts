@@ -305,28 +305,15 @@ export async function POST(request: NextRequest) {
 
         // Generate blog content
         console.log(`📝 [STEP 4/5] Generating blog content...`);
-        let blogContent;
-        try {
-          blogContent = await MotivationalBlogGeneratorService.generateBlogContent({
-            quoteText: quoteData.quoteText,
-            author: quoteData.author,
-            profession: quoteData.profession,
-            category: accountConfig.category,
-            subcategories: quoteData.subcategories || [quoteData.subcategory],
-            language: accountConfig.language,
-          });
-          console.log(`✅ [STEP 4/5] Blog content generated successfully`);
-        } catch (blogError) {
-          console.error(`⚠️ [STEP 4/5] Blog generation failed, using fallback:`, blogError);
-          blogContent = MotivationalBlogGeneratorService.generateFallbackContent({
-            quoteText: quoteData.quoteText,
-            author: quoteData.author,
-            profession: quoteData.profession,
-            category: accountConfig.category,
-            subcategories: quoteData.subcategories || [quoteData.subcategory],
-            language: accountConfig.language,
-          });
-        }
+        const blogContent = await MotivationalBlogGeneratorService.generateBlogContent({
+          quoteText: quoteData.quoteText,
+          author: quoteData.author,
+          profession: quoteData.profession,
+          category: accountConfig.category,
+          subcategories: quoteData.subcategories || [quoteData.subcategory],
+          language: accountConfig.language,
+        });
+        console.log(`✅ [STEP 4/5] Blog content generated successfully`);
 
         // Update log with success
         console.log(`💾 [STEP 5/5] Updating database log...`);
