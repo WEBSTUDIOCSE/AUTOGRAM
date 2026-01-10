@@ -34,132 +34,102 @@ export const MotivationalBlogGeneratorService = {
 
     console.log(`📝 [Blog Generator] Generating blog content for quote in ${langConfig.name}...`);
 
-    const prompt = `Generate a comprehensive, visually appealing blog post about this specific quote: "${context.quoteText}"${context.author ? ` by ${context.author}${context.profession ? ` (${context.profession})` : ''}` : ''}.
+    const prompt = `Create a comprehensive, beautifully formatted blog post about this motivational quote: "${context.quoteText}"${context.author ? ` by ${context.author}${context.profession ? ` (${context.profession})` : ''}` : ''}.
 
 Category: ${context.category}
 Themes: ${context.subcategories.join(', ')}
 
-🌍 **LANGUAGE REQUIREMENT**: ${langConfig.instruction}
+🌍 **LANGUAGE**: ${langConfig.instruction}
 
-🚨 **CRITICAL INSTRUCTIONS**:
-- ALL content MUST be specifically about THIS quote: "${context.quoteText}"
-- NO generic or template text - everything must be unique to this quote
-- Format HTML with proper line breaks and indentation for readability
-- Use \\n for line breaks between tags
-- Make the HTML human-readable with proper spacing
-- **IMPORTANT**: Use SINGLE QUOTES (') for ALL HTML attributes, NOT double quotes (")
-- Example: <div class='blog-post'> NOT <div class="blog-post">
-- This prevents JSON escaping issues
+🎨 **CREATIVE FREEDOM**: You have FULL creative freedom to design a beautiful, engaging blog post. Create dynamic HTML that provides an exceptional reading experience.
 
-REQUIREMENTS:
+✅ **YOU CAN USE**:
+- All HTML elements (div, section, article, span, etc.)
+- Inline styles for beautiful formatting
+- Colored backgrounds, borders, shadows, spacing
+- Custom layouts with varied visual hierarchy
+- Emojis and visual markers where appropriate
+- Any styling that enhances readability and engagement
 
-1. **HTML STRUCTURE** (properly formatted with line breaks):
-   <article class="blog-post">
-     <header class="post-header">
-       ...header content with proper indentation...
-     </header>
-     <section class="main-content">
-       ...main content...
-     </section>
-   </article>
+🎯 **DESIGN GUIDELINES**:
 
-2. **HEADER SECTION**:
-   - <div class="post-meta"> with:
-     * Reading time estimate based on actual content length
-     * Category: ${context.category}
-     * Current date
-   - <div class="featured-quote-box"> displaying: "${context.quoteText}"${context.author ? ` by ${context.author}` : ''}
-   - Opening paragraph (2-3 sentences) that directly relates to THIS specific quote and its themes: ${context.subcategories.join(', ')}
+**Visual Hierarchy**:
+- Use different text sizes, weights, and colors for clear hierarchy
+- Create generous spacing between sections (margin: 2-2.5rem)
+- Add comfortable padding inside containers (1.5rem)
+- Ensure proper line height for readability (1.6-1.8)
 
-3. **MAIN CONTENT** (3-5 sections analyzing THIS specific quote):
-   Section 1: Deep analysis of what THIS quote specifically means
-   - Break down the key phrases in "${context.quoteText}"
-   - Explain the philosophy behind these specific words
-   - Connect to themes: ${context.subcategories.join(', ')}
-   
-   Section 2: Real-world examples of THIS quote's principle
-   - 2-3 specific, detailed examples (with names, situations, outcomes)
-   - Show how people have applied THIS wisdom
-   - Include an <div class="example-box"> with concrete scenarios
-   
-   Section 3: Psychology/Science behind THIS quote's message
-   - Research or psychological principles that support THIS quote
-   - Why THIS message works scientifically
-   - Include <div class="stats-box"> if relevant data exists
-   
-   Section 4: Practical application of THIS quote
-   - Specific steps to implement THIS wisdom
-   - How to apply THIS quote in daily life
-   - Real scenarios where THIS applies
+**Styled Containers** (use creatively throughout):
+- Insight/key point boxes with subtle backgrounds (e.g., background: #f3f4f6; border-left: 4px solid #6366f1; padding: 1.5rem)
+- Example/story boxes with distinct styling (e.g., background: #fefce8; border: 1px solid #fde047)
+- Quote blocks with beautiful formatting (border-left, italic, larger font)
+- Action steps in visually organized sections (background: #ecfdf5)
+- Statistics/research in highlighted containers (background: #eff6ff)
+- Key takeaways with prominent styling (gradient backgrounds, bold headers)
 
-4. **VISUAL ELEMENTS** (use throughout):
-   - <div class="insight-card"> for key insights about THIS quote
-   - <div class="example-box"> for real examples
-   - <blockquote class="pull-quote"> for powerful related insights
-   - <div class="callout tip"> for practical tips
-   - <strong class="highlight"> for 5-7 key concepts
+**Color & Styling Suggestions**:
+- Subtle backgrounds: #f3f4f6 (gray), #eff6ff (blue), #fefce8 (yellow), #ecfdf5 (green)
+- Accent colors for borders: #6366f1 (indigo), #3b82f6 (blue), #10b981 (green)
+- Keep text readable: dark colors on light backgrounds
+- Use border-radius (0.5-0.75rem) for modern look
+- Add visual interest with border-left highlights
 
-5. **ACTION PLAN SECTION**:
-   <section class="action-plan">
-     <h2>Apply This Wisdom Today</h2>
-     <p>Specific introduction about implementing THIS quote</p>
-     <ol class="action-steps">
-       4-5 detailed, actionable steps specifically for THIS quote
-     </ol>
-     <div class="challenge-box">
-       7-day challenge specifically designed around THIS quote's message
-     </div>
-     <h3>Quick Wins</h3>
-     <ul class="quick-wins">
-       3-5 immediate actions related to THIS quote
-     </ul>
-   </section>
+📝 **CONTENT TO INCLUDE** (be creative with structure):
 
-6. **REFLECTION SECTION**:
-   <div class="reflection-prompt">
-     <h3>💭 Reflect on This</h3>
-     <ul>
-       4-5 thought-provoking questions specifically about THIS quote and its application
-     </ul>
-   </div>
-   <div class="key-takeaways">
-     <h3>📌 Key Insights</h3>
-     <ul>
-       5-7 main takeaways specifically from THIS quote's wisdom
-     </ul>
-   </div>
+**Essential Elements** (arrange dynamically):
+- Opening analysis of what THIS specific quote means
+- The main quote in a beautifully styled blockquote
+- 3-5 real-world examples/stories (with names, situations, outcomes) in styled boxes
+- Psychological/scientific backing in highlighted sections
+- Practical action steps in visually organized format
+- Key insights/takeaways in a prominent styled section
+- At least 1-2 additional supporting quotes
+- Concrete implementation advice
+- Reflection questions or thought prompts
 
-7. **FOOTER**:
-   - <div class="author-note"> about THIS specific quote's context/origin
-   - <div class="related-topics"> suggesting topics related to ${context.subcategories.join(', ')}
-   - <div class="share-prompt"> encouraging reflection on THIS quote
+**Content Quality**:
+- Length: 1500-3000 words for depth
+- 100% specific to THIS quote: "${context.quoteText}"
+- NO generic templates - unique analysis for this wisdom
+- Short paragraphs (2-4 sentences)
+- Concrete, specific examples with details
+- Actionable and practical advice
+- Inspirational yet evidence-based
+- Engaging tone (use "you" to connect with readers)
 
-8. **FORMATTING RULES**:
-   ✅ Use \\n between ALL major tags for readability
-   ✅ Indent nested elements properly
-   ✅ Make HTML human-readable
-   ✅ Include proper line breaks in the JSON string value
-   ✅ Length: 1200-1800 words of actual content
+🎨 **VISUAL VARIETY**:
+- Mix plain paragraphs with styled containers
+- Use visual breaks and spacing strategically
+- Create scannable sections with clear headers
+- Highlight important concepts with distinctive styling
+- Balance aesthetics with readability
+- Make it visually engaging without overwhelming
 
-9. **CONTENT MUST BE**:
-   ✅ 100% specific to THIS quote: "${context.quoteText}"
-   ✅ Original analysis, not generic templates
-   ✅ Detailed examples with specifics
-   ✅ Actionable and practical
-   ✅ Inspiring and engaging tone
+⚡ **STYLE EXAMPLES** (use as inspiration, adapt creatively):
 
-Return ONLY valid JSON. CRITICAL: Escape all quotes and special characters properly:
+Insight Box:
+<div style="background: #f3f4f6; border-left: 4px solid #6366f1; padding: 1.5rem; margin: 2rem 0; border-radius: 0.5rem;">
+  <p style="font-weight: 600; margin-bottom: 0.5rem;">💡 Key Insight</p>
+  <p style="margin: 0;">Your insight here...</p>
+</div>
+
+Story Box:
+<div style="background: #fefce8; border: 1px solid #fde047; padding: 1.5rem; margin: 2rem 0; border-radius: 0.75rem;">
+  <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; color: #854d0e;">📖 Real Example</h3>
+  <p style="margin: 0; color: #713f12;">Story here...</p>
+</div>
+
+Styled Quote:
+<blockquote style="border-left: 4px solid #6366f1; padding-left: 1.5rem; margin: 2rem 0; font-style: italic; color: #6b7280; font-size: 1.125rem;">
+  "Quote text here"
+</blockquote>
+
+Return ONLY valid JSON with properly escaped HTML:
 {
-  "htmlContent": "Your complete HTML string here with properly escaped quotes"
+  "htmlContent": "Your beautifully formatted HTML here"
 }
 
-ESCAPING RULES:
-- Replace all " (double quotes) inside HTML attributes with ' (single quotes)
-- Use ' for HTML attribute quotes: class='blog-post' NOT class="blog-post"
-- Escape any remaining " as \\"
-- Use \\n for line breaks in the JSON string
-
-REMEMBER: Format the HTML with \\n line breaks so it's readable when displayed!`;
+**JSON ESCAPING**: Escape double quotes as \\" and use \\n for line breaks where needed.`;
 
     try {
       const response = await genAI.models.generateContent({
