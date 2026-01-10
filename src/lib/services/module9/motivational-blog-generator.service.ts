@@ -6,9 +6,7 @@
 import { genAI, getTextModelName } from '@/lib/ai/gemini';
 
 export interface BlogContent {
-  quoteAnalysis: string; // 300-500 words - Deep analysis of quote meaning
-  practicalApplication: string; // 200-400 words - Real-life application scenarios
-  relatedStories: string; // 200-300 words - Inspirational stories and examples
+  htmlContent: string; // Complete HTML-formatted blog post (800-1200 words)
 }
 
 interface BlogGenerationContext {
@@ -36,58 +34,52 @@ export const MotivationalBlogGeneratorService = {
 
     console.log(`📝 [Blog Generator] Generating blog content for quote in ${langConfig.name}...`);
 
-    const prompt = `Generate comprehensive blog content for this motivational quote:
-
-"${context.quoteText}"${context.author ? `\n— ${context.author}${context.profession ? ` (${context.profession})` : ''}` : ''}
+    const prompt = `Generate an engaging, well-formatted blog post reflection on the quote: "${context.quoteText}"${context.author ? ` by ${context.author}` : ''}.
 
 Category: ${context.category}
 Themes: ${context.subcategories.join(', ')}
 
 🌍 **LANGUAGE REQUIREMENT**: ${langConfig.instruction}
 
-Generate THREE sections in valid JSON format:
+REQUIREMENTS:
 
-1️⃣ **QUOTE ANALYSIS & EXPLANATION** (300-500 words):
-   - Deep dive into what the quote truly means
-   - Break down key phrases and their significance
-   - Explore the philosophy or wisdom behind it
-   - Discuss why this message is important
-   - Connect to the themes: ${context.subcategories.join(', ')}
-   ${context.author ? `- Relate to ${context.author}'s philosophy or background` : ''}
-   - Make it engaging and thought-provoking
-   - Use examples to illustrate meaning
+1. **HTML Structure** - Use these tags properly:
+   - <h2> for main sections
+   - <h3> for subsections
+   - <p> for paragraphs (keep them 2-4 sentences each)
+   - <strong> for emphasis on key concepts
+   - <blockquote> for highlighting important insights or secondary quotes
+   - <ul> and <li> for lists of actionable points
 
-2️⃣ **PRACTICAL APPLICATION** (200-400 words):
-   - Provide 3-4 real-life scenarios where this quote applies
-   - Give step-by-step guidance on implementing this wisdom
-   - Include specific, actionable exercises or practices
-   - Show how to apply it in daily life (work, relationships, personal growth)
-   - Make it practical and immediately useful
-   - Include concrete examples and mini case studies
+2. **Content Style**:
+   - Write in an inspiring, motivational tone
+   - Use storytelling and real-world examples
+   - Break complex ideas into digestible sections
+   - Include 3-5 main sections with clear headings
+   - Each paragraph should flow naturally to the next
 
-3️⃣ **RELATED STORIES & EXAMPLES** (200-300 words):
-   - Share 1-2 inspiring real-world stories that embody this quote's message
-   - Include examples of famous people or historical figures who lived this principle
-   - Provide relatable scenarios that readers can connect with
-   - Make the stories vivid and emotionally engaging
-   - Show the transformational impact of applying this wisdom
+3. **Structure the content like this**:
+   - Opening paragraph connecting to reader's life
+   - 2-3 core insights with <h2> headings
+   - Include at least one <blockquote> with a powerful takeaway
+   - Practical action steps in a <ul> list
+   - Closing paragraph with inspiration
 
-📝 **WRITING GUIDELINES**:
-   - ${langConfig.instruction}
-   - Write in an engaging, conversational tone
-   - Use storytelling and vivid examples
-   - Be specific and concrete, not abstract
-   - Make it inspiring and actionable
-   - Ensure proper word count for each section
-   - Use natural paragraph breaks (\\n\\n for new paragraphs)
-   - Write as if speaking to a friend seeking wisdom
+4. **Formatting Guidelines**:
+   - Use <strong> to highlight 3-5 key phrases throughout
+   - Add a blockquote with a complementary insight
+   - Keep paragraphs short (3-5 lines max)
+   - Use subheadings every 200-300 words
+   - Include a bulleted list of takeaways or action steps
+
+5. **Length**: 800-1200 words
 
 Return ONLY valid JSON (no markdown, no code blocks):
 {
-  "quoteAnalysis": "Your 300-500 word analysis here with \\n\\n for paragraph breaks",
-  "practicalApplication": "Your 200-400 word practical guide here with \\n\\n for paragraph breaks",
-  "relatedStories": "Your 200-300 word stories here with \\n\\n for paragraph breaks"
-}`;
+  "htmlContent": "<p>Your complete HTML content here...</p>"
+}
+
+Return only clean HTML in the JSON field with no markdown, no code blocks, no explanations - just the formatted HTML content ready to display.`;
 
     try {
       const response = await genAI.models.generateContent({
@@ -119,19 +111,15 @@ Return ONLY valid JSON (no markdown, no code blocks):
       const parsed = JSON.parse(jsonMatch[0]);
 
       // Validate content
-      if (!parsed.quoteAnalysis || !parsed.practicalApplication || !parsed.relatedStories) {
+      if (!parsed.htmlContent) {
         throw new Error('Incomplete blog content generated');
       }
 
       console.log('✅ [Blog Generator] Blog content generated successfully');
-      console.log(`   Analysis: ${parsed.quoteAnalysis.length} chars`);
-      console.log(`   Application: ${parsed.practicalApplication.length} chars`);
-      console.log(`   Stories: ${parsed.relatedStories.length} chars`);
+      console.log(`   HTML Content: ${parsed.htmlContent.length} chars`);
 
       return {
-        quoteAnalysis: parsed.quoteAnalysis.trim(),
-        practicalApplication: parsed.practicalApplication.trim(),
-        relatedStories: parsed.relatedStories.trim(),
+        htmlContent: parsed.htmlContent.trim(),
       };
 
     } catch (error) {
@@ -148,12 +136,39 @@ Return ONLY valid JSON (no markdown, no code blocks):
   generateFallbackContent(context: BlogGenerationContext): BlogContent {
     console.log('⚠️ [Blog Generator] Using fallback content');
     
+    const author = context.author || 'Unknown';
+    const themes = context.subcategories.join(', ');
+    
     return {
-      quoteAnalysis: `This powerful ${context.category} quote "${context.quoteText}" carries deep wisdom that resonates with themes of ${context.subcategories.join(', ')}. The message encourages us to reflect on our journey and the choices we make. Each word holds significance, reminding us of the importance of mindful action and intentional living. This quote speaks to the universal human experience and offers guidance for those seeking to grow and improve.`,
-      
-      practicalApplication: `To apply this wisdom in daily life, start by reflecting on how it relates to your current situation. Consider specific areas where you can implement this principle. Practice mindfulness and intentional action in your decisions. Set small, achievable goals that align with this wisdom. Make it a habit to review and reflect on your progress regularly.`,
-      
-      relatedStories: `Throughout history, many successful individuals have embodied this principle. Their stories demonstrate the transformational power of applying such wisdom consistently. By following similar principles, ordinary people have achieved extraordinary results in their personal and professional lives.`,
+      htmlContent: `<p>This powerful quote${context.author ? ` by ${context.author}` : ''} invites us to reflect on our journey and the choices we make. The wisdom contained in these words speaks to themes of ${themes}, offering guidance for those seeking growth and transformation.</p>
+
+<h2>Understanding the Deeper Meaning</h2>
+<p>At its core, this message reminds us of the <strong>power of intentional living</strong>. It encourages us to look beyond our current circumstances and recognize the potential for positive change that exists within each moment.</p>
+
+<p>The quote touches on universal human experiences related to ${context.category}, making it relevant regardless of where we are in our personal journey. By contemplating these words, we open ourselves to new perspectives and possibilities.</p>
+
+<blockquote>The wisdom of great minds becomes our own when we apply it with intention and courage.</blockquote>
+
+<h2>Bringing This Wisdom to Life</h2>
+<p>To translate this profound insight into daily action, consider these practical approaches:</p>
+
+<ul>
+<li><strong>Morning Reflection:</strong> Begin each day by contemplating the quote's meaning and how it applies to your current goals</li>
+<li><strong>Identify Opportunities:</strong> Look for specific situations where you can embody the principles expressed in these words</li>
+<li><strong>Small Steps:</strong> Set achievable daily goals that align with the quote's message</li>
+<li><strong>Share the Wisdom:</strong> Discuss this insight with others who might benefit from its guidance</li>
+<li><strong>Track Your Progress:</strong> Journal about your experiences applying this wisdom</li>
+</ul>
+
+<h3>Making It Personal</h3>
+<p>Consider how the themes of ${themes} show up in your own life. Where can you apply more awareness? What changes might result from embracing this perspective?</p>
+
+<h2>Stories of Transformation</h2>
+<p>Throughout history, many remarkable individuals have lived by similar principles. Their journeys demonstrate that <strong>wisdom applied consistently creates lasting change</strong>.</p>
+
+<p>Whether in business, relationships, or personal development, those who embrace such insights often find themselves moving through challenges with greater ease and achieving outcomes that once seemed impossible. The key lies not in perfect execution, but in persistent effort and genuine commitment.</p>
+
+<p>By following their example and staying dedicated to your own growth, you too can experience the transformative power of living aligned with timeless wisdom. Remember to be patient with yourself as you integrate these principles into your daily life.</p>`,
     };
   },
 };

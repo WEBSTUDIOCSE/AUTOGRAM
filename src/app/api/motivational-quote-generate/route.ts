@@ -209,9 +209,7 @@ export async function POST(request: NextRequest) {
         generatedPrompt: quoteData.visualPrompt,
         mediaUrl,
         caption,
-        quoteAnalysis: blogContent.quoteAnalysis,
-        practicalApplication: blogContent.practicalApplication,
-        relatedStories: blogContent.relatedStories,
+        blogContent: blogContent.htmlContent,
         status: 'success',
       });
       console.log(`✅ Manual quote saved to log with blog content`);
@@ -233,9 +231,7 @@ export async function POST(request: NextRequest) {
         subcategories: quoteData.subcategories || [], // Include subcategories
         language: language || 'english', // Include in response
         // Include blog content for preview/display
-        quoteAnalysis: blogContent.quoteAnalysis,
-        practicalApplication: blogContent.practicalApplication,
-        relatedStories: blogContent.relatedStories,
+        blogContent: blogContent.htmlContent,
       },
       duration: `${duration}ms`,
     });

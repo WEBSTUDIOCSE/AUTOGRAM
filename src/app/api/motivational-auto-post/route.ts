@@ -340,9 +340,7 @@ export async function POST(request: NextRequest) {
           mediaUrl: firebaseMediaUrl, // Store Firebase URL
           generatedPrompt: quoteData.visualPrompt,
           caption,
-          quoteAnalysis: blogContent.quoteAnalysis,
-          practicalApplication: blogContent.practicalApplication,
-          relatedStories: blogContent.relatedStories,
+          blogContent: blogContent.htmlContent,
           instagramPostId: instagramPostId,
           instagramAccountName: instagramAccount.name,
         });

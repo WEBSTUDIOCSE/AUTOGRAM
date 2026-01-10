@@ -21,10 +21,8 @@ export interface MotivationalAutoPostLog {
   generatedPrompt: string;
   mediaUrl: string;
   caption: string;
-  // Blog content fields
-  quoteAnalysis?: string; // 300-500 words - Deep analysis of quote meaning
-  practicalApplication?: string; // 200-400 words - Real-life application scenarios
-  relatedStories?: string; // 200-300 words - Inspirational stories and examples
+  // Blog content field
+  blogContent?: string; // HTML-formatted blog post (800-1200 words)
   instagramPostId?: string;
   instagramAccountName?: string;
   status: 'success' | 'failed' | 'processing' | 'instagram_failed';
