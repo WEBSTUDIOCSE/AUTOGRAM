@@ -41,88 +41,167 @@ Themes: ${context.subcategories.join(', ')}
 
 🌍 **LANGUAGE**: ${langConfig.instruction}
 
-🎨 **CREATIVE FREEDOM**: You have FULL creative freedom to design a beautiful, engaging blog post. Create dynamic HTML that provides an exceptional reading experience.
+🎨 **DESIGN SYSTEM - CLASSIC EDITORIAL STYLE**
+Follow the EliteMindsetForge newspaper/editorial aesthetic - minimal, sophisticated, timeless.
 
-✅ **YOU CAN USE**:
-- All HTML elements (div, section, article, span, etc.)
-- Inline styles for beautiful formatting
-- Colored backgrounds, borders, shadows, spacing
-- Custom layouts with varied visual hierarchy
-- Emojis and visual markers where appropriate
-- Any styling that enhances readability and engagement
+✅ **DESIGN PRINCIPLES**:
+- **Minimalist Color Palette**: Use only zinc/gray tones - NO bright colors
+- **Typography Focus**: Let the words shine through clean hierarchy
+- **Subtle Elegance**: Delicate borders, generous whitespace, refined details
+- **Editorial Feel**: Think high-quality newspaper or literary magazine
 
-🎯 **DESIGN GUIDELINES**:
+🎯 **STRICT STYLING RULES**:
 
-**Visual Hierarchy**:
-- Use different text sizes, weights, and colors for clear hierarchy
-- Create generous spacing between sections (margin: 2-2.5rem)
-- Add comfortable padding inside containers (1.5rem)
-- Ensure proper line height for readability (1.6-1.8)
+**Color Palette (ONLY USE THESE)**:
+- Background (Paper): #FAFAFA (light) / #09090B (dark)
+- Foreground (Ink): #18181B (light) / #FAFAFA (dark)
+- Card/Surface: #FFFFFF (light) / #18181B (dark)
+- Borders: #E4E4E7 (light) / #27272A (dark)
+- Muted Text: #71717A (metadata, captions)
+- Secondary Background: #F4F4F5 (light) / #27272A (dark)
 
-**Styled Containers** (use creatively throughout):
-- Insight/key point boxes with subtle backgrounds (e.g., background: #f3f4f6; border-left: 4px solid #6366f1; padding: 1.5rem)
-- Example/story boxes with distinct styling (e.g., background: #fefce8; border: 1px solid #fde047)
-- Quote blocks with beautiful formatting (border-left, italic, larger font)
-- Action steps in visually organized sections (background: #ecfdf5)
-- Statistics/research in highlighted containers (background: #eff6ff)
-- Key takeaways with prominent styling (gradient backgrounds, bold headers)
+**Container Styling** (use throughout):
+- Insight Boxes: white background, border: 1px solid #E4E4E7, border-radius: 0.5rem
+- Quote Blocks: border-left: 3px solid #18181B, padding-left: 1.5rem, italic, color: #71717A
+- Key Sections: background: #FFFFFF, border: 1px solid #E4E4E7, rounded corners
+- Highlighted Text: background: #F4F4F5 (subtle gray), NO bright colors
+- Metadata Sections: uppercase text, letter-spacing: 0.05em, color: #71717A, font-size: 0.75rem
 
-**Color & Styling Suggestions**:
-- Subtle backgrounds: #f3f4f6 (gray), #eff6ff (blue), #fefce8 (yellow), #ecfdf5 (green)
-- Accent colors for borders: #6366f1 (indigo), #3b82f6 (blue), #10b981 (green)
-- Keep text readable: dark colors on light backgrounds
-- Use border-radius (0.5-0.75rem) for modern look
-- Add visual interest with border-left highlights
+**Typography**:
+- Headings: font-weight: 700, letter-spacing: -0.02em, color: #18181B
+- Body: line-height: 1.75, color: #18181B, font-size: 1.125rem (18px)
+- Captions/Meta: text-transform: uppercase, letter-spacing: 0.1em, font-size: 0.75rem
+- Short paragraphs: 2-4 sentences max
 
-📝 **CONTENT TO INCLUDE** (be creative with structure):
+**Spacing & Layout**:
+- Section spacing: margin: 2.5rem 0
+- Container padding: 1.5rem to 2rem
+- Line height: 1.75 for readability
+- Border radius: 0.5rem (8px) - consistent throughout
 
-**Essential Elements** (arrange dynamically):
-- Opening analysis of what THIS specific quote means
-- The main quote in a beautifully styled blockquote
-- 3-5 real-world examples/stories (with names, situations, outcomes) in styled boxes
-- Psychological/scientific backing in highlighted sections
-- Practical action steps in visually organized format
-- Key insights/takeaways in a prominent styled section
-- At least 1-2 additional supporting quotes
-- Concrete implementation advice
-- Reflection questions or thought prompts
+📝 **CONTENT STRUCTURE** (arrange dynamically in editorial style):
+
+**Opening Section**:
+- Start with a centered, prominent quote block (see styling example above)
+- Follow with metadata tags (category, themes) in uppercase small text
+- Opening analysis paragraph(s) - what THIS specific quote means
+
+**Main Content Sections** (use editorial hierarchy):
+- Section headings with bottom borders (#E4E4E7)
+- Mix of regular paragraphs and styled containers
+- Real-world examples in subtle gray boxes (#F4F4F5 background)
+- Psychological/scientific backing in clean white bordered boxes
+- Supporting quotes as side-bordered blockquotes
+
+**Practical Application**:
+- Action steps in organized list format within bordered container
+- Implementation advice in clear, scannable format
+- Concrete, specific guidance
+
+**Closing Section**:
+- Key insights/takeaways in prominent styled container
+- Reflection questions in clean layout
+- Final thoughts connecting back to the main quote
+
+**Visual Variety**:
+- Mix plain paragraphs with styled containers (70% plain, 30% styled)
+- Strategic use of spacing for visual rhythm
+- Clean scannable sections with clear typography hierarchy
+- Balance text-heavy sections with visual breaks
+- Minimal but impactful use of emojis (🎯 💡 📖 ✨)
 
 **Content Quality**:
 - Length: 1500-3000 words for depth
 - 100% specific to THIS quote: "${context.quoteText}"
 - NO generic templates - unique analysis for this wisdom
-- Short paragraphs (2-4 sentences)
-- Concrete, specific examples with details
+- Short paragraphs (2-4 sentences max) for readability
+- Concrete, specific examples with details (names, situations, outcomes)
 - Actionable and practical advice
 - Inspirational yet evidence-based
 - Engaging tone (use "you" to connect with readers)
+- Editorial voice: sophisticated, thoughtful, authoritative yet approachable
 
-🎨 **VISUAL VARIETY**:
-- Mix plain paragraphs with styled containers
-- Use visual breaks and spacing strategically
-- Create scannable sections with clear headers
-- Highlight important concepts with distinctive styling
-- Balance aesthetics with readability
-- Make it visually engaging without overwhelming
+🎨 **VISUAL BALANCE**:
+- 70% clean paragraphs, 30% styled containers
+- Use white space generously (margin: 2.5rem between major sections)
+- Maintain consistent border styling (#E4E4E7, 1px)
+- Keep colors minimal - only zinc/gray palette
+- Typography does the heavy lifting - let words breathe
+- Scannable sections with clear visual hierarchy
+- Modern editorial aesthetic - timeless, not trendy
 
-⚡ **STYLE EXAMPLES** (use as inspiration, adapt creatively):
+⛔ **FORBIDDEN**:
+- NO bright colors (blue, green, yellow, indigo, etc.)
+- NO gradient backgrounds
+- NO heavy shadows or effects
+- NO cluttered layouts
+- NO excessive decoration
+- Keep it clean, minimal, editorial
 
-Insight Box:
-<div style="background: #f3f4f6; border-left: 4px solid #6366f1; padding: 1.5rem; margin: 2rem 0; border-radius: 0.5rem;">
-  <p style="font-weight: 600; margin-bottom: 0.5rem;">💡 Key Insight</p>
-  <p style="margin: 0;">Your insight here...</p>
+**Remember**: The EliteMindsetForge aesthetic is about sophisticated minimalism - think *The New Yorker* or *Medium*, not colorful blogs. Let typography, spacing, and subtle borders create the visual interest.
+
+⚡ **STYLING EXAMPLES** (Editorial Aesthetic):
+
+**Main Quote Block** (prominent feature):
+<div style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 0.5rem; padding: 2rem; margin: 2.5rem 0; text-align: center;">
+  <blockquote style="font-size: 1.5rem; font-style: italic; color: #18181B; line-height: 1.6; margin: 0; font-weight: 600; letter-spacing: -0.02em;">
+    "${context.quoteText}"
+  </blockquote>
+  <p style="margin-top: 1rem; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.1em; color: #71717A; font-weight: 500;">
+    — ${context.author}${context.profession ? `, ${context.profession}` : ''}
+  </p>
 </div>
 
-Story Box:
-<div style="background: #fefce8; border: 1px solid #fde047; padding: 1.5rem; margin: 2rem 0; border-radius: 0.75rem;">
-  <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; color: #854d0e;">📖 Real Example</h3>
-  <p style="margin: 0; color: #713f12;">Story here...</p>
+**Insight/Key Point Box** (clean, minimal):
+<div style="background: #FFFFFF; border: 1px solid #E4E4E7; border-left: 3px solid #18181B; border-radius: 0.5rem; padding: 1.5rem; margin: 2rem 0;">
+  <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #71717A; margin-bottom: 0.75rem;">
+    💡 Key Insight
+  </p>
+  <p style="color: #18181B; line-height: 1.75; margin: 0; font-size: 1.125rem;">
+    Your insight text here...
+  </p>
 </div>
 
-Styled Quote:
-<blockquote style="border-left: 4px solid #6366f1; padding-left: 1.5rem; margin: 2rem 0; font-style: italic; color: #6b7280; font-size: 1.125rem;">
-  "Quote text here"
+**Story/Example Section** (subtle gray background):
+<div style="background: #F4F4F5; border: 1px solid #E4E4E7; border-radius: 0.5rem; padding: 1.5rem; margin: 2rem 0;">
+  <h3 style="font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; color: #18181B; margin-bottom: 1rem;">
+    📖 Real-World Example
+  </h3>
+  <p style="color: #18181B; line-height: 1.75; margin: 0; font-size: 1rem;">
+    Story content here...
+  </p>
+</div>
+
+**Section Heading** (minimal, editorial):
+<h2 style="font-size: 1.875rem; font-weight: 700; letter-spacing: -0.02em; color: #18181B; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid #E4E4E7;">
+  Section Title
+</h2>
+
+**Supporting Quote** (side-bordered):
+<blockquote style="border-left: 3px solid #18181B; padding-left: 1.5rem; margin: 2rem 0; font-style: italic; color: #71717A; font-size: 1.125rem; line-height: 1.75;">
+  "Supporting quote text here..."
 </blockquote>
+
+**Action Steps List** (clean, organized):
+<div style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 0.5rem; padding: 2rem; margin: 2rem 0;">
+  <h3 style="font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; color: #18181B; margin-bottom: 1.5rem;">
+    Practical Steps
+  </h3>
+  <ol style="color: #18181B; line-height: 2; margin: 0; padding-left: 1.5rem; font-size: 1.125rem;">
+    <li style="margin-bottom: 1rem;">First action step...</li>
+    <li style="margin-bottom: 1rem;">Second action step...</li>
+  </ol>
+</div>
+
+**Metadata/Caption Style**:
+<p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #71717A; margin: 1rem 0; font-weight: 500;">
+  Research • Psychology • Mindset
+</p>
+
+**Highlighted Text** (inline emphasis):
+<span style="background: #F4F4F5; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-weight: 500;">
+  important term
+</span>
 
 Return ONLY valid JSON with properly escaped HTML:
 {
@@ -221,3 +300,4 @@ Return ONLY valid JSON with properly escaped HTML:
     }
   },
 };
+

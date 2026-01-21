@@ -81,14 +81,14 @@ const UAT_INSTAGRAM: InstagramConfig = {
  * PROD Environment Configuration
  */
 const PROD_CONFIG: FirebaseConfig = {
- apiKey: "AIzaSyDP7goPvbKrk1utbKISF2tJU-SwyuJdm2E",
-  authDomain: "breathe-free-c1566.firebaseapp.com",
-  projectId: "breathe-free-c1566",
-  storageBucket: "breathe-free-c1566.firebasestorage.app",
-  messagingSenderId: "169689352647",
-  appId: "1:169689352647:web:00fafecc859873d4eb31e2",
-  measurementId: "G-DTQR8G46W0",
-  vapidKey: "BMSqnRUaslFNE6JtlzBem_04MMSmaYVAGF3IkC2xFnqJ5MMcshy3GOTbnF4TIJzURpXJ1uYzatIktOavO2ka2NE"
+  apiKey: "AIzaSyAzgxQr0kFKzq2iqlmW37lfdFsPL9LWf-4",
+  authDomain: "autogram-14ddc.firebaseapp.com",
+  projectId: "autogram-14ddc",
+  storageBucket: "autogram-14ddc.firebasestorage.app",
+  messagingSenderId: "1058876303528",
+  appId: "1:1058876303528:web:dc1d26c72417769a933a9d",
+  measurementId: "G-4FD6QRJBNW",
+  vapidKey: "" // TODO: Add VAPID key for push notifications
 };
 
 /**
