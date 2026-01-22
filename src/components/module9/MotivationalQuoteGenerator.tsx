@@ -30,6 +30,7 @@ export function MotivationalQuoteGenerator() {
   const { user } = useAuth();
   const [category, setCategory] = useState<string>('motivation');
   const [style, setStyle] = useState<string>('bold');
+  const [language, setLanguage] = useState<'english' | 'hindi' | 'marathi'>('english');
   const [contentType, setContentType] = useState<'image' | 'video'>('image');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedQuote, setGeneratedQuote] = useState<GeneratedQuote | null>(null);
@@ -92,6 +93,7 @@ export function MotivationalQuoteGenerator() {
           category,
           style,
           contentType,
+          language,
         }),
       });
 
@@ -215,6 +217,23 @@ export function MotivationalQuoteGenerator() {
                 <SelectItem value="custom">Custom (Black Theme)</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="language">Language</Label>
+            <Select value={language} onValueChange={(value) => setLanguage(value as 'english' | 'hindi' | 'marathi')}>
+              <SelectTrigger id="language">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="english">English</SelectItem>
+                <SelectItem value="hindi">Hindi (हिंदी)</SelectItem>
+                <SelectItem value="marathi">Marathi (मराठी)</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Quote and caption will be in the selected language
+            </p>
           </div>
 
           <div className="space-y-2">

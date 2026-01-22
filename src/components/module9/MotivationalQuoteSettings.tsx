@@ -24,6 +24,11 @@ import {
 
 const CATEGORIES = ['success', 'mindset', 'motivation', 'inspiration', 'life', 'wisdom', 'mixed'];
 const VISUAL_STYLES = ['modern', 'minimalist', 'vibrant', 'elegant', 'bold', 'serene', 'custom', 'mixed'];
+const LANGUAGES = [
+  { value: 'english', label: 'English' },
+  { value: 'hindi', label: 'Hindi (हिंदी)' },
+  { value: 'marathi', label: 'Marathi (मराठी)' }
+];
 
 // Generate time options with 15-minute intervals
 const generateTimeOptions = () => {
@@ -46,6 +51,7 @@ interface AccountConfig {
   style: string;
   contentType: 'image' | 'video';
   postingTimes: string[];
+  language?: 'english' | 'hindi' | 'marathi';
 }
 
 export function MotivationalQuoteSettings() {
@@ -68,6 +74,7 @@ export function MotivationalQuoteSettings() {
   const [category, setCategory] = React.useState('motivation');
   const [style, setStyle] = React.useState('modern');
   const [contentType, setContentType] = React.useState<'image' | 'video'>('image');
+  const [language, setLanguage] = React.useState<'english' | 'hindi' | 'marathi'>('english');
   const [postingTimes, setPostingTimes] = React.useState<string[]>([]);
   const [selectedTime, setSelectedTime] = React.useState('');
   const [selectedHour, setSelectedHour] = React.useState('');
@@ -146,6 +153,7 @@ export function MotivationalQuoteSettings() {
       setCategory(config.category);
       setStyle(config.style);
       setContentType(config.contentType);
+      setLanguage(config.language || 'english');
       setPostingTimes(config.postingTimes);
     } else {
       // New config
@@ -154,6 +162,7 @@ export function MotivationalQuoteSettings() {
       setCategory('motivation');
       setStyle('modern');
       setContentType('image');
+      setLanguage('english');
       setPostingTimes([]);
     }
     setSelectedTime('');
@@ -204,6 +213,7 @@ export function MotivationalQuoteSettings() {
         category,
         style,
         contentType,
+        language,
         postingTimes,
       };
       
@@ -533,6 +543,26 @@ export function MotivationalQuoteSettings() {
                     </Select>
                   </div>
 
+                  {/* Language Selection */}
+                  <div className="space-y-2">
+                    <Label htmlFor="language" className="text-sm sm:text-base font-semibold">Quote Language</Label>
+                    <Select value={language} onValueChange={(value) => setLanguage(value as 'english' | 'hindi' | 'marathi')}>
+                      <SelectTrigger id="language" className="h-10 sm:h-11">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LANGUAGES.map((lang) => (
+                          <SelectItem key={lang.value} value={lang.value}>
+                            {lang.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">
+                      Quotes and blog content will be generated in the selected language
+                    </p>
+                  </div>
+
                   {/* Content Type */}
                   <div className="space-y-2">
                     <Label htmlFor="content-type" className="text-sm sm:text-base font-semibold">Content Type</Label>
@@ -708,6 +738,14 @@ export function MotivationalQuoteSettings() {
                           <div>
                             <span className="text-muted-foreground">Style:</span>{' '}
                             <span className="font-medium">{config.style.charAt(0).toUpperCase() + config.style.slice(1)}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Language:</span>{' '}
+                            <span className="font-medium">
+                              {config.language === 'hindi' ? 'Hindi (हिंदी)' : 
+                               config.language === 'marathi' ? 'Marathi (मराठी)' : 
+                               'English'}
+                            </span>
                           </div>
                         </div>
 
