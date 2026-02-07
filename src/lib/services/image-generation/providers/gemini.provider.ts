@@ -119,7 +119,7 @@ export class GeminiProvider implements ImageGenerationProvider {
   }
 
   async getAvailableModels(): Promise<string[]> {
-    return ['gemini-2.0-flash-exp', 'gemini-1.5-flash'];
+    return ['gemini-1.5-flash', 'gemini-1.5-pro'];
   }
 
   supportsFeature(feature: 'reference-image' | 'style-control' | 'negative-prompt' | 'async-generation'): boolean {
