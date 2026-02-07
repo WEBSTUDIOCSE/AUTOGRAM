@@ -117,13 +117,13 @@ const PROD_KIEAI: KieAIConfig = {
 const PROD_INSTAGRAM: InstagramConfig = {
     accounts: [
         {
-            id: "account1",
+            id: "account_17841480104924818",
             name: "Production Account 1",
-            username: process.env.INSTAGRAM_USERNAME_1_PROD || "",
-            accessToken: process.env.INSTAGRAM_ACCESS_TOKEN_1_PROD || "",
-            accountId: process.env.INSTAGRAM_ACCOUNT_ID_1_PROD || "",
-            appId: process.env.INSTAGRAM_APP_ID_1_PROD || "",
-            appSecret: process.env.INSTAGRAM_APP_SECRET_1_PROD || "",
+            username: "", // Will be fetched from Instagram API
+            accessToken: "EAANgdOhaYZCQBQmI5l0N9LGSZCKaPMTZAZAv0XlAN5NFkplBNTxWB0kR0tQ8qb2YMrvyGZBnq8bEEhVXCgX24jz7zYocmeF7Copu3m8JKdTObEN9h0z7Nfxiljdw9252TGRt4pTKZBooQCVOZC2MAFMX28HbsbCufWZBdNIDJzo6hMWe7z0iEThqxck8gnNH2Mbv",
+            accountId: "17841480104924818",
+            appId: "950480160842740",
+            appSecret:  "5ff5442ec5df7d9af18f7faecde730a9",
             isActive: true
         }
         // Add more production accounts via environment variables
@@ -154,7 +154,7 @@ export const ENVIRONMENTS: Record<'UAT' | 'PROD', EnvironmentConfig> = {
  * Boolean environment switcher
  * Set to true for PROD, false for UAT
  */
-export const IS_PRODUCTION = false;
+export const IS_PRODUCTION = true;
 
 /**
  * Get current environment configuration
