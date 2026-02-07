@@ -51,38 +51,46 @@ Currently only UAT is configured. Add production:
 Then deploy to prod with: `firebase use production && firebase deploy`
 
 ### 1.2 Firestore Indexes — Deploy to Production
-The `firestore.indexes.json` file has all the composite indexes. Deploy them to the prod project:
+
+The `firestore.indexes.json` file has all 20 composite indexes. 
+
+#### Option 1: Automatic (Recommended) — Firebase CLI
 ```bash
 firebase use production
 firebase deploy --only firestore:indexes
 ```
 
-**Or create indexes manually via console** → [PROD Indexes](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes) | [UAT Indexes](https://console.firebase.google.com/project/env-uat-cd3c5/firestore/indexes)
+#### Option 2: Get Direct Links — Run Helper Script
+```bash
+node scripts/create-firestore-indexes.js autogram-14ddc
+```
+This will output all direct console links organized by collection group.
 
-**Collections that need indexes in PROD (20 composite indexes total):**
+#### Option 3: Manual Creation via Console
+Use the links below to open the Firestore Indexes page filtered by collection group, then click **"Add Index"** for each entry:
 
-| # | Collection | Fields | Console Link |
+| # | Collection | Fields | Indexes Page |
 |---|---|---|---|
-| 1 | `character_posts` | `userId` ↑ + `timestamp` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=character_posts&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=timestamp&fieldOrder2=DESCENDING) |
-| 2 | `character_posts` | `characterId` ↑ + `timestamp` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=character_posts&queryScope=COLLECTION&fieldPath=characterId&fieldOrder=ASCENDING&fieldPath2=timestamp&fieldOrder2=DESCENDING) |
-| 3 | `auto_post_logs` | `userId` ↑ + `executedAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=auto_post_logs&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=executedAt&fieldOrder2=DESCENDING) |
-| 4 | `prompt_templates` | `userId` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=prompt_templates&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=createdAt&fieldOrder2=DESCENDING) |
-| 5 | `prompt_templates` | `userId` ↑ + `isActive` ↑ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=prompt_templates&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=isActive&fieldOrder2=ASCENDING) |
-| 6 | `family_auto_post_logs` | `userId` ↑ + `executedAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=family_auto_post_logs&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=executedAt&fieldOrder2=DESCENDING) |
-| 7 | `family_auto_post_logs` | `userId` ↑ + `familyProfileId` ↑ + `executedAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=family_auto_post_logs&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=familyProfileId&fieldOrder2=ASCENDING&fieldPath3=executedAt&fieldOrder3=DESCENDING) |
-| 8 | `family_auto_post_logs` | `userId` ↑ + `familyProfileId` ↑ + `status` ↑ + `executedAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=family_auto_post_logs&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=familyProfileId&fieldOrder2=ASCENDING&fieldPath3=status&fieldOrder3=ASCENDING&fieldPath4=executedAt&fieldOrder4=DESCENDING) |
-| 9 | `family_prompt_templates` | `userId` ↑ + `familyProfileId` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=family_prompt_templates&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=familyProfileId&fieldOrder2=ASCENDING&fieldPath3=createdAt&fieldOrder3=DESCENDING) |
-| 10 | `family_prompt_templates` | `userId` ↑ + `familyProfileId` ↑ + `category` ↑ + `isActive` ↑ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=family_prompt_templates&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=familyProfileId&fieldOrder2=ASCENDING&fieldPath3=category&fieldOrder3=ASCENDING&fieldPath4=isActive&fieldOrder4=ASCENDING) |
-| 11 | `characters` | `userId` ↑ + `module` ↑ + `uploadedAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=characters&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=module&fieldOrder2=ASCENDING&fieldPath3=uploadedAt&fieldOrder3=DESCENDING) |
-| 12 | `video_auto_post_logs` | `userId` ↑ + `executedAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=video_auto_post_logs&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=executedAt&fieldOrder2=DESCENDING) |
-| 13 | `video_prompts` | `userId` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=video_prompts&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=createdAt&fieldOrder2=DESCENDING) |
-| 14 | `motivational_quotes` | `userId` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=motivational_quotes&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=createdAt&fieldOrder2=DESCENDING) |
-| 15 | `motivational_quotes` | `userId` ↑ + `category` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=motivational_quotes&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=category&fieldOrder2=ASCENDING&fieldPath3=createdAt&fieldOrder3=DESCENDING) |
-| 16 | `motivational_quote_prompts` | `userId` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=motivational_quote_prompts&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=createdAt&fieldOrder2=DESCENDING) |
-| 17 | `motivational_quote_prompts` | `userId` ↑ + `isActive` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=motivational_quote_prompts&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=isActive&fieldOrder2=ASCENDING&fieldPath3=createdAt&fieldOrder3=DESCENDING) |
-| 18 | `motivational_auto_post_logs` | `userId` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=motivational_auto_post_logs&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=createdAt&fieldOrder2=DESCENDING) |
-| 19 | `motivational_auto_post_logs` | `promptId` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=motivational_auto_post_logs&queryScope=COLLECTION&fieldPath=promptId&fieldOrder=ASCENDING&fieldPath2=createdAt&fieldOrder2=DESCENDING) |
-| 20 | `motivational_auto_post_logs` | `userId` ↑ + `timestamp` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=motivational_auto_post_logs&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=timestamp&fieldOrder2=DESCENDING) |
+| 1 | `character_posts` | `userId` ↑ + `timestamp` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=character_posts) |
+| 2 | `character_posts` | `characterId` ↑ + `timestamp` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=character_posts) |
+| 3 | `auto_post_logs` | `userId` ↑ + `executedAt` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=auto_post_logs) |
+| 4 | `prompt_templates` | `userId` ↑ + `createdAt` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=prompt_templates) |
+| 5 | `prompt_templates` | `userId` ↑ + `isActive` ↑ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=prompt_templates) |
+| 6 | `family_auto_post_logs` | `userId` ↑ + `executedAt` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=family_auto_post_logs) |
+| 7 | `family_auto_post_logs` | `userId` ↑ + `familyProfileId` ↑ + `executedAt` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=family_auto_post_logs) |
+| 8 | `family_auto_post_logs` | `userId` ↑ + `familyProfileId` ↑ + `status` ↑ + `executedAt` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=family_auto_post_logs) |
+| 9 | `family_prompt_templates` | `userId` ↑ + `familyProfileId` ↑ + `createdAt` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=family_prompt_templates) |
+| 10 | `family_prompt_templates` | `userId` ↑ + `familyProfileId` ↑ + `category` ↑ + `isActive` ↑ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=family_prompt_templates) |
+| 11 | `characters` | `userId` ↑ + `module` ↑ + `uploadedAt` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=characters) |
+| 12 | `video_auto_post_logs` | `userId` ↑ + `executedAt` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=video_auto_post_logs) |
+| 13 | `video_prompts` | `userId` ↑ + `createdAt` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=video_prompts) |
+| 14 | `motivational_quotes` | `userId` ↑ + `createdAt` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=motivational_quotes) |
+| 15 | `motivational_quotes` | `userId` ↑ + `category` ↑ + `createdAt` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=motivational_quotes) |
+| 16 | `motivational_quote_prompts` | `userId` ↑ + `createdAt` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=motivational_quote_prompts) |
+| 17 | `motivational_quote_prompts` | `userId` ↑ + `isActive` ↑ + `createdAt` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=motivational_quote_prompts) |
+| 18 | `motivational_auto_post_logs` | `userId` ↑ + `createdAt` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=motivational_auto_post_logs) |
+| 19 | `motivational_auto_post_logs` | `promptId` ↑ + `createdAt` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=motivational_auto_post_logs) |
+| 20 | `motivational_auto_post_logs` | `userId` ↑ + `timestamp` ↓ | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes?collectionGroupId=motivational_auto_post_logs) |
 
 ### 1.3 Firestore Security Rules — Deploy to Production
 
