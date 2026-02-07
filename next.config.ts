@@ -2,10 +2,8 @@ import withPWA from "@ducanh2912/next-pwa";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  eslint: {
-    // Ignore ESLint errors during builds
-    ignoreDuringBuilds: true,
-  },
+  // Turbopack is default in Next.js 16 - empty config to acknowledge
+  turbopack: {},
   typescript: {
     // Optionally ignore TypeScript errors during builds (not recommended for production)
     // ignoreBuildErrors: true,

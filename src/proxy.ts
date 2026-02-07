@@ -1,6 +1,7 @@
 /**
- * Next.js Middleware for Route Protection
+ * Next.js Proxy for Route Protection (Next.js 16+)
  * Handles authentication checks before pages render
+ * Renamed from middleware.ts to proxy.ts per Next.js 16 convention
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -22,7 +23,7 @@ const authRoutes = [
   '/forgot-password',
 ];
 
-export function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // Get auth status from cookie (Firebase sets this)
