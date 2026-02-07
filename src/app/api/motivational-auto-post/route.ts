@@ -14,13 +14,10 @@ const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://autogram-orpin.verc
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
-  console.log(`[Module 9 API] ===== NEW REQUEST RECEIVED =====`);
-  console.log(`[Module 9 API] Timestamp: ${new Date().toISOString()}`);
 
   try {
     // Parse request body
     const body = await request.json();
-    console.log(`[Module 9 API] Request body:`, JSON.stringify(body, null, 2));
 
     const { userId, scheduledTime, authToken, accountId, category, style, contentType } = body;
 
@@ -30,31 +27,23 @@ export async function POST(request: NextRequest) {
     let effectiveUserId: string;
 
     if (authToken) {
-      console.log(`[Module 9 API] 🔐 Token verification - Match: ${authToken === expectedToken}`);
       
       if (authToken !== expectedToken) {
-        console.error(`[Module 9 API] ❌ Invalid auth token`);
-        console.error(`[Module 9 API] Expected token: ${expectedToken?.substring(0, 10)}...`);
-        console.error(`[Module 9 API] Received token: ${authToken?.substring(0, 10)}...`);
         return NextResponse.json({ error: 'Invalid authentication token' }, { status: 401 });
       }
 
       // Using userId from request body (from Firebase Functions)
       if (!userId) {
-        console.error(`[Module 9 API] ❌ Missing userId in request`);
         return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
       }
       effectiveUserId = userId;
-      console.log(`[Module 9 API] ✅ Authenticated via authToken for user: ${effectiveUserId}`);
     } else {
       // Using authenticated user (from web app)
       const user = await getCurrentUser();
       if (!user) {
-        console.error(`[Module 9 API] ❌ Unauthorized - no user session`);
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
       effectiveUserId = user.uid;
-      console.log(`[Module 9 API] ✅ Authenticated via session for user: ${effectiveUserId}`);
     }
 
     // Get auto-post configuration
@@ -95,7 +84,6 @@ export async function POST(request: NextRequest) {
         const shouldPost = accountConfig.postingTimes.some(time => time === currentHour.substring(0, 5));
 
         if (!shouldPost) {
-          console.log(`Not posting time for ${instagramAccount.name}. Current: ${currentHour}, Scheduled: ${accountConfig.postingTimes.join(', ')}`);
           continue;
         }
 
@@ -129,10 +117,6 @@ export async function POST(request: NextRequest) {
         const recentQuotes = recentLogs
           .filter((log): log is string => typeof log === 'string' && !!log);
 
-        console.log(`📝 [Module 9] Generating quote for ${instagramAccount.name}`);
-        console.log(`   Category: ${accountConfig.category} | Style: ${accountConfig.style}`);
-        console.log(`   Recent quotes to avoid: ${recentQuotes.length}`);
-
         // Generate unique quote using AI based on category and style
         quoteData = await APIBook.motivationalPromptRefiner.generateUniqueQuote({
           category: accountConfig.category,
@@ -152,7 +136,6 @@ export async function POST(request: NextRequest) {
         );
 
         if (isDuplicate) {
-          console.warn(`⚠️ [Module 9] Generated quote is a duplicate, generating a new one...`);
           // Force retry with the duplicate added to avoidance list
           quoteData = await APIBook.motivationalPromptRefiner.generateUniqueQuote({
             category: accountConfig.category,
@@ -163,9 +146,6 @@ export async function POST(request: NextRequest) {
             recentQuotes: [...recentQuotes, quoteData.quoteText, '__FORCE_UNIQUE__'],
           });
         }
-
-        console.log(`✨ Generated quote: "${quoteData.quoteText.substring(0, 60)}..."`);
-        console.log(`🎨 Visual style: ${accountConfig.style}`);
 
         // Strip markdown formatting from quote text
         const cleanQuoteText = quoteData.quoteText
@@ -188,14 +168,11 @@ export async function POST(request: NextRequest) {
         const imageModel = moduleAIConfig?.textToImageModel || globalPreferences?.textToImageModel;
         const videoModel = moduleAIConfig?.textToVideoModel || globalPreferences?.textToVideoModel;
         
-        console.log(`🔧 [AI Models] Image: ${imageModel || 'default'} | Video: ${videoModel || 'default'}`);
-        console.log(`   Source: ${moduleAIConfig?.textToImageModel ? 'Module-specific' : 'Global settings'}`);
 
         // Generate media (image or video) using unified services
         let mediaUrl: string;
         
         if (actualContentType === 'image') {
-          console.log(`📸 [STEP 1/4] Generating image with model: ${imageModel || 'default'}...`);
           
           // Determine provider from model
           let provider: 'gemini' | 'kieai' | undefined;
@@ -219,9 +196,6 @@ export async function POST(request: NextRequest) {
             throw new Error(`Image generation failed: No image data returned`);
           }
 
-          console.log(`✅ [STEP 1/4] Image generated with ${result.provider}`);
-
-          console.log(`📤 [STEP 2/4] Uploading to Firebase Storage...`);
           
           try {
             // Upload to Firebase Storage (even if Instagram post fails later)
@@ -235,13 +209,10 @@ export async function POST(request: NextRequest) {
             firebaseMediaUrl = uploadResult.imageUrl;
             mediaUrl = uploadResult.imageUrl; // Use Firebase URL for Instagram
             
-            console.log(`✅ [STEP 2/4] Firebase upload complete: ${firebaseMediaUrl.substring(0, 80)}...`);
           } catch (uploadError) {
-            console.error(`❌ [STEP 2/4] Firebase upload failed:`, uploadError);
             throw new Error(`Firebase upload failed: ${uploadError instanceof Error ? uploadError.message : String(uploadError)}`);
           }
         } else {
-          console.log(`🎬 Generating video with model: ${videoModel || 'default'}...`);
           
           // Create explicit prompt with exact quote text for video
           const explicitVideoPrompt = `CRITICAL: Display this EXACT text prominently: "${cleanQuoteText}"\n\nStyle and motion: ${quoteData.visualPrompt}`;
@@ -259,7 +230,6 @@ export async function POST(request: NextRequest) {
             throw new Error('Failed to generate video - no video URL returned');
           }
 
-          console.log(`✅ Video generated successfully, uploading to Firebase Storage...`);
           
           // Upload video to Firebase Storage
           firebaseMediaUrl = await VideoStorageService.uploadVideoFromUrl(
@@ -270,7 +240,6 @@ export async function POST(request: NextRequest) {
           
           mediaUrl = firebaseMediaUrl; // Use Firebase URL for Instagram
           
-          console.log(`✅ Video uploaded to Firebase: ${firebaseMediaUrl.substring(0, 80)}...`);
         }
 
         // Create caption with TITLE only (quote is on the image)
@@ -284,10 +253,6 @@ export async function POST(request: NextRequest) {
         caption += `\n\n${hashtags}`;
 
         // Post to Instagram using InstagramService directly
-        console.log(`📸 [STEP 3/4] Posting to Instagram account: ${instagramAccount.id}...`);
-        console.log(`   Media URL: ${mediaUrl.substring(0, 100)}...`);
-        console.log(`   Caption length: ${caption.length} chars`);
-        console.log(`   Is Video: ${actualContentType === 'video'}`);
         
         let instagramPostId: string;
         try {
@@ -297,14 +262,11 @@ export async function POST(request: NextRequest) {
             instagramAccount.id,
             actualContentType === 'video' // isVideo flag
           );
-          console.log(`✅ [STEP 3/4] Posted to Instagram! Post ID: ${instagramPostId}`);
         } catch (igError) {
-          console.error(`❌ [STEP 3/4] Instagram posting failed:`, igError);
           throw new Error(`Instagram posting failed: ${igError instanceof Error ? igError.message : String(igError)}`);
         }
 
         // Generate blog content
-        console.log(`📝 [STEP 4/5] Generating blog content...`);
         const blogContent = await MotivationalBlogGeneratorService.generateBlogContent({
           quoteText: quoteData.quoteText,
           author: quoteData.author,
@@ -313,10 +275,8 @@ export async function POST(request: NextRequest) {
           subcategories: quoteData.subcategories || [quoteData.subcategory],
           language: accountConfig.language,
         });
-        console.log(`✅ [STEP 4/5] Blog content generated successfully`);
 
         // Update log with success
-        console.log(`💾 [STEP 5/5] Updating database log...`);
         await APIBook.motivationalAutoPostLog.updateLog(logId, {
           status: 'success',
           quoteText: quoteData.quoteText,
@@ -339,9 +299,7 @@ export async function POST(request: NextRequest) {
           quoteText: quoteData.quoteText,
         });
 
-        console.log(`✅ [Module 9 API] Successfully posted for account ${instagramAccount.name}`);
       } catch (error) {
-        console.error(`❌ [Module 9 API] Error processing account ${accountConfig.accountId}:`, error);
         
         // Update log with failure status (keep the generated media URL if available)
         try {
@@ -362,7 +320,6 @@ export async function POST(request: NextRequest) {
             }),
           });
         } catch (updateError) {
-          console.error('Failed to update log on error:', updateError);
         }
         
         results.push({
@@ -376,10 +333,6 @@ export async function POST(request: NextRequest) {
     const endTime = Date.now();
     const duration = endTime - startTime;
 
-    console.log(`[Module 9 API] ===== REQUEST COMPLETED =====`);
-    console.log(`[Module 9 API] Duration: ${duration}ms`);
-    console.log(`[Module 9 API] Results:`, JSON.stringify(results, null, 2));
-
     return NextResponse.json({
       success: true,
       results,
@@ -391,7 +344,6 @@ export async function POST(request: NextRequest) {
     const endTime = Date.now();
     const duration = endTime - startTime;
     
-    console.error(`❌ [Module 9 API] Error in motivational auto-post (${duration}ms):`, error);
     return NextResponse.json(
       { 
         success: false,

@@ -55,8 +55,6 @@ Be CREATIVE and SPECIFIC with unique scenarios.
 Avoid repeating any elements from recent scenes.
 Output the prompt only, no explanations.`;
 
-      console.log('🤖 [Module 4] Generating AI-varied family prompt...');
-
       const response = await genAI.models.generateContent({
         model: modelName,
         contents: generationPrompt,
@@ -74,7 +72,6 @@ Output the prompt only, no explanations.`;
       }
 
       if (!generatedPrompt) {
-        console.warn('AI generation failed, using base prompt with random variation');
         return this.createSimpleVariation(basePrompt, context);
       }
 
@@ -93,11 +90,9 @@ Output the prompt only, no explanations.`;
         }
       }
 
-      console.log('✅ [Module 4] Generated unique family prompt:', generatedPrompt.length, 'chars');
       return generatedPrompt;
 
     } catch (error) {
-      console.error('❌ [Module 4] Generation error:', error);
       return this.createSimpleVariation(basePrompt, context);
     }
   },

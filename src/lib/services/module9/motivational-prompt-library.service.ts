@@ -38,7 +38,6 @@ export const MotivationalPromptLibraryService = {
       const docRef = await addDoc(collection(db, 'motivational_quote_prompts'), promptData);
       return docRef.id;
     } catch (error) {
-      console.error('Error creating motivational prompt:', error);
       throw error;
     }
   },
@@ -60,7 +59,6 @@ export const MotivationalPromptLibraryService = {
         ...doc.data()
       } as MotivationalPrompt));
     } catch (error) {
-      console.error('Error getting user prompts:', error);
       throw error;
     }
   },
@@ -83,7 +81,6 @@ export const MotivationalPromptLibraryService = {
         ...doc.data()
       } as MotivationalPrompt));
     } catch (error) {
-      console.error('Error getting active prompts:', error);
       throw error;
     }
   },
@@ -105,7 +102,6 @@ export const MotivationalPromptLibraryService = {
 
       return null;
     } catch (error) {
-      console.error('Error getting prompt by ID:', error);
       throw error;
     }
   },
@@ -121,7 +117,6 @@ export const MotivationalPromptLibraryService = {
         updatedAt: Timestamp.now(),
       });
     } catch (error) {
-      console.error('Error updating motivational prompt:', error);
       throw error;
     }
   },
@@ -134,7 +129,6 @@ export const MotivationalPromptLibraryService = {
       const docRef = doc(db, 'motivational_quote_prompts', promptId);
       await deleteDoc(docRef);
     } catch (error) {
-      console.error('Error deleting motivational prompt:', error);
       throw error;
     }
   },
@@ -156,7 +150,6 @@ export const MotivationalPromptLibraryService = {
         });
       }
     } catch (error) {
-      console.error('Error incrementing usage count:', error);
       throw error;
     }
   },

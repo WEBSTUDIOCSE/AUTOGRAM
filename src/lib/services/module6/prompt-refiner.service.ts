@@ -182,8 +182,6 @@ CRITICAL REQUIREMENTS:
 
 Generate the refined video prompt now:`;
 
-      console.log('🎬 [Module 6] Refining video prompt with strategy:', strategy.name);
-
       const response = await genAI.models.generateContent({
         model: modelName,
         contents: refinementPrompt,
@@ -201,7 +199,6 @@ Generate the refined video prompt now:`;
       }
 
       if (!refinedPrompt) {
-        console.warn('No refined prompt received, using original');
         return videoPrompt;
       }
 
@@ -219,7 +216,6 @@ Generate the refined video prompt now:`;
       const MAX_LENGTH = 600;
       
       if (refinedPrompt.length < MIN_LENGTH) {
-        console.warn('Refined prompt too short, using original');
         return videoPrompt;
       }
 
@@ -231,11 +227,9 @@ Generate the refined video prompt now:`;
         }
       }
 
-      console.log('✅ [Module 6] Refined with strategy:', strategy.name, '| Length:', refinedPrompt.length, 'chars');
       return refinedPrompt;
 
     } catch (error) {
-      console.error('❌ [Module 6] Refinement error:', error);
       return videoPrompt;
     }
   },

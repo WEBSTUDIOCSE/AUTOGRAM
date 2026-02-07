@@ -21,23 +21,16 @@ export class GeminiProvider implements ImageGenerationProvider {
 
     const modelName = model || getImageModelName();
     
-    console.log(`🔍 [Gemini Provider] Configuration:`, {
-      modelName: modelName,
-      promptLength: prompt.length
-    });
     
     // Enhanced prompt for better image generation
     const enhancedPrompt = `Create a high-quality, detailed, professional picture of: ${prompt}. The image should be visually appealing, well-composed, and suitable for Instagram posting.`;
     
-    console.log(`📤 [Gemini] Calling Image Generation API...`);
     
     // Call Gemini Image Generation API
     const response = await genAI.models.generateContent({
       model: modelName,
       contents: enhancedPrompt,
     }) as { candidates?: Array<{ content?: { parts?: Array<{ inlineData?: { data: string } }> } }> };
-
-    console.log(`📥 [Gemini] Response received, extracting image...`);
 
     // Extract image from response
     let imageBase64 = '';
@@ -184,7 +177,6 @@ HASHTAGS: [space-separated hashtags]`;
         };
       }
     } catch (error) {
-      console.error('Caption generation failed:', error);
     }
 
     return {

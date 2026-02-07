@@ -42,7 +42,6 @@ export const MotivationalQuoteService = {
       const docRef = await addDoc(collection(db, 'motivational_quotes'), quoteData);
       return docRef.id;
     } catch (error) {
-      console.error('Error creating motivational quote:', error);
       throw error;
     }
   },
@@ -68,7 +67,6 @@ export const MotivationalQuoteService = {
         ...doc.data()
       } as MotivationalQuote));
     } catch (error) {
-      console.error('Error getting user quotes:', error);
       throw error;
     }
   },
@@ -91,7 +89,6 @@ export const MotivationalQuoteService = {
         ...doc.data()
       } as MotivationalQuote));
     } catch (error) {
-      console.error('Error getting quotes by category:', error);
       throw error;
     }
   },
@@ -113,7 +110,6 @@ export const MotivationalQuoteService = {
 
       return null;
     } catch (error) {
-      console.error('Error getting quote by ID:', error);
       throw error;
     }
   },
@@ -129,7 +125,6 @@ export const MotivationalQuoteService = {
         updatedAt: Timestamp.now(),
       });
     } catch (error) {
-      console.error('Error updating motivational quote:', error);
       throw error;
     }
   },
@@ -142,7 +137,6 @@ export const MotivationalQuoteService = {
       const docRef = doc(db, 'motivational_quotes', quoteId);
       await deleteDoc(docRef);
     } catch (error) {
-      console.error('Error deleting motivational quote:', error);
       throw error;
     }
   },
@@ -166,7 +160,6 @@ export const MotivationalQuoteService = {
         ...doc.data()
       } as MotivationalQuote));
     } catch (error) {
-      console.error('Error getting posted quotes:', error);
       throw error;
     }
   },

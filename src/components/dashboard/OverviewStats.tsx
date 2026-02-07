@@ -50,7 +50,6 @@ export function OverviewStats({ userId }: { userId: string }) {
         activeCharacters,
       });
     } catch (error) {
-      console.error('Error loading stats:', error);
     } finally {
       setLoading(false);
     }

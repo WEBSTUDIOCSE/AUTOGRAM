@@ -54,7 +54,6 @@ export class FamilyPromptService {
         };
       });
     } catch (error) {
-      console.error('Error getting family prompts:', error);
       throw new Error('Failed to get family prompts');
     }
   }
@@ -93,7 +92,6 @@ export class FamilyPromptService {
         };
       });
     } catch (error) {
-      console.error('Error getting prompts by category:', error);
       throw new Error('Failed to get prompts by category');
     }
   }
@@ -137,7 +135,6 @@ export class FamilyPromptService {
         updatedAt: new Date().toISOString(),
       };
     } catch (error) {
-      console.error('Error creating prompt:', error);
       throw new Error('Failed to create prompt');
     }
   }
@@ -161,7 +158,6 @@ export class FamilyPromptService {
         updatedAt: serverTimestamp(),
       });
     } catch (error) {
-      console.error('Error updating prompt:', error);
       throw new Error('Failed to update prompt');
     }
   }
@@ -174,7 +170,6 @@ export class FamilyPromptService {
       const promptRef = doc(db, COLLECTION_NAME, promptId);
       await deleteDoc(promptRef);
     } catch (error) {
-      console.error('Error deleting prompt:', error);
       throw new Error('Failed to delete prompt');
     }
   }
@@ -194,7 +189,6 @@ export class FamilyPromptService {
         updatedAt: serverTimestamp(),
       });
     } catch (error) {
-      console.error('Error incrementing prompt usage:', error);
       throw new Error('Failed to update prompt usage');
     }
   }
@@ -210,7 +204,6 @@ export class FamilyPromptService {
 
     // No hardcoded prompts - users must create their own
     // This encourages authentic, personalized content
-    console.log(`[FamilyPromptService] No default prompts - user should create custom ${category} prompts`);
     return [];
   }
 
@@ -276,7 +269,6 @@ export class FamilyPromptService {
         }
       }
     } catch (error) {
-      console.error('Error initializing default prompts:', error);
       throw new Error('Failed to initialize default prompts');
     }
   }
@@ -297,7 +289,6 @@ export class FamilyPromptService {
         await this.createPrompt(userId, familyProfileId, category, promptText);
       }
     } catch (error) {
-      console.error('Error generating default prompts:', error);
       throw new Error('Failed to generate default prompts');
     }
   }

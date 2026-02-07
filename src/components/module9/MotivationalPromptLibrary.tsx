@@ -72,7 +72,6 @@ export function MotivationalPromptLibrary() {
       setPrompts(promptsData);
       setInstagramAccounts(accountsData);
     } catch (error) {
-      console.error('Error loading data:', error);
       toast.error('Failed to load prompt library');
     } finally {
       setLoading(false);
@@ -161,7 +160,6 @@ export function MotivationalPromptLibrary() {
       setDialogOpen(false);
       await loadData();
     } catch (error) {
-      console.error('Error saving prompt:', error);
       toast.error('Failed to save prompt');
     } finally {
       setSaving(false);
@@ -178,7 +176,6 @@ export function MotivationalPromptLibrary() {
       toast.success('Prompt deleted successfully');
       await loadData();
     } catch (error) {
-      console.error('Error deleting prompt:', error);
       toast.error('Failed to delete prompt');
     }
   };

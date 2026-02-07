@@ -27,26 +27,18 @@ export const getCurrentUser = cache(async (): Promise<ServerUser | null> => {
     const userData = cookieStore.get('userData')?.value;
 
     // Debug logging (remove in production)
-    console.log('[Auth] Checking cookies:', {
-      hasAuthToken: !!authToken,
-      hasUserData: !!userData,
-    });
 
     if (!authToken) {
-      console.log('[Auth] No auth token found');
       return null;
     }
 
     if (!userData) {
-      console.log('[Auth] Auth token exists but no user data');
       return null;
     }
 
     const user = JSON.parse(userData);
-    console.log('[Auth] User found:', user.email);
     return user;
   } catch (error) {
-    console.error('[Auth] Error getting current user:', error);
     return null;
   }
 });

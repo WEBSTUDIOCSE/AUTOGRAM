@@ -32,7 +32,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ imageBase64: base64 });
   } catch (error) {
-    console.error('Error converting image:', error);
     return NextResponse.json(
       { error: 'Failed to convert image to base64' },
       { status: 500 }

@@ -58,7 +58,6 @@ export default function AutoPostSettings({ userId, characters }: AutoPostSetting
               name: data.name || account.name
             };
           } catch (err) {
-            console.error(`Failed to fetch username for account ${account.accountId}:`, err);
             return account;
           }
         })
@@ -66,7 +65,6 @@ export default function AutoPostSettings({ userId, characters }: AutoPostSetting
       
       setAvailableAccounts(accountsWithUsernames);
     } catch (err) {
-      console.error('Failed to load Instagram accounts:', err);
       setAvailableAccounts(InstagramService.getAccounts());
     } finally {
       setLoadingAccounts(false);

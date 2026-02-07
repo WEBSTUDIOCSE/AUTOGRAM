@@ -24,8 +24,6 @@ Requirements:
 
 Output refined prompt only.`;
 
-      console.log('🎨 [Module 2] Refining character prompt...');
-
       const response = await genAI.models.generateContent({
         model: modelName,
         contents: refinementPrompt,
@@ -43,7 +41,6 @@ Output refined prompt only.`;
       }
 
       if (!refinedPrompt) {
-        console.warn('No refined prompt received, using original');
         return scenePrompt;
       }
 
@@ -62,11 +59,9 @@ Output refined prompt only.`;
         }
       }
 
-      console.log('✅ [Module 2] Refined:', refinedPrompt.length, 'chars');
       return refinedPrompt;
 
     } catch (error) {
-      console.error('❌ [Module 2] Refinement error:', error);
       return scenePrompt;
     }
   },

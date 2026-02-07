@@ -62,7 +62,6 @@ export class FamilyLogService {
         };
       });
     } catch (error) {
-      console.error('Error getting profile logs:', error);
       throw new Error('Failed to get profile logs');
     }
   }
@@ -108,7 +107,6 @@ export class FamilyLogService {
         };
       });
     } catch (error) {
-      console.error('Error getting user logs:', error);
       throw new Error('Failed to get user logs');
     }
   }
@@ -151,7 +149,6 @@ export class FamilyLogService {
         executedAt: new Date().toISOString(),
       };
     } catch (error) {
-      console.error('Error creating log:', error);
       throw new Error('Failed to create log');
     }
   }
@@ -192,7 +189,6 @@ export class FamilyLogService {
 
       return { total, successful, failed, rate };
     } catch (error) {
-      console.error('Error calculating success rate:', error);
       throw new Error('Failed to calculate success rate');
     }
   }
@@ -241,7 +237,6 @@ export class FamilyLogService {
         };
       });
     } catch (error) {
-      console.error('Error getting recent failures:', error);
       throw new Error('Failed to get recent failures');
     }
   }

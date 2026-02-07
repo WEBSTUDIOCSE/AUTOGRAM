@@ -262,8 +262,6 @@ CRITICAL REQUIREMENTS:
 
 Generate the refined motion prompt now:`;
 
-      console.log('🎬 [Module 7] Refining motion prompt with strategy:', strategy.name, '| Subject:', subjectType);
-
       const response = await genAI.models.generateContent({
         model: modelName,
         contents: refinementPrompt,
@@ -281,7 +279,6 @@ Generate the refined motion prompt now:`;
       }
 
       if (!refinedPrompt) {
-        console.warn('No refined prompt received, using original');
         return motionPrompt;
       }
 
@@ -299,7 +296,6 @@ Generate the refined motion prompt now:`;
       const MAX_LENGTH = 600;
       
       if (refinedPrompt.length < MIN_LENGTH) {
-        console.warn('Refined prompt too short, using original');
         return motionPrompt;
       }
 
@@ -311,11 +307,9 @@ Generate the refined motion prompt now:`;
         }
       }
 
-      console.log('✅ [Module 7] Refined with strategy:', strategy.name, '| Subject:', subjectType, '| Length:', refinedPrompt.length, 'chars');
       return refinedPrompt;
 
     } catch (error) {
-      console.error('❌ [Module 7] Refinement error:', error);
       return motionPrompt;
     }
   },

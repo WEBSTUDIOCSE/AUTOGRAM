@@ -20,11 +20,9 @@ export function InstagramConnectionTest() {
       // Test with the first available account (account1)
       const info = await APIBook.instagram.testConnection('account1');
       setAccountInfo(info);
-      console.log('✅ Instagram connection successful:', info);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to connect';
       setError(errorMsg);
-      console.error('❌ Instagram connection failed:', err);
     } finally {
       setLoading(false);
     }

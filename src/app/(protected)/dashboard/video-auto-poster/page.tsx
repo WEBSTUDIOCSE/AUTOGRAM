@@ -72,7 +72,6 @@ export default function VideoAutoPosterPage() {
       const accounts = await InstagramService.fetchAccountsWithUsernames();
       setAvailableAccounts(accounts);
     } catch (err) {
-      console.error('Failed to load Instagram accounts:', err);
     }
   };
 
@@ -87,7 +86,6 @@ export default function VideoAutoPosterPage() {
       setTextToVideoPrompts(loadedPrompts.filter(p => p.videoType === 'text-to-video'));
       setImageToVideoPrompts(loadedPrompts.filter(p => p.videoType === 'image-to-video'));
     } catch (err) {
-      console.error('Failed to load video prompts:', err);
     } finally {
       setLoadingPrompts(false);
     }
@@ -101,7 +99,6 @@ export default function VideoAutoPosterPage() {
       const module7Characters = await APIBook.character.getCharactersByModule(user.uid, 'module7');
       setCharacters(module7Characters);
     } catch (err) {
-      console.error('Failed to load characters:', err);
     }
   };
 
@@ -229,7 +226,6 @@ export default function VideoAutoPosterPage() {
       await APIBook.videoPromptLibrary.deletePrompt(promptId);
       await loadPrompts();
     } catch (err) {
-      console.error('Failed to delete prompt:', err);
     }
   };
 

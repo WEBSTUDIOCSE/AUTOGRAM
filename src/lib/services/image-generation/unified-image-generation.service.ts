@@ -37,27 +37,19 @@ export class UnifiedImageGenerationService {
     provider?: ProviderType
   ): Promise<ImageGenerationResult> {
     // If no provider specified, load from Firebase preferences
-    console.log(`🔍 [UnifiedImageGeneration] Provider parameter: ${provider || 'NOT PROVIDED - will load from preferences'}`);
     
     const effectiveProvider = provider || await this.loadProviderFromPreferences();
-    console.log(`🔍 [UnifiedImageGeneration] Effective provider after preferences: ${effectiveProvider}`);
     
     const selectedProvider = await this.selectProvider(effectiveProvider, options);
-    console.log(`🔍 [UnifiedImageGeneration] Selected provider instance: ${selectedProvider.name}`);
     
-    console.log(`🎨 Generating image with ${selectedProvider.name}...`);
     
     try {
       const result = await selectedProvider.generateImage(options);
-      console.log(`✅ Image generated successfully with ${selectedProvider.name}`);
-      console.log(`💰 Estimated cost: $${result.cost?.toFixed(4) || '0.0000'}`);
       return result;
     } catch (error) {
-      console.error(`❌ ${selectedProvider.name} generation failed:`, error);
       
       // Fallback to alternative provider
       if (provider === 'auto') {
-        console.log('🔄 Trying fallback provider...');
         const fallbackProvider = this.getFallbackProvider(selectedProvider.name);
         if (fallbackProvider) {
           return fallbackProvider.generateImage(options);
@@ -86,7 +78,6 @@ export class UnifiedImageGenerationService {
     }
 
     if (!selectedProvider.supportsFeature('reference-image')) {
-      console.warn(`⚠️ ${selectedProvider.name} may not fully support reference images, using anyway...`);
     }
 
     return selectedProvider.generateWithReference(options, referenceImageBase64, imageUrl);
@@ -102,7 +93,6 @@ export class UnifiedImageGenerationService {
       try {
         models[name] = await provider.getAvailableModels();
       } catch (error) {
-        console.error(`Failed to get models from ${name}:`, error);
         models[name] = [];
       }
     }
@@ -121,7 +111,6 @@ export class UnifiedImageGenerationService {
         try {
           credits[name] = await provider.getCredits();
         } catch (error) {
-          console.error(`Failed to get credits from ${name}:`, error);
           credits[name] = { remaining: 0 };
         }
       }
@@ -183,21 +172,13 @@ export class UnifiedImageGenerationService {
    */
   private async loadProviderFromPreferences(): Promise<ProviderType> {
     try {
-      console.log('🔍 UnifiedImageGeneration: Loading preferences from Firebase...');
       const prefsResponse = await UserPreferencesService.getPreferences();
-      console.log('📦 UnifiedImageGeneration: Firebase response:', { 
-        success: prefsResponse.success, 
-        provider: prefsResponse.data?.aiProvider,
-        textToImageModel: prefsResponse.data?.textToImageModel,
-        imageToImageModel: prefsResponse.data?.imageToImageModel
-      });
       
       if (prefsResponse.success && prefsResponse.data) {
         const prefs = prefsResponse.data;
         
         // Reinitialize KieAI provider with user-selected models if available
         if (prefs.textToImageModel || prefs.imageToImageModel) {
-          console.log('🔧 Reinitializing KieAI provider with custom models...');
           
           const { getKieAIConfig } = await import('@/lib/firebase/config/environments');
           const kieaiConfig = {
@@ -212,18 +193,14 @@ export class UnifiedImageGenerationService {
           const provider = prefs.aiProvider;
           // Validate it's a valid provider
           if (provider === 'gemini' || provider === 'kieai') {
-            console.log(`✅ UnifiedImageGeneration: Using provider from Firebase: ${provider}`);
             return provider;
           }
         }
       }
-      console.log('⚠️ UnifiedImageGeneration: No valid provider in Firebase, using fallback');
     } catch (error) {
-      console.error('❌ UnifiedImageGeneration: Failed to load provider from Firebase:', error);
     }
     
     // Fallback to default provider
-    console.log(`🔄 UnifiedImageGeneration: Falling back to default provider: ${this.defaultProvider}`);
     return this.defaultProvider;
   }
 
@@ -259,7 +236,6 @@ export class UnifiedImageGenerationService {
       const [providerName, cost] = availableProviders[0];
       const selected = this.providers.get(providerName);
       if (selected) {
-        console.log(`🤖 Auto-selected ${providerName} (cheapest at $${cost.toFixed(4)})`);
         return selected;
       }
     }

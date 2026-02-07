@@ -57,7 +57,6 @@ export function RecentPrompts({ onSelectPrompt, onClearAll }: RecentPromptsProps
         
         setPrompts(items);
       } catch (error) {
-        console.error('Error fetching recent prompts:', error);
         setPrompts([]);
       } finally {
         setLoading(false);

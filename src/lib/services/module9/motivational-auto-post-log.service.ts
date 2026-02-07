@@ -47,7 +47,6 @@ export const MotivationalAutoPostLogService = {
       const docRef = await addDoc(collection(db, 'motivational_auto_post_logs'), logData);
       return docRef.id;
     } catch (error) {
-      console.error('Error creating motivational auto-post log:', error);
       throw error;
     }
   },
@@ -70,7 +69,6 @@ export const MotivationalAutoPostLogService = {
         ...doc.data()
       } as MotivationalAutoPostLog));
     } catch (error) {
-      console.error('Error getting user logs:', error);
       throw error;
     }
   },
@@ -107,14 +105,11 @@ export const MotivationalAutoPostLogService = {
         .filter((text): text is string => typeof text === 'string' && !!text);
       
       // Log for debugging duplicate issues
-      console.log(`📊 [Module 9 Log] Retrieved ${quotes.length} recent SUCCESSFUL quotes for deduplication check`);
       if (quotes.length > 0) {
-        console.log(`   Last 3 quotes: ${quotes.slice(0, 3).map(q => `"${q.substring(0, 40)}..."`).join(', ')}`);
       }
       
       return quotes;
     } catch (error) {
-      console.error('Error getting recent logs:', error);
       return [];
     }
   },
@@ -158,7 +153,6 @@ export const MotivationalAutoPostLogService = {
         if (existingQuote) {
           const normalizedExisting = existingQuote.toLowerCase().trim().replace(/\s+/g, ' ');
           if (normalizedExisting === normalizedQuote) {
-            console.warn(`⚠️ [Module 9 Log] Duplicate quote detected: "${quoteText.substring(0, 60)}..."`);
             return true;
           }
         }
@@ -166,7 +160,6 @@ export const MotivationalAutoPostLogService = {
 
       return false;
     } catch (error) {
-      console.error('Error checking quote duplicate:', error);
       return false; // On error, allow posting (better than blocking)
     }
   },
@@ -179,7 +172,6 @@ export const MotivationalAutoPostLogService = {
       const docRef = doc(db, 'motivational_auto_post_logs', logId);
       await updateDoc(docRef, data);
     } catch (error) {
-      console.error('Error updating motivational auto-post log:', error);
       throw error;
     }
   },

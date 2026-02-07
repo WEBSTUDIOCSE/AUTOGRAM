@@ -31,14 +31,8 @@ export const CharacterAIService = {
       // Enforce strict 250 character limit (safe buffer)
       const MAX_PROMPT_LENGTH = 250;
       if (fullPrompt.length > MAX_PROMPT_LENGTH) {
-        console.warn(`⚠️ Prompt too long (${fullPrompt.length} chars), truncating to ${MAX_PROMPT_LENGTH}`);
         fullPrompt = fullPrompt.substring(0, MAX_PROMPT_LENGTH).trim();
       }
-
-      console.log('🎨 Generating character scene with selected AI provider...');
-      console.log('📝 Scene prompt:', scenePrompt);
-      console.log('📏 Final prompt length:', fullPrompt.length, 'characters');
-      console.log('📝 Final prompt:', fullPrompt);
 
       // Strip data URI prefix if present
       let rawBase64 = characterBase64;
@@ -54,8 +48,6 @@ export const CharacterAIService = {
         characterUrl // Pass character URL for providers that need it (Kie.ai)
       );
 
-      console.log('✅ Character scene generated successfully');
-
       // Generate caption and hashtags using text model
       const { caption, hashtags } = await this.generateCaptionAndHashtags(
         scenePrompt
@@ -68,7 +60,6 @@ export const CharacterAIService = {
         model: result.model,
       };
     } catch (error) {
-      console.error('❌ Character AI generation error:', error);
       throw new Error(
         error instanceof Error ? error.message : 'Failed to generate character scene'
       );
@@ -83,8 +74,6 @@ export const CharacterAIService = {
   async generateCaptionAndHashtags(
     scenePrompt: string
   ): Promise<{ caption: string; hashtags: string }> {
-    console.log('🔥 [CAPTION GEN] Starting caption generation - Version: 2024-11-25-v3');
-    console.log('🔥 [CAPTION GEN] Scene prompt:', scenePrompt);
     
     try {
       const modelName = getTextModelName();
@@ -155,20 +144,15 @@ Remember: If the caption could work for ANY photo, it's too generic. Make it SPE
         }
       }
 
-      console.log('📝 AI Caption Response:', responseText.substring(0, 200) + '...');
-
       // Parse the response - use [\s\S] instead of . with s flag for ES5 compatibility
       const captionMatch = responseText.match(/CAPTION:\s*([\s\S]+?)(?=\n*HASHTAGS:|$)/);
       const hashtagsMatch = responseText.match(/HASHTAGS:\s*([\s\S]+?)$/);
 
-      console.log('🔍 Caption match found:', !!captionMatch);
       if (captionMatch) {
-        console.log('🔍 Captured caption:', captionMatch[1]?.trim().substring(0, 100));
       }
 
       // If parsing failed or caption too short, generate a simple dynamic caption from the scene
       if (!captionMatch || !captionMatch[1] || captionMatch[1].trim().length < 5) {
-        console.log('⚠️ Caption parsing failed, using simple fallback');
         
         // Simple fallback - just use a timestamp-based unique caption
         const hour = new Date().getHours();
@@ -203,30 +187,21 @@ Remember: If the caption could work for ANY photo, it's too generic. Make it SPE
       const hasBannedPhrase = bannedPhrases.some(phrase => captionLower.includes(phrase));
       
       if (hasBannedPhrase) {
-        console.log('⚠️ AI generated banned phrase, using simple fallback');
         
         // Simple emoji-only fallback
         const hour = new Date().getHours();
         caption = hour < 12 ? '✨' : hour < 17 ? '☀️' : '🌙';
       }
 
-      console.log('✅ Generated caption and hashtags');
-      console.log('📝 Final caption:', caption);
-      console.log('🏷️ Final hashtags:', hashtags);
-      console.log('🔥 [CAPTION GEN] Completed successfully - Version: 2024-11-25-v3');
-
       return { caption, hashtags };
     } catch (error) {
-      console.error('❌ Caption generation error:', error);
       
       // On error, use simple emoji fallback
-      console.log('⚠️ Using simple fallback due to error');
       
       const now = new Date();
       const hour = now.getHours();
       const caption = hour < 12 ? '✨' : hour < 17 ? '☀️' : '🌙';
       
-      console.log('📝 Error fallback caption:', caption);
       
       return {
         caption,

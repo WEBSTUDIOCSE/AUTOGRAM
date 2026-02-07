@@ -45,7 +45,6 @@ export const MotivationalAutoPostConfigService = {
 
       return null;
     } catch (error) {
-      console.error('Error getting motivational auto-post config:', error);
       throw error;
     }
   },
@@ -73,7 +72,6 @@ export const MotivationalAutoPostConfigService = {
         });
       }
     } catch (error) {
-      console.error('Error updating motivational auto-post config:', error);
       throw error;
     }
   },

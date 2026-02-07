@@ -46,11 +46,9 @@ export function PromptManager({ userId, familyProfileId, onPromptsUpdated }: Pro
         category,
         customPrompt.trim()
       );
-      console.log('Prompt added successfully');
       setCustomPrompt('');
       onPromptsUpdated();
     } catch (error) {
-      console.error('Error adding prompt:', error);
       alert('Failed to add prompt');
     } finally {
       setIsSubmitting(false);
@@ -61,10 +59,8 @@ export function PromptManager({ userId, familyProfileId, onPromptsUpdated }: Pro
     setIsInitializing(true);
     try {
       await FamilyPromptService.initializeDefaultPrompts(userId, familyProfileId);
-      console.log('Default prompts initialized successfully');
       onPromptsUpdated();
     } catch (error) {
-      console.error('Error initializing prompts:', error);
       alert('Failed to initialize default prompts');
     } finally {
       setIsInitializing(false);

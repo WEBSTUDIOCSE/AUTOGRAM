@@ -38,7 +38,6 @@ export function MotivationalQuoteHistory() {
       
       setHasMore(logsData.length === LIMIT);
     } catch (error) {
-      console.error('Error loading logs:', error);
       toast.error('Failed to load history');
     } finally {
       setLoading(false);

@@ -54,7 +54,6 @@ export class FamilyProfileService {
         };
       });
     } catch (error) {
-      console.error('Error getting family profiles:', error);
       throw new Error('Failed to get family profiles');
     }
   }
@@ -85,7 +84,6 @@ export class FamilyProfileService {
         updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
       };
     } catch (error) {
-      console.error('Error getting family profile:', error);
       throw new Error('Failed to get family profile');
     }
   }
@@ -155,7 +153,6 @@ export class FamilyProfileService {
         updatedAt: new Date().toISOString(),
       };
     } catch (error) {
-      console.error('Error creating family profile:', error);
       throw new Error('Failed to create family profile');
     }
   }
@@ -188,7 +185,6 @@ export class FamilyProfileService {
       
       await updateDoc(profileRef, cleanUpdates);
     } catch (error) {
-      console.error('Error updating family profile:', error);
       throw new Error('Failed to update family profile');
     }
   }
@@ -201,7 +197,6 @@ export class FamilyProfileService {
       const profileRef = doc(db, COLLECTION_NAME, profileId);
       await deleteDoc(profileRef);
     } catch (error) {
-      console.error('Error deleting family profile:', error);
       throw new Error('Failed to delete family profile');
     }
   }
@@ -229,7 +224,6 @@ export class FamilyProfileService {
 
       return newMember;
     } catch (error) {
-      console.error('Error adding family member:', error);
       throw new Error('Failed to add family member');
     }
   }
@@ -247,7 +241,6 @@ export class FamilyProfileService {
       const updatedMembers = profile.members.filter(m => m.id !== memberId);
       await this.updateProfile(profileId, { members: updatedMembers });
     } catch (error) {
-      console.error('Error removing family member:', error);
       throw new Error('Failed to remove family member');
     }
   }
@@ -271,7 +264,6 @@ export class FamilyProfileService {
       );
       await this.updateProfile(profileId, { members: updatedMembers });
     } catch (error) {
-      console.error('Error updating family member:', error);
       throw new Error('Failed to update family member');
     }
   }

@@ -117,27 +117,22 @@ export function MotivationalQuoteSettings() {
       
       // Load Instagram accounts
       const accounts = await APIBook.instagram.getAccounts();
-      console.log('Instagram accounts loaded:', accounts);
       
       // Fetch actual usernames from Instagram API
       const accountsWithUsernames = await Promise.all(
         accounts.map(async (account) => {
           try {
             const accountWithUsername = await APIBook.instagram.testConnection(account.id);
-            console.log('Fetched username for account:', accountWithUsername);
             return accountWithUsername;
           } catch (error) {
-            console.error(`Failed to fetch username for ${account.name}:`, error);
             // Return original account if fetch fails
             return account;
           }
         })
       );
       
-      console.log('Accounts with usernames:', accountsWithUsernames);
       setInstagramAccounts(accountsWithUsernames);
     } catch (error) {
-      console.error('Error loading config:', error);
       toast.error('Failed to load settings');
     } finally {
       setLoading(false);
@@ -237,7 +232,6 @@ export function MotivationalQuoteSettings() {
       toast.success(editingConfigIndex !== null ? 'Configuration updated' : 'Configuration added');
       setDialogOpen(false);
     } catch (error) {
-      console.error('Error saving config:', error);
       toast.error('Failed to save configuration');
     } finally {
       setSaving(false);
@@ -258,7 +252,6 @@ export function MotivationalQuoteSettings() {
       
       toast.success('Configuration deleted');
     } catch (error) {
-      console.error('Error deleting config:', error);
       toast.error('Failed to delete configuration');
     } finally {
       setUpdating(false);
@@ -287,7 +280,6 @@ export function MotivationalQuoteSettings() {
           : 'Auto-posting disabled successfully'
       );
     } catch (error) {
-      console.error('Error updating auto-post config:', error);
       toast.error('Failed to update settings');
     } finally {
       setUpdating(false);
@@ -314,7 +306,6 @@ export function MotivationalQuoteSettings() {
       });
       toast.success(model ? 'Text-to-image model updated' : 'Text-to-image model reset to global settings');
     } catch (error) {
-      console.error('Error saving text-to-image model:', error);
       toast.error('Failed to save text-to-image model');
     } finally {
       setSavingModels(false);
@@ -339,7 +330,6 @@ export function MotivationalQuoteSettings() {
       });
       toast.success(model ? 'Image-to-image model updated' : 'Image-to-image model reset to global settings');
     } catch (error) {
-      console.error('Error saving image-to-image model:', error);
       toast.error('Failed to save image-to-image model');
     } finally {
       setSavingModels(false);
@@ -364,7 +354,6 @@ export function MotivationalQuoteSettings() {
       });
       toast.success(model ? 'Text-to-video model updated' : 'Text-to-video model reset to global settings');
     } catch (error) {
-      console.error('Error saving text-to-video model:', error);
       toast.error('Failed to save text-to-video model');
     } finally {
       setSavingModels(false);
@@ -389,7 +378,6 @@ export function MotivationalQuoteSettings() {
       });
       toast.success(model ? 'Image-to-video model updated' : 'Image-to-video model reset to global settings');
     } catch (error) {
-      console.error('Error saving image-to-video model:', error);
       toast.error('Failed to save image-to-video model');
     } finally {
       setSavingModels(false);
@@ -412,13 +400,11 @@ export function MotivationalQuoteSettings() {
         setSelectedModel(prefs.data?.textToVideoModel || 'Not configured');
       }
     } catch (error) {
-      console.error('Error loading AI model:', error);
     }
   };
 
   const getAccountName = (accountId: string) => {
     const account = instagramAccounts.find(acc => acc.id === accountId);
-    console.log('getAccountName called:', { accountId, account });
     // Prioritize actual username fetched from API
     return account?.username || account?.name || 'Unknown';
   };
@@ -494,7 +480,6 @@ export function MotivationalQuoteSettings() {
                         ) : (
                           getAvailableAccounts().map((account) => {
                             const displayName = account.username || account.name || account.id;
-                            console.log('Rendering account:', { id: account.id, name: account.name, username: account.username, displayName });
                             return (
                               <SelectItem key={account.id} value={account.id}>
                                 @{displayName}

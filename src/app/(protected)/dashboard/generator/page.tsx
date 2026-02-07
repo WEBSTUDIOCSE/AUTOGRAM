@@ -45,7 +45,6 @@ export default function GeneratorPage() {
       const refinedPrompt = await Module1PromptRefiner.refinePrompt(prompt);
       setPrompt(refinedPrompt);
     } catch (error) {
-      console.error('Failed to refine prompt:', error);
       setAiError(error instanceof Error ? error.message : 'Failed to refine prompt');
     } finally {
       setIsRefining(false);
@@ -64,7 +63,6 @@ export default function GeneratorPage() {
     
     try {
       // Step 1: Generate image with Gemini AI
-      console.log('🎨 Generating image with Gemini...');
       const response = await APIBook.ai.generateImage(prompt);
       
       if (response.success && response.data) {
@@ -74,7 +72,6 @@ export default function GeneratorPage() {
         
         // Step 2: Save to Firestore + Firebase Storage
         setIsSaving(true);
-        console.log('💾 Saving image to Firebase...');
         const imageId = await ImageService.saveImage({
           userId: user.uid,
           prompt: prompt,
@@ -84,7 +81,6 @@ export default function GeneratorPage() {
         });
         
         setGeneratedImageId(imageId);
-        console.log('✅ Image saved with ID:', imageId);
         
         // Auto-fill caption and hashtags from AI response
         if (response.data.caption) {
@@ -118,7 +114,6 @@ export default function GeneratorPage() {
 
     try {
       // Step 1: Get saved image data from Firestore
-      console.log('� Fetching saved image...');
       const savedImage = await ImageService.getImage(generatedImageId);
       
       if (!savedImage || !savedImage.imageUrl) {
@@ -126,7 +121,6 @@ export default function GeneratorPage() {
       }
 
       const publicImageUrl = savedImage.imageUrl;
-      console.log('✅ Image URL:', publicImageUrl);
 
       // Step 2: Combine caption and hashtags
       const fullCaption = hashtags.trim() 
@@ -134,14 +128,12 @@ export default function GeneratorPage() {
         : caption;
 
       // Step 3: Post to Instagram
-      console.log('📸 Posting to Instagram...');
       const instagramPostId = await APIBook.instagram.postImage(
         publicImageUrl, 
         fullCaption, 
         selectedAccount
       );
       
-      console.log('✅ Posted successfully:', instagramPostId);
 
       // Get account info for display
       const account = APIBook.instagram.getAccountById(selectedAccount);
@@ -160,11 +152,9 @@ export default function GeneratorPage() {
         model: savedImage.model,
         moduleType: 'module1'
       });
-      console.log('✅ Saved to Instagram post history');
 
       // Step 5: Update image status to "posted"
       await ImageService.updateStatus(generatedImageId, 'posted');
-      console.log('✅ Image status updated to posted');
 
       setPostSuccess(true);
 
@@ -174,7 +164,6 @@ export default function GeneratorPage() {
       }, 3000);
 
     } catch (error) {
-      console.error('❌ Post error:', error);
       const errorMsg = error instanceof Error ? error.message : 'Failed to post to Instagram';
       setPostError(errorMsg);
       
@@ -199,7 +188,6 @@ export default function GeneratorPage() {
             });
           }
         } catch (saveError) {
-          console.error('⚠️ Failed to save failed post:', saveError);
         }
       }
     } finally {

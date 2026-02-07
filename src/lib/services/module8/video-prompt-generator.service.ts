@@ -74,8 +74,6 @@ Be BOLD. Change the ENTIRE concept. Make it feel like a different creator.
 Keep it CLEAN, WHOLESOME, and FAMILY-FRIENDLY.
 Output the prompt only, no explanations.`;
 
-      console.log('🤖 [Module 8] Generating AI-varied video prompt...');
-
       const response = await genAI.models.generateContent({
         model: modelName,
         contents: generationPrompt,
@@ -93,7 +91,6 @@ Output the prompt only, no explanations.`;
       }
 
       if (!generatedPrompt) {
-        console.warn('AI generation failed, using base prompt with random variation');
         return this.createSimpleVariation(basePrompt, context);
       }
 
@@ -112,11 +109,9 @@ Output the prompt only, no explanations.`;
         }
       }
 
-      console.log('✅ [Module 8] Generated unique video prompt:', generatedPrompt.length, 'chars');
       return generatedPrompt;
 
     } catch (error) {
-      console.error('❌ [Module 8] Generation error:', error);
       return this.createSimpleVariation(basePrompt, context);
     }
   },

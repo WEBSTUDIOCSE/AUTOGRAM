@@ -61,7 +61,6 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
     this.defaultImageToVideoModel = 'bytedance/v1-pro-image-to-video';
 
     if (!this.apiKey) {
-      console.warn('⚠️ Kie.ai API key not configured for video generation');
     }
   }
 
@@ -72,13 +71,6 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
 
     const { prompt, model, imageUrl } = options;
     
-    console.log(`🎥 [KieAI] Generate Video Called:`, {
-      hasPrompt: !!prompt,
-      hasModel: !!model,
-      hasImageUrl: !!imageUrl,
-      imageUrl: imageUrl,
-      promptLength: prompt?.length
-    });
     
     if (!prompt || prompt.trim().length === 0) {
       throw new Error('Prompt cannot be empty');
@@ -87,7 +79,6 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
     // Determine if text-to-video or image-to-video
     const selectedModel = model || (imageUrl ? this.defaultImageToVideoModel : this.defaultTextToVideoModel);
     
-    console.log(`📹 [KieAI] Selected Model: ${selectedModel} (imageUrl present: ${!!imageUrl})`);
     
     try {
       // Check if it's a Veo model (uses different endpoint)
@@ -97,9 +88,6 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
 
       // Build input payload based on model type
       const inputPayload = this.buildInputPayload(selectedModel, options);
-
-      console.log(`🎬 Creating video task with ${selectedModel}...`);
-      console.log(`📦 Payload:`, JSON.stringify({ model: selectedModel, input: inputPayload }, null, 2));
 
       // Create video generation task
       const taskResponse = await fetch(`${this.baseUrl}/jobs/createTask`, {
@@ -127,8 +115,6 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
       }
 
       const taskId = taskData.data.taskId;
-      console.log(`📋 Video task created: ${taskId}`);
-      console.log(`⏳ Polling for completion (video generation may take 5-10 minutes)...`);
 
       // Poll for completion (video takes longer than images)
       const result = await this.pollTaskCompletion(taskId, 280); // ~9 minutes max
@@ -148,13 +134,11 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
       };
 
     } catch (error) {
-      console.error('❌ Kie.ai video generation failed:', error);
       throw new Error(`Video generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   private async generateVeoVideo(model: string, options: VideoGenerationOptions): Promise<VideoGenerationResult> {
-    console.log(`🎬 Creating Veo video with ${model}...`);
     
     const payload: Record<string, unknown> = {
       prompt: options.prompt,
@@ -196,8 +180,6 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
     }
 
     const taskId = taskData.data.taskId;
-    console.log(`📋 Veo video task created: ${taskId}`);
-    console.log(`⏳ Polling for completion (may take 5-10 minutes)...`);
 
     const result = await this.pollTaskCompletion(taskId, 280);
 
@@ -244,7 +226,6 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
       payload.image_url = options.imageUrl;
       payload.resolution = options.resolution || '720p';
       payload.duration = options.duration || '10';
-      console.log(`🖼️ [KieAI] v1-pro-fast-image-to-video payload: image_url=${payload.image_url}, duration=${payload.duration}`);
     }
     // ByteDance V1 Pro Image-to-Video
     else if (model === 'bytedance/v1-pro-image-to-video') {
@@ -257,7 +238,6 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
       payload.camera_fixed = options.cameraFixed !== undefined ? options.cameraFixed : false;
       payload.seed = options.seed !== undefined ? options.seed : -1;
       payload.enable_safety_checker = options.enableSafetyChecker !== undefined ? options.enableSafetyChecker : true;
-      console.log(`🖼️ [KieAI] v1-pro-image-to-video payload: image_url=${payload.image_url}, duration=${payload.duration}, camera_fixed=${payload.camera_fixed}`);
     }
     // ByteDance V1 Pro Text-to-Video
     else if (model === 'bytedance/v1-pro-text-to-video') {
@@ -280,7 +260,6 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
       payload.seed = options.seed !== undefined ? options.seed : -1;
       payload.enable_safety_checker = options.enableSafetyChecker !== undefined ? options.enableSafetyChecker : true;
       if (options.endImageUrl) payload.end_image_url = options.endImageUrl;
-      console.log(`🖼️ [KieAI] v1-lite-image-to-video payload: image_url=${payload.image_url}, duration=${payload.duration}`);
     }
     // ByteDance V1 Lite Text-to-Video
     else if (model === 'bytedance/v1-lite-text-to-video') {
@@ -399,7 +378,6 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
     taskId: string,
     maxAttempts = 150
   ): Promise<{ videoUrl: string; thumbnailUrl?: string }> {
-    console.log(`🔄 Polling video task: ${taskId}`);
 
     for (let i = 0; i < maxAttempts; i++) {
       await this.sleep(2000); // Check every 2 seconds
@@ -413,31 +391,25 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
         });
 
         if (!response.ok) {
-          console.error(`❌ Status check failed: ${response.statusText}`);
           continue;
         }
 
         const data: KieAITaskStatusResponse = await response.json();
 
         if (data.code !== 200) {
-          console.error(`❌ Status response error: ${data.msg}`);
           continue;
         }
 
         const { state, resultJson, failMsg } = data.data;
-
-        console.log(`📊 Task ${taskId} state: ${state} (attempt ${i + 1}/${maxAttempts})`);
 
         if (state === 'success' && resultJson) {
           const result = JSON.parse(resultJson);
           const videoUrl = result.resultUrls?.[0] || result.videoUrl || result.result_urls?.[0];
           
           if (!videoUrl) {
-            console.error('❌ Result JSON:', resultJson);
             throw new Error('No video URL in result');
           }
 
-          console.log(`✅ Video generated: ${videoUrl}`);
           return {
             videoUrl,
             thumbnailUrl: result.thumbnailUrl
@@ -445,18 +417,15 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
         }
 
         if (state === 'failed') {
-          console.error(`❌ Generation failed: ${failMsg}`);
           throw new Error(failMsg || 'Video generation failed');
         }
 
         if (state === 'processing' || state === 'pending') {
           if (i % 15 === 0) {
-            console.log(`⏳ Still processing... (${i + 1}/${maxAttempts}, ~${Math.floor((i + 1) * 2 / 60)} minutes elapsed)`);
           }
         }
 
       } catch (error) {
-        console.error(`❌ Polling error:`, error);
         if (i >= maxAttempts - 1) throw error;
       }
     }
@@ -532,7 +501,6 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
 
       throw new Error(data.msg || 'Failed to fetch credits');
     } catch (error) {
-      console.error('❌ Failed to fetch Kie.ai credits:', error);
       return { remaining: 0 };
     }
   }
@@ -557,7 +525,6 @@ export class KieAIVideoProvider implements VideoGenerationProvider {
       const data = await response.json();
       return data.code === 200;
     } catch (error) {
-      console.error('❌ Kie.ai video connection test failed:', error);
       return false;
     }
   }

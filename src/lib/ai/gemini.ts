@@ -39,8 +39,4 @@ export const getModelConfig = () => {
 
 // Log initialization in development
 if (process.env.NODE_ENV === 'development') {
-  console.log('🤖 Gemini AI initialized');
-  console.log('📸 Image Model:', config.imageModel);
-  console.log('📝 Text Model:', config.textModel);
-  console.log('🔑 API Key:', config.apiKey ? 'Configured' : 'Missing');
 }

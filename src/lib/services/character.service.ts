@@ -89,12 +89,9 @@ export const CharacterService = {
       // Save to Firestore
       await setDoc(doc(db, 'characters', characterId), character);
       
-      console.log('✅ Character uploaded successfully:', characterId);
-      console.log('📸 Assigned to account:', assignedAccountId);
       return character;
       
     } catch (error) {
-      console.error('❌ Character upload error:', error);
       throw new Error('Failed to upload character');
     }
   },
@@ -119,11 +116,9 @@ export const CharacterService = {
         characters.push(doc.data() as Character);
       });
       
-      console.log(`✅ Retrieved ${characters.length} characters for user`);
       return characters;
       
     } catch (error) {
-      console.error('❌ Failed to get user characters:', error);
       return [];
     }
   },
@@ -155,11 +150,9 @@ export const CharacterService = {
         }
       });
       
-      console.log(`✅ Retrieved ${characters.length} characters for module ${module}`);
       return characters;
       
     } catch (error) {
-      console.error('❌ Get characters error:', error);
       throw new Error('Failed to retrieve characters');
     }
   },
@@ -181,7 +174,6 @@ export const CharacterService = {
       return docSnap.data() as Character;
       
     } catch (error) {
-      console.error('❌ Get character error:', error);
       throw new Error('Failed to retrieve character');
     }
   },
@@ -198,10 +190,8 @@ export const CharacterService = {
         name: newName
       });
       
-      console.log('✅ Character renamed successfully:', characterId);
       
     } catch (error) {
-      console.error('❌ Rename character error:', error);
       throw new Error('Failed to rename character');
     }
   },
@@ -222,10 +212,8 @@ export const CharacterService = {
         assignedAccountId
       });
       
-      console.log('✅ Character account updated:', characterId, '→', assignedAccountId);
       
     } catch (error) {
-      console.error('❌ Update assigned account error:', error);
       throw new Error('Failed to update character account');
     }
   },
@@ -252,11 +240,9 @@ export const CharacterService = {
         characters.push(doc.data() as Character);
       });
       
-      console.log(`✅ Found ${characters.length} characters for account:`, accountId);
       return characters;
       
     } catch (error) {
-      console.error('❌ Get characters by account error:', error);
       throw new Error('Failed to retrieve characters by account');
     }
   },
@@ -273,10 +259,8 @@ export const CharacterService = {
         postingTimes
       });
       
-      console.log('✅ Character posting times updated:', characterId, postingTimes);
       
     } catch (error) {
-      console.error('❌ Update posting times error:', error);
       throw new Error('Failed to update character posting times');
     }
   },
@@ -297,20 +281,16 @@ export const CharacterService = {
         const originalPath = `users/${userId}/module2/characters/${characterId}/original.jpg`;
         await UnifiedImageStorageService.deleteImage(originalPath);
       } catch (err) {
-        console.warn('⚠️ Could not delete original image:', err);
       }
       
       try {
         const thumbnailPath = `users/${userId}/module2/characters/${characterId}/thumbnail.jpg`;
         await UnifiedImageStorageService.deleteImage(thumbnailPath);
       } catch (err) {
-        console.warn('⚠️ Could not delete thumbnail:', err);
       }
       
-      console.log('✅ Character deleted successfully:', characterId);
       
     } catch (error) {
-      console.error('❌ Delete character error:', error);
       throw new Error('Failed to delete character');
     }
   },
@@ -327,10 +307,8 @@ export const CharacterService = {
         usageCount: (await getDoc(docRef)).data()?.usageCount + 1 || 1
       });
       
-      console.log('✅ Character usage updated:', characterId);
       
     } catch (error) {
-      console.error('❌ Update usage error:', error);
       // Non-critical error, don't throw
     }
   },

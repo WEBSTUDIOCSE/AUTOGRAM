@@ -25,23 +25,18 @@ export function FamilyPostHistory({ userId, familyProfileId }: FamilyPostHistory
   const loadPosts = async () => {
     try {
       setLoading(true);
-      console.log('[FamilyPostHistory] Loading posts for user:', userId);
       // Load all posts for this user from character_posts collection
       const allPosts = await CharacterPostService.getRecentPosts(userId, 50);
-      console.log('[FamilyPostHistory] Total posts retrieved:', allPosts.length);
       
       // Filter for module4 posts only, then by familyProfileId if provided
       const module4Posts = allPosts.filter((post: CharacterPost) => post.moduleType === 'module4');
-      console.log('[FamilyPostHistory] Module4 posts:', module4Posts.length);
       
       const filteredPosts = familyProfileId
         ? module4Posts.filter((post: CharacterPost) => post.characterId === familyProfileId)
         : module4Posts;
       
-      console.log('[FamilyPostHistory] Filtered posts:', filteredPosts.length);
       setPosts(filteredPosts);
     } catch (error) {
-      console.error('[FamilyPostHistory] Error loading posts:', error);
     } finally {
       setLoading(false);
     }

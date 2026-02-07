@@ -53,7 +53,6 @@ export class FamilyScheduleService {
         };
       });
     } catch (error) {
-      console.error('Error getting family schedules:', error);
       throw new Error('Failed to get family schedules');
     }
   }
@@ -86,7 +85,6 @@ export class FamilyScheduleService {
         updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
       };
     } catch (error) {
-      console.error('Error getting schedule:', error);
       throw new Error('Failed to get schedule');
     }
   }
@@ -121,7 +119,6 @@ export class FamilyScheduleService {
         };
       });
     } catch (error) {
-      console.error('Error getting enabled schedules:', error);
       throw new Error('Failed to get enabled schedules');
     }
   }
@@ -173,7 +170,6 @@ export class FamilyScheduleService {
         updatedAt: new Date().toISOString(),
       };
     } catch (error) {
-      console.error('Error creating schedule:', error);
       throw new Error('Failed to create schedule');
     }
   }
@@ -201,7 +197,6 @@ export class FamilyScheduleService {
         updatedAt: serverTimestamp(),
       });
     } catch (error) {
-      console.error('Error updating schedule:', error);
       throw new Error('Failed to update schedule');
     }
   }
@@ -214,7 +209,6 @@ export class FamilyScheduleService {
       const scheduleRef = doc(db, COLLECTION_NAME, scheduleId);
       await deleteDoc(scheduleRef);
     } catch (error) {
-      console.error('Error deleting schedule:', error);
       throw new Error('Failed to delete schedule');
     }
   }
@@ -226,7 +220,6 @@ export class FamilyScheduleService {
     try {
       await this.updateSchedule(scheduleId, { isEnabled });
     } catch (error) {
-      console.error('Error toggling schedule:', error);
       throw new Error('Failed to toggle schedule');
     }
   }

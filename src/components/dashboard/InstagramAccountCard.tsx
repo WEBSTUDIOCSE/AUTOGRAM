@@ -51,7 +51,6 @@ export function InstagramAccountCard({
         });
       }
     } catch (error) {
-      console.error('Error fetching Instagram stats:', error);
     } finally {
       setLoadingStats(false);
     }

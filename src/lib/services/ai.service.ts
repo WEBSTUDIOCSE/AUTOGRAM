@@ -46,7 +46,6 @@ export const AIService = {
         imageSize: 'square_hd'
       };
 
-      console.log(`🎨 Generating image${provider ? ` with provider: ${provider}` : ' using Firebase preference'}...`);
       const result = await unifiedImageGeneration.generateImage(options, provider);
 
       return {

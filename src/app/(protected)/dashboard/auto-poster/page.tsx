@@ -65,7 +65,6 @@ export default function AutoPosterPage() {
       const accounts = await InstagramService.fetchAccountsWithUsernames();
       setAvailableAccounts(accounts);
     } catch (err) {
-      console.error('Failed to load Instagram accounts:', err);
       // Fallback to accounts without usernames
       const accounts = InstagramService.getAccounts();
       setAvailableAccounts(accounts);
@@ -80,7 +79,6 @@ export default function AutoPosterPage() {
       const userCharacters = await APIBook.character.getUserCharacters(user.uid);
       setCharacters(userCharacters);
     } catch (err) {
-      console.error('Failed to load characters:', err);
       setError('Failed to load characters');
     } finally {
       setLoadingCharacters(false);
@@ -144,7 +142,6 @@ export default function AutoPosterPage() {
       // Show success feedback briefly
       setError(null);
     } catch (err) {
-      console.error('Failed to refine prompt:', err);
       setError(err instanceof Error ? err.message : 'Failed to refine prompt');
     } finally {
       setIsRefining(false);
@@ -179,7 +176,6 @@ export default function AutoPosterPage() {
       await APIBook.character.updateCharacterUsage(selectedCharacter.id);
       
     } catch (err) {
-      console.error('Generation error:', err);
       setError(err instanceof Error ? err.message : 'Failed to generate image');
     } finally {
       setIsGenerating(false);

@@ -30,19 +30,15 @@ export class UnifiedVideoGenerationService {
   ): Promise<VideoGenerationResult> {
     // Load model from preferences if not specified
     if (!options.model) {
-      console.log(`🔍 No model specified, loading from preferences for userId: ${options.userId}...`);
       const model = await this.loadModelFromPreferences(
         options.imageUrl ? 'image-to-video' : 'text-to-video',
         options.userId
       );
       if (model) {
-        console.log(`✅ Loaded model from preferences: ${model}`);
         options.model = model;
       } else {
-        console.warn(`⚠️ No model found in preferences, will use provider default`);
       }
     } else {
-      console.log(`✅ Model already specified: ${options.model}`);
     }
 
     const selectedProvider = this.providers.get(provider);
@@ -51,16 +47,10 @@ export class UnifiedVideoGenerationService {
       throw new Error(`Video provider ${provider} not available`);
     }
 
-    console.log(`🎬 Generating video with ${selectedProvider.name}...`);
-    console.log(`📹 Using model: ${options.model || 'default'}`);
-
     try {
       const result = await selectedProvider.generateVideo(options);
-      console.log(`✅ Video generated successfully with ${selectedProvider.name}`);
-      console.log(`💰 Estimated cost: $${result.cost?.toFixed(4) || '0.0000'}`);
       return result;
     } catch (error) {
-      console.error(`❌ ${selectedProvider.name} video generation failed:`, error);
       throw error;
     }
   }
@@ -70,7 +60,6 @@ export class UnifiedVideoGenerationService {
    */
   private async loadModelFromPreferences(type: 'text-to-video' | 'image-to-video', userId?: string): Promise<string | null> {
     try {
-      console.log(`🔍 Loading ${type} model from Firebase for user: ${userId || 'unknown'}...`);
       const prefsResponse = await UserPreferencesService.getPreferences(userId);
       
       if (prefsResponse.success && prefsResponse.data) {
@@ -78,13 +67,10 @@ export class UnifiedVideoGenerationService {
         const model = type === 'text-to-video' ? prefs.textToVideoModel : prefs.imageToVideoModel;
         
         if (model) {
-          console.log(`✅ Using ${type} model from Firebase: ${model}`);
           return model;
         }
       }
-      console.log(`⚠️ No ${type} model in Firebase, using default`);
     } catch (error) {
-      console.error(`❌ Failed to load ${type} model from Firebase:`, error);
     }
     
     return null;
@@ -121,7 +107,6 @@ export class UnifiedVideoGenerationService {
       try {
         models[name] = await provider.getAvailableModels();
       } catch (error) {
-        console.error(`Failed to get video models from ${name}:`, error);
         models[name] = [];
       }
     }
@@ -140,7 +125,6 @@ export class UnifiedVideoGenerationService {
         try {
           credits[name] = await provider.getCredits();
         } catch (error) {
-          console.error(`Failed to get credits from ${name}:`, error);
           credits[name] = { remaining: 0 };
         }
       }

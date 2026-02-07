@@ -25,8 +25,6 @@ Requirements:
 
 Output refined prompt only.`;
 
-      console.log('🎨 [Module 4] Refining family prompt...');
-
       const response = await genAI.models.generateContent({
         model: modelName,
         contents: refinementPrompt,
@@ -62,11 +60,9 @@ Output refined prompt only.`;
         }
       }
 
-      console.log('✅ [Module 4] Refined:', refinedPrompt.length, 'chars');
       return refinedPrompt;
 
     } catch (error) {
-      console.error('❌ [Module 4] Refinement error:', error);
       return basePrompt;
     }
   },

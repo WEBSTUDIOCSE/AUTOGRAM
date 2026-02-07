@@ -135,14 +135,11 @@ export const AutoPostModuleRegistry = {
 
     // Process each module
     for (const moduleConfig of MODULE_REGISTRY) {
-      console.log(`[${moduleConfig.moduleId}] Checking ${moduleConfig.moduleName} for time ${scheduledTime}`);
 
       try {
         // Query Firestore for items from this module
         const collectionRef = collection(db, moduleConfig.firestoreCollection);
         const snapshot = await getDocs(collectionRef);
-
-        console.log(`[${moduleConfig.moduleId}] Found ${snapshot.size} total items`);
 
         // Check each item
         snapshot.forEach((doc) => {
@@ -153,7 +150,6 @@ export const AutoPostModuleRegistry = {
             const userId = moduleConfig.getUserId(item);
             const displayName = moduleConfig.getDisplayName(item);
             
-            console.log(`[${moduleConfig.moduleId}] ✅ "${displayName}" is scheduled for ${scheduledTime}`);
             
             // Build payload
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -177,11 +173,9 @@ export const AutoPostModuleRegistry = {
           }
         });
       } catch (error) {
-        console.error(`[${moduleConfig.moduleId}] Error checking scheduled items:`, error);
       }
     }
 
-    console.log(`Found ${results.length} total scheduled items across all modules`);
     return results;
   },
 
@@ -198,7 +192,6 @@ export const AutoPostModuleRegistry = {
   ): Promise<{ success: boolean; error?: string }> {
     const apiUrl = `${baseUrl}${moduleConfig.apiEndpoint}`;
     
-    console.log(`[${moduleConfig.moduleId}] Executing auto-post via ${apiUrl}`);
 
     try {
       const response = await fetch(apiUrl, {
@@ -223,11 +216,9 @@ export const AutoPostModuleRegistry = {
         throw new Error(`Auto-post failed: ${result.error}`);
       }
 
-      console.log(`[${moduleConfig.moduleId}] ✅ Auto-post completed successfully`);
       return { success: true };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      console.error(`[${moduleConfig.moduleId}] ❌ Auto-post failed:`, errorMessage);
       return { success: false, error: errorMessage };
     }
   },

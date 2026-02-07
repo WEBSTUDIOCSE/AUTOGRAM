@@ -85,10 +85,8 @@ export const InstagramPostService = {
         createdAt: Timestamp.now()
       });
       
-      console.log(`✅ Instagram post saved to history (${moduleType}):`, docRef.id);
       return docRef.id;
     } catch (error) {
-      console.error('❌ Failed to save Instagram post:', error);
       throw error;
     }
   },
@@ -120,10 +118,8 @@ export const InstagramPostService = {
         createdAt: Timestamp.now()
       });
       
-      console.log(`⚠️ Failed Instagram post saved (${moduleType}):`, docRef.id);
       return docRef.id;
     } catch (error) {
-      console.error('❌ Failed to save failed post:', error);
       throw error;
     }
   },
@@ -168,7 +164,6 @@ export const InstagramPostService = {
 
       return posts;
     } catch (error) {
-      console.error('❌ Failed to fetch Instagram posts:', error);
       return [];
     }
   },
@@ -190,7 +185,6 @@ export const InstagramPostService = {
 
       return null;
     } catch (error) {
-      console.error('❌ Failed to get post:', error);
       throw error;
     }
   },
@@ -230,7 +224,6 @@ export const InstagramPostService = {
       
       return uniquePrompts;
     } catch (error) {
-      console.error('❌ Failed to fetch recent prompts:', error);
       return [];
     }
   },
@@ -260,7 +253,6 @@ export const InstagramPostService = {
       const querySnapshot = await getDocs(q);
       return querySnapshot.size;
     } catch (error) {
-      console.error('❌ Failed to count posts:', error);
       return 0;
     }
   }

@@ -131,7 +131,6 @@ export function FamilyProfileForm({
         )
       );
     } catch (error) {
-      console.error('Error uploading image:', error);
       alert('Failed to upload image');
     }
   };
@@ -199,7 +198,6 @@ export function FamilyProfileForm({
             id: profile.members[idx]?.id || `member_${Date.now()}_${idx}`,
           })),
         });
-        console.log('Family profile updated successfully');
       } else {
         // Create new profile
         await FamilyProfileService.createProfile(
@@ -209,14 +207,12 @@ export function FamilyProfileForm({
           selectedAccount.username || selectedAccount.name,
           membersData
         );
-        console.log('Family profile created successfully');
       }
 
       onSuccess();
       onClose();
       resetForm();
     } catch (error) {
-      console.error('Error saving family profile:', error);
       alert('Failed to save family profile');
     } finally {
       setIsSubmitting(false);

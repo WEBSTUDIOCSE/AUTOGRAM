@@ -60,7 +60,6 @@ export default function CharacterGeneratorPage() {
       const userCharacters = await APIBook.character.getUserCharacters(user.uid);
       setCharacters(userCharacters);
     } catch (err) {
-      console.error('Failed to load characters:', err);
       setError('Failed to load characters');
     } finally {
       setLoadingCharacters(false);
@@ -121,7 +120,6 @@ export default function CharacterGeneratorPage() {
       // Show success feedback briefly
       setError(null);
     } catch (err) {
-      console.error('Failed to refine prompt:', err);
       setError(err instanceof Error ? err.message : 'Failed to refine prompt');
     } finally {
       setIsRefining(false);

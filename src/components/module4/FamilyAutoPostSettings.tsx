@@ -93,7 +93,6 @@ export function FamilyAutoPostSettings({ profile: initialProfile, onBack }: Fami
       }
       setPrompts(promptsData.filter((p) => p.isActive));
     } catch (error) {
-      console.error('Error loading data:', error);
       setError('Failed to load data');
     } finally {
       setLoading(false);
@@ -132,7 +131,6 @@ export function FamilyAutoPostSettings({ profile: initialProfile, onBack }: Fami
       setSuccess(`Generated ${familyType} prompts successfully!`);
       await loadData();
     } catch (error) {
-      console.error('Error generating prompts:', error);
       setError('Failed to generate prompts');
     } finally {
       setIsGeneratingPrompts(false);
@@ -154,7 +152,6 @@ export function FamilyAutoPostSettings({ profile: initialProfile, onBack }: Fami
       setManualPrompt(refinedPrompt);
       setSuccess('Prompt refined successfully!');
     } catch (error) {
-      console.error('Error refining prompt:', error);
       setError('Failed to refine prompt');
     } finally {
       setIsRefining(false);
@@ -212,10 +209,8 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
       if (!memberImageBase64 && primaryMember.imageUrl) {
         // Fallback: Convert imageUrl to base64 for older profiles
         try {
-          console.log('Converting imageUrl to base64 (legacy profile)...');
           memberImageBase64 = await imageUrlToBase64(primaryMember.imageUrl);
         } catch (err) {
-          console.error('Failed to convert member image:', err);
           throw new Error('Failed to load family member image. Please re-upload the member image in the profile settings.');
         }
       }
@@ -236,7 +231,6 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
       setHashtags(result.hashtags || '');
       setSuccess('Image generated successfully with family members!');
     } catch (error) {
-      console.error('Error generating image:', error);
       setError(error instanceof Error ? error.message : 'Failed to generate image');
     } finally {
       setIsGenerating(false);
@@ -313,7 +307,6 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
       setCaption('');
       setHashtags('');
     } catch (error) {
-      console.error('Error posting:', error);
       setError(error instanceof Error ? error.message : 'Failed to post to Instagram');
     } finally {
       setIsPosting(false);
@@ -347,7 +340,6 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
       setIsAutoPostEnabled(enabled);
       await loadData();
     } catch (error) {
-      console.error('Error toggling auto-post:', error);
       setError('Failed to update auto-posting status');
       setIsAutoPostEnabled(!enabled);
     }
@@ -389,7 +381,6 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
       setHasUnsavedChanges(false);
       await loadData();
     } catch (error) {
-      console.error('Error saving posting times:', error);
       setError('Failed to save posting times');
     } finally {
       setIsSavingTimes(false);

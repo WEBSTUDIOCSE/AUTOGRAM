@@ -35,11 +35,9 @@ export const CharacterPostService = {
       
       await setDoc(doc(db, 'character_posts', postId), post);
       
-      console.log('✅ Character post saved:', postId);
       return postId;
       
     } catch (error) {
-      console.error('❌ Save character post error:', error);
       throw new Error('Failed to save character post');
     }
   },
@@ -66,11 +64,9 @@ export const CharacterPostService = {
         posts.push(doc.data() as CharacterPost);
       });
       
-      console.log(`✅ Retrieved ${posts.length} character posts`);
       return posts;
       
     } catch (error) {
-      console.error('❌ Get character posts error:', error);
       throw new Error('Failed to retrieve character posts');
     }
   },
@@ -100,11 +96,9 @@ export const CharacterPostService = {
         posts.push(doc.data() as CharacterPost);
       });
       
-      console.log(`✅ Retrieved ${posts.length} posts for character ${characterId}`);
       return posts;
       
     } catch (error) {
-      console.error('❌ Get posts by character error:', error);
       throw new Error('Failed to retrieve character posts');
     }
   },
@@ -136,7 +130,6 @@ export const CharacterPostService = {
       return Array.from(uniquePrompts.values());
       
     } catch (error) {
-      console.error('❌ Get recent prompts error:', error);
       return [];
     }
   },

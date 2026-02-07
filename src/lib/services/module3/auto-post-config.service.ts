@@ -40,7 +40,6 @@ export class AutoPostConfigService {
         updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
       };
     } catch (error) {
-      console.error('Error getting auto-post config:', error);
       throw new Error('Failed to get auto-post configuration');
     }
   }
@@ -75,7 +74,6 @@ export class AutoPostConfigService {
         updatedAt: new Date().toISOString(),
       };
     } catch (error) {
-      console.error('Error creating default config:', error);
       throw new Error('Failed to create default configuration');
     }
   }
@@ -106,7 +104,6 @@ export class AutoPostConfigService {
         updatedAt: serverTimestamp(),
       });
     } catch (error) {
-      console.error('Error updating auto-post config:', error);
       throw new Error('Failed to update auto-post configuration');
     }
   }

@@ -33,25 +33,13 @@ export const InstagramService = {
    * @returns Instagram account or null
    */
   getAccountById: (accountId: string): InstagramAccount | null => {
-    console.log('[InstagramService] getAccountById called with:', accountId);
     
     const accounts = InstagramService.getAccounts();
-    console.log('[InstagramService] Available accounts:', accounts.map(a => ({
-      id: a.id,
-      accountId: a.accountId,
-      name: a.name,
-      isActive: a.isActive
-    })));
     
     // Look up by accountId field (Instagram's ID) OR by internal id (for backwards compatibility)
     const found = accounts.find(account => 
       account.accountId === accountId || account.id === accountId
     );
-    console.log('[InstagramService] Account found:', found ? {
-      id: found.id,
-      accountId: found.accountId,
-      name: found.name
-    } : 'null');
     
     return found || null;
   },
@@ -76,18 +64,15 @@ export const InstagramService = {
       const data = await response.json();
       
       if (data.error) {
-        console.error('❌ Instagram API Error:', data.error);
         throw new Error(data.error.message);
       }
       
-      console.log('✅ Instagram Connected:', data);
       return {
         ...account,
         username: data.username,
         profilePictureUrl: data.profile_picture_url
       };
     } catch (error) {
-      console.error('Failed to connect to Instagram:', error);
       throw error;
     }
   },
@@ -121,8 +106,6 @@ export const InstagramService = {
     }
 
     try {
-      console.log(`📦 Creating container with ${isVideo ? 'video' : 'image'} URL:`, imageUrl);
-      console.log(`📦 Media type: ${isVideo ? 'REELS' : 'IMAGE'}`);
       
       const response = await fetch(
         `${INSTAGRAM_API_URL}/${account.accountId}/media`,
@@ -135,14 +118,11 @@ export const InstagramService = {
       const data = await response.json();
       
       if (data.error) {
-        console.error('❌ Failed to create container:', data.error);
         throw new Error(JSON.stringify(data.error));
       }
       
-      console.log(`✅ Container created for ${account.name}:`, data.id);
       return data.id;
     } catch (error) {
-      console.error('Failed to create Instagram container:', error);
       throw error;
     }
   },
@@ -168,13 +148,11 @@ export const InstagramService = {
       const data = await response.json();
       
       if (data.error) {
-        console.error('❌ Failed to check container status:', data.error);
         throw new Error(data.error.message);
       }
       
       return data;
     } catch (error) {
-      console.error('Failed to check container status:', error);
       throw error;
     }
   },
@@ -209,14 +187,11 @@ export const InstagramService = {
       const data = await response.json();
       
       if (data.error) {
-        console.error('❌ Failed to publish post:', data.error);
         throw new Error(data.error.message);
       }
       
-      console.log(`✅ Post published on ${account.name}:`, data.id);
       return data.id;
     } catch (error) {
-      console.error('Failed to publish Instagram post:', error);
       throw error;
     }
   },
@@ -230,15 +205,12 @@ export const InstagramService = {
    * @returns Post ID
    */
   postImage: async (imageUrl: string, caption: string, accountId: string = 'account1', isVideo: boolean = false): Promise<string> => {
-    console.log(`📸 Starting Instagram post workflow for account: ${accountId}...`);
-    console.log(`📦 Media type: ${isVideo ? 'REELS' : 'IMAGE'}`);
     
     // Step 1: Create container
     const containerId = await InstagramService.createContainer(imageUrl, caption, accountId, isVideo);
     
     // Step 2: Wait for container to be ready (especially important for REELS/videos)
     if (isVideo) {
-      console.log('⏳ Waiting for REELS video to be processed by Instagram...');
       const maxAttempts = 60; // 60 attempts × 5 seconds = 5 minutes max
       let attempts = 0;
       
@@ -248,17 +220,14 @@ export const InstagramService = {
         
         try {
           const status = await InstagramService.checkContainerStatus(containerId, accountId);
-          console.log(`📊 Container status (attempt ${attempts}/${maxAttempts}):`, status.status_code);
           
           if (status.status_code === 'FINISHED') {
-            console.log('✅ Container is ready for publishing!');
             break;
           } else if (status.status_code === 'ERROR') {
             throw new Error('Container processing failed on Instagram');
           }
           // Continue polling if status is IN_PROGRESS or other intermediate states
         } catch (error) {
-          console.error('Error checking container status:', error);
           // Continue polling even on error, might be temporary
         }
       }
@@ -274,7 +243,6 @@ export const InstagramService = {
     // Step 3: Publish the post
     const postId = await InstagramService.publishContainer(containerId, accountId);
     
-    console.log('🎉 Instagram post successful!');
     return postId;
   },
 
@@ -300,7 +268,6 @@ export const InstagramService = {
           const accountInfo = await InstagramService.getAccountInfo(account.id);
           return accountInfo;
         } catch (error) {
-          console.error(`Failed to fetch username for ${account.id}:`, error);
           // Return account as-is if fetch fails
           return account;
         }

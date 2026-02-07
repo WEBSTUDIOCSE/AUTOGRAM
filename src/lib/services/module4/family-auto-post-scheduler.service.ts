@@ -48,21 +48,12 @@ export class FamilyAutoPostScheduler {
     const startTime = Date.now();
     
     try {
-      console.log(`[FamilyAutoPost] ━━━━━ STARTING FAMILY AUTO-POST WORKFLOW ━━━━━`);
-      console.log(`[FamilyAutoPost] User ID: ${userId}`);
-      console.log(`[FamilyAutoPost] Scheduled Time: ${scheduledTime}`);
-      console.log(`[FamilyAutoPost] Current Time: ${new Date().toISOString()}`);
 
       // Get all active family profiles for this user
       const profiles = await FamilyProfileService.getUserProfiles(userId);
-      console.log(`[FamilyAutoPost] Total profiles found: ${profiles.length}`);
       
       // Debug each profile
       profiles.forEach(p => {
-        console.log(`[FamilyAutoPost] Profile: ${p.profileName} (${p.id})`);
-        console.log(`[FamilyAutoPost]   - isActive: ${p.isActive}`);
-        console.log(`[FamilyAutoPost]   - postingTimes: ${JSON.stringify(p.postingTimes)}`);
-        console.log(`[FamilyAutoPost]   - includes ${scheduledTime}: ${p.postingTimes?.includes(scheduledTime)}`);
       });
       
       const activeProfiles = profiles.filter(p => 
@@ -72,11 +63,8 @@ export class FamilyAutoPostScheduler {
       );
 
       if (activeProfiles.length === 0) {
-        console.log(`[FamilyAutoPost] ⚠️ No active profiles with posting time ${scheduledTime} for user ${userId}`);
         return;
       }
-
-      console.log(`[FamilyAutoPost] Found ${activeProfiles.length} profile(s) scheduled for ${scheduledTime}`);
 
       // Process each profile
       for (const profile of activeProfiles) {
@@ -84,12 +72,9 @@ export class FamilyAutoPostScheduler {
       }
 
       const duration = Date.now() - startTime;
-      console.log(`[FamilyAutoPost] ✅ Completed workflow in ${duration}ms`);
-      console.log(`[FamilyAutoPost] ━━━━━ WORKFLOW COMPLETED ━━━━━`);
 
     } catch (error) {
       const duration = Date.now() - startTime;
-      console.error(`[FamilyAutoPost] ❌ Error after ${duration}ms:`, error);
       throw error;
     }
   }
@@ -103,7 +88,6 @@ export class FamilyAutoPostScheduler {
     scheduledTime: string
   ): Promise<void> {
     try {
-      console.log(`[FamilyAutoPost] Processing profile: ${profile.profileName} (${profile.id})...`);
 
       // Check if already executed this hour
       const alreadyExecuted = await this.wasExecutedThisHour(
@@ -113,14 +97,12 @@ export class FamilyAutoPostScheduler {
       );
 
       if (alreadyExecuted) {
-        console.log(`[FamilyAutoPost] ⚠️ Profile already posted this hour - SKIPPING`);
         return;
       }
 
       // Validate Instagram account
       const instagramAccount = InstagramService.getAccountById(profile.instagramAccountId);
       if (!instagramAccount || !instagramAccount.isActive) {
-        console.error(`[FamilyAutoPost] ❌ Instagram account not available`);
         await this.logFailure(
           userId,
           profile.id,
@@ -131,14 +113,11 @@ export class FamilyAutoPostScheduler {
         return;
       }
 
-      console.log(`[FamilyAutoPost] ✅ Instagram: @${instagramAccount.username || instagramAccount.name}`);
-
       // Get a random prompt (prompts are now dynamic, no schedule needed)
       const allPrompts = await FamilyPromptService.getPrompts(userId, profile.id);
       const activePrompts = allPrompts.filter(p => p.isActive);
 
       if (activePrompts.length === 0) {
-        console.error(`[FamilyAutoPost] ❌ No active prompts found`);
         await this.logFailure(
           userId,
           profile.id,
@@ -151,13 +130,11 @@ export class FamilyAutoPostScheduler {
 
       // Select a random prompt
       const prompt = activePrompts[Math.floor(Math.random() * activePrompts.length)];
-      console.log(`[FamilyAutoPost] ✅ Selected Prompt: "${prompt.basePrompt}"`);
 
       // Build family context from all members
       const familyContext = FamilyProfileService.buildFamilyContext(profile.members);
 
       if (!familyContext) {
-        console.error(`[FamilyAutoPost] ❌ No family members available`);
         await this.logFailure(
           userId,
           profile.id,
@@ -168,18 +145,14 @@ export class FamilyAutoPostScheduler {
         return;
       }
 
-      console.log(`[FamilyAutoPost] ✅ Family Context: ${familyContext}`);
-
       // Get recent posts to avoid repetition
       const recentPosts = await CharacterPostService.getRecentPosts(userId, 10);
       const previousPrompts = recentPosts
         .filter(p => p.characterId === profile.id && p.moduleType === 'module4')
         .map(p => p.prompt);
       
-      console.log(`[FamilyAutoPost] 📜 Found ${previousPrompts.length} previous prompts to avoid`);
       
       // Generate unique family prompt using new generator
-      console.log(`[FamilyAutoPost] 🎨 Generating unique family prompt...`);
       const context = Module4PromptGenerator.getGenerationContext(profile, previousPrompts);
       const generatedPrompt = await Module4PromptGenerator.generateUniquePrompt(
         profile,
@@ -187,17 +160,10 @@ export class FamilyAutoPostScheduler {
         context
       );
       
-      console.log(`[FamilyAutoPost] ✅ Generated Prompt: "${generatedPrompt}"`);
-      console.log(`[FamilyAutoPost] ✅ Family: ${profile.profileName}`);
-      console.log(`[FamilyAutoPost] ✅ Avoided ${previousPrompts.length} previous scenarios`);
 
       // Check if we have member images for character-consistent generation
       const membersWithImages = profile.members.filter(m => m.imageBase64 || m.imageUrl);
-      console.log(`[FamilyAutoPost] 📸 Members with images: ${membersWithImages.length}`);
       membersWithImages.forEach((m, idx) => {
-        console.log(`[FamilyAutoPost]   Member ${idx + 1}: ${m.name}`);
-        console.log(`[FamilyAutoPost]     - Has imageBase64: ${!!m.imageBase64} (${m.imageBase64?.substring(0, 50)}...)`);
-        console.log(`[FamilyAutoPost]     - Has imageUrl: ${!!m.imageUrl}`);
       });
       
       let imageBase64: string;
@@ -208,7 +174,6 @@ export class FamilyAutoPostScheduler {
       if (membersWithImages.length > 0) {
         // Use character AI service with member image for face consistency
         const primaryMember = membersWithImages[0];
-        console.log(`[FamilyAutoPost] 🎨 Using member image for consistency: ${primaryMember.name}`);
         
         try {
           // Use stored imageBase64 directly (Module 3 style)
@@ -217,9 +182,6 @@ export class FamilyAutoPostScheduler {
           if (!memberImageBase64) {
             throw new Error(`Family member "${primaryMember.name}" has no imageBase64. Please re-upload the family member photo in the profile settings to enable face-consistent generation.`);
           }
-
-          console.log(`[FamilyAutoPost] ✅ Using imageBase64 for ${primaryMember.name} (${memberImageBase64.substring(0, 50)}...)`);
-
 
           // Build enhanced scene prompt
           const enhancedPrompt = `${prompt.basePrompt}
@@ -230,7 +192,6 @@ ${familyContext}
 Important: Generate a photorealistic image showing ${membersWithImages.length > 1 ? 'these family members' : 'this person'} in the described scene. Maintain natural appearance, realistic lighting, and authentic setting.`;
 
           // Generate with character consistency
-          console.log(`[FamilyAutoPost] Generating image with character consistency...`);
           const result = await CharacterAIService.generateWithCharacter(
             memberImageBase64,
             enhancedPrompt
@@ -240,10 +201,7 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
           generatedCaption = result.caption;
           generatedHashtags = result.hashtags;
           generatedModel = result.model;
-          console.log(`[FamilyAutoPost] ✅ Image generated with character consistency`);
-          console.log(`[FamilyAutoPost] 🤖 Model used: ${result.model}`);
         } catch (charError) {
-          console.error(`[FamilyAutoPost] ⚠️ Character AI failed, falling back to standard generation:`, charError);
           // Fallback to standard generation
           const imageResult = await AIService.generateImage(generatedPrompt);
           if (!imageResult.data) {
@@ -253,13 +211,10 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
           generatedModel = imageResult.data.model;
           generatedCaption = await this.generateCaption(generatedPrompt, familyContext);
           generatedHashtags = await this.generateHashtags(prompt.category);
-          console.log(`[FamilyAutoPost] 🤖 Fallback model used: ${imageResult.data.model}`);
         }
       } else {
         // Standard generation without member images
-        console.log(`[FamilyAutoPost] Generating image without member reference...`);
         const imageResult = await AIService.generateImage(generatedPrompt);
-        console.log(`[FamilyAutoPost] ✅ Image generated`);
 
         if (!imageResult.data) {
           throw new Error('Image generation failed - no data returned');
@@ -268,11 +223,9 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
         generatedModel = imageResult.data.model;
         generatedCaption = await this.generateCaption(generatedPrompt, familyContext);
         generatedHashtags = await this.generateHashtags(prompt.category);
-        console.log(`[FamilyAutoPost] 🤖 Model used: ${imageResult.data.model}`);
       }
 
       // Upload to storage using UnifiedImageStorageService
-      console.log(`[FamilyAutoPost] Uploading image...`);
       const uploadResult = await UnifiedImageStorageService.uploadImage(
         imageBase64,
         userId,
@@ -280,21 +233,18 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
       );
       const imageUrl = uploadResult.imageUrl;
       const storedImageBase64 = uploadResult.imageBase64;
-      console.log(`[FamilyAutoPost] ✅ Image uploaded: ${imageUrl}`);
 
       // Use generated or fallback caption/hashtags
       const caption = generatedCaption;
       const hashtags = generatedHashtags;
 
       // Post to Instagram
-      console.log(`[FamilyAutoPost] Posting to Instagram...`);
       try {
         const instagramPostId = await InstagramService.postImage(
           imageUrl,
           `${caption}\n\n${hashtags}`,
           profile.instagramAccountId
         );
-        console.log(`[FamilyAutoPost] ✅ Posted to Instagram: ${instagramPostId}`);
 
         // Save to character_posts collection for unified post history
         await CharacterPostService.saveCharacterPost({
@@ -314,7 +264,6 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
           model: generatedModel,
           timestamp: new Date().toISOString()
         });
-        console.log(`[FamilyAutoPost] ✅ Saved to post history`);
 
         // Update prompt usage
         await FamilyPromptService.incrementUsage(prompt.id);
@@ -339,10 +288,7 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
           status: 'success',
         });
 
-        console.log(`[FamilyAutoPost] ✅ Profile completed successfully`);
-
       } catch (instagramError) {
-        console.error(`[FamilyAutoPost] ❌ Instagram posting failed:`, instagramError);
         await this.logFailure(
           userId,
           profile.id,
@@ -358,7 +304,6 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
       }
 
     } catch (error) {
-      console.error(`[FamilyAutoPost] ❌ Error processing profile:`, error);
       await this.logFailure(
         userId,
         profile.id,
@@ -435,7 +380,6 @@ Important: Generate a photorealistic image showing ${membersWithImages.length > 
         error,
       });
     } catch (logError) {
-      console.error('[FamilyAutoPost] Failed to log error:', logError);
     }
   }
 }

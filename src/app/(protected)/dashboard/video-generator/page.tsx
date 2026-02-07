@@ -42,10 +42,8 @@ export default function VideoGeneratorPage() {
       const prefs = prefsResponse.data;
       if (prefs?.textToVideoModel) {
         setSelectedModel(prefs.textToVideoModel);
-        console.log('✅ Loaded text-to-video model:', prefs.textToVideoModel);
       }
     } catch (err) {
-      console.error('Failed to load model preference:', err);
     }
   };
 
@@ -63,7 +61,6 @@ export default function VideoGeneratorPage() {
       const refinedPrompt = await Module6PromptRefiner.refineVideoPrompt(prompt);
       setPrompt(refinedPrompt);
     } catch (err) {
-      console.error('Failed to refine prompt:', err);
       setError(err instanceof Error ? err.message : 'Failed to refine prompt');
     } finally {
       setIsRefining(false);

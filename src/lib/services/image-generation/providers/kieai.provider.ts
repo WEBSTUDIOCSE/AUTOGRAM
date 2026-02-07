@@ -65,12 +65,8 @@ export class KieAIProvider implements ImageGenerationProvider {
     this.defaultModel = config.textToImageModel || config.defaultModel;
     this.editModel = config.imageToImageModel || config.editModel;
     
-    console.log(`🔧 KieAI Provider initialized:`);
-    console.log(`   Text-to-Image Model: ${this.defaultModel}`);
-    console.log(`   Image-to-Image Model: ${this.editModel}`);
     
     if (!this.apiKey) {
-      console.warn('⚠️ Kie.ai API key not configured. Set NEXT_PUBLIC_KIEAI_API_KEY environment variable.');
     }
   }
 
@@ -82,14 +78,6 @@ export class KieAIProvider implements ImageGenerationProvider {
     const { prompt, model, imageSize = 'square_hd', guidanceScale = 2.5 } = options;
     const selectedModel = model || this.defaultModel;
     
-    console.log(`🔍 [KieAI Provider] Configuration:`, {
-      apiKeyPresent: !!this.apiKey,
-      apiKeyLength: this.apiKey?.length || 0,
-      baseUrl: this.baseUrl,
-      selectedModel: selectedModel,
-      defaultModel: this.defaultModel,
-      imageSize: imageSize
-    });
     
     if (!prompt || prompt.trim().length === 0) {
       throw new Error('Prompt cannot be empty');
@@ -129,13 +117,6 @@ export class KieAIProvider implements ImageGenerationProvider {
       }
 
       // Create task
-      console.log(`📤 [KieAI] Calling API:`, {
-        url: `${this.baseUrl}/jobs/createTask`,
-        method: 'POST',
-        model: selectedModel,
-        hasAuth: !!this.apiKey,
-        inputKeys: Object.keys(inputPayload)
-      });
       
       const taskResponse = await fetch(`${this.baseUrl}/jobs/createTask`, {
         method: 'POST',
@@ -149,11 +130,9 @@ export class KieAIProvider implements ImageGenerationProvider {
         })
       });
 
-      console.log(`📥 [KieAI] Response status: ${taskResponse.status} ${taskResponse.statusText}`);
       
       if (!taskResponse.ok) {
         const error = await taskResponse.json();
-        console.error(`❌ [KieAI] API error response:`, error);
         throw new Error(`Kie.ai API error: ${error.msg || taskResponse.statusText}`);
       }
 
@@ -164,7 +143,6 @@ export class KieAIProvider implements ImageGenerationProvider {
       }
 
       const taskId = taskData.data.taskId;
-      console.log(`🎨 Kie.ai task created: ${taskId}`);
 
       // Poll for completion
       const result = await this.pollTaskCompletion(taskId);
@@ -193,7 +171,6 @@ export class KieAIProvider implements ImageGenerationProvider {
       };
       
     } catch (error) {
-      console.error('❌ Kie.ai generation failed:', error);
       throw new Error(`Kie.ai generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -216,7 +193,6 @@ export class KieAIProvider implements ImageGenerationProvider {
     try {
       // Use options.model if provided, otherwise use configured editModel
       const selectedModel = options.model || this.editModel;
-      console.log(`🎨 Kie.ai: Creating image-to-image task with ${selectedModel}...`);
       
       // Kie.ai expects image_urls as an array of actual URLs (Firebase Storage URLs)
       // NOT base64 data URLs
@@ -224,7 +200,6 @@ export class KieAIProvider implements ImageGenerationProvider {
         throw new Error('Kie.ai requires an actual image URL (Firebase Storage URL), not base64');
       }
       
-      console.log(`📸 Using character image URL: ${imageUrl}`);
       
       // Prepare input based on MODEL TYPE
       // Different models have COMPLETELY different parameter requirements!
@@ -255,7 +230,6 @@ export class KieAIProvider implements ImageGenerationProvider {
         inputPayload.guidance_scale = guidanceScale;
       } else if (isSeeDream4Edit) {
         // SeeDream 4.0 Edit - uses image_urls array
-        console.log('🎨 Using SeeDream 4.0 Edit parameters');
         inputPayload.prompt = prompt;
         inputPayload.image_urls = [imageUrl]; // Array format for SeeDream 4.0 Edit
         inputPayload.image_size = imageSize;
@@ -263,7 +237,6 @@ export class KieAIProvider implements ImageGenerationProvider {
         inputPayload.max_images = 1;
       } else if (isSeeDream45Edit) {
         // SeeDream 4.5 Edit - uses image_urls array and aspect_ratio
-        console.log('🎨 Using SeeDream 4.5 Edit parameters');
         inputPayload.prompt = prompt;
         inputPayload.image_urls = [imageUrl]; // Array format for SeeDream 4.5 Edit
         inputPayload.aspect_ratio = '1:1'; // SeeDream 4.5 uses aspect_ratio
@@ -282,10 +255,6 @@ export class KieAIProvider implements ImageGenerationProvider {
         inputPayload.guidance_scale = guidanceScale;
       }
 
-      console.log(`📦 Request payload for ${selectedModel}:`, JSON.stringify({
-        model: selectedModel,
-        input: inputPayload
-      }, null, 2));
       
       // Create task with reference image
       const taskResponse = await fetch(`${this.baseUrl}/jobs/createTask`, {
@@ -302,25 +271,16 @@ export class KieAIProvider implements ImageGenerationProvider {
 
       if (!taskResponse.ok) {
         const error = await taskResponse.json();
-        console.error('❌ Kie.ai API HTTP Error:', error);
         throw new Error(`Kie.ai API error: ${error.msg || taskResponse.statusText}`);
       }
 
       const taskData: KieAITaskResponse = await taskResponse.json();
-      console.log('📥 Kie.ai API Response:', taskData);
       
       if (taskData.code !== 200 || !taskData.data?.taskId) {
-        console.error('❌ Task creation failed. Full response:', JSON.stringify(taskData, null, 2));
-        console.error('❌ Request was:', JSON.stringify({
-          model: selectedModel,
-          input: inputPayload
-        }, null, 2));
         throw new Error(`Failed to create task: ${taskData.msg || 'Unknown error'}`);
       }
 
       const taskId = taskData.data.taskId;
-      console.log(`📋 Kie.ai task created: ${taskId}`);
-      console.log(`⏳ Polling for completion (image-to-image)...`);
 
       // Poll for completion
       const result = await this.pollTaskCompletion(taskId);
@@ -344,7 +304,6 @@ export class KieAIProvider implements ImageGenerationProvider {
         taskId
       };
     } catch (error) {
-      console.error('❌ Kie.ai image-to-image generation error:', error);
       throw new Error(
         error instanceof Error ? error.message : 'Failed to generate image with reference'
       );
@@ -397,7 +356,6 @@ export class KieAIProvider implements ImageGenerationProvider {
 
       throw new Error(data.msg || 'Failed to fetch credits');
     } catch (error) {
-      console.error('❌ Failed to fetch Kie.ai credits:', error);
       return { remaining: 0 };
     }
   }
@@ -423,7 +381,6 @@ export class KieAIProvider implements ImageGenerationProvider {
       const data = await response.json();
       return data.code === 200;
     } catch (error) {
-      console.error('❌ Kie.ai connection test failed:', error);
       return false;
     }
   }
@@ -480,7 +437,6 @@ export class KieAIProvider implements ImageGenerationProvider {
   }
 
   private async pollTaskCompletion(taskId: string, maxAttempts = 30): Promise<{ imageUrl: string }> {
-    console.log(`🔄 Polling Kie.ai task: ${taskId}`);
     
     for (let i = 0; i < maxAttempts; i++) {
       await this.sleep(2000); // Wait 2 seconds between checks
@@ -491,14 +447,12 @@ export class KieAIProvider implements ImageGenerationProvider {
         });
         
         if (!response.ok) {
-          console.error(`❌ Status check failed: ${response.status}`);
           continue;
         }
         
         const data: KieAITaskStatusResponse = await response.json();
         
         if (data.code !== 200) {
-          console.error(`❌ API error: ${data.msg}`);
           throw new Error(`API error: ${data.msg}`);
         }
         
@@ -506,7 +460,6 @@ export class KieAIProvider implements ImageGenerationProvider {
         
         // Check for success state
         if (state === 'success') {
-          console.log(`✅ Task completed!`);
           
           if (data.data.resultJson && data.data.resultJson.trim() !== '') {
             try {
@@ -514,18 +467,14 @@ export class KieAIProvider implements ImageGenerationProvider {
               
               if (result.resultUrls && result.resultUrls.length > 0) {
                 const imageUrl = result.resultUrls[0];
-                console.log(`🖼️ Image ready: ${imageUrl}`);
                 return { imageUrl };
               } else {
-                console.error(`❌ No resultUrls in result`);
                 throw new Error('No image URLs in completed task');
               }
             } catch (parseError) {
-              console.error('❌ Parse error:', parseError);
               throw new Error(`Failed to parse result: ${parseError}`);
             }
           } else {
-            console.error(`❌ Success but empty resultJson`);
             throw new Error('No resultJson in completed task');
           }
         }
@@ -534,20 +483,11 @@ export class KieAIProvider implements ImageGenerationProvider {
         if (state === 'failed') {
           const errorCode = data.data.failCode || 'unknown';
           const errorMsg = data.data.failMsg || 'Task failed';
-          console.error(`❌ Task FAILED (Code: ${errorCode}): ${errorMsg}`);
-          console.error(`📋 Failed task details:`, {
-            taskId,
-            model: data.data.model,
-            failCode: errorCode,
-            failMsg: errorMsg,
-            costTime: data.data.costTime
-          });
           throw new Error(`Image generation failed: ${errorMsg} (Error Code: ${errorCode})`);
         }
         
         // Log progress every 3 attempts to reduce noise
         if (i % 3 === 0) {
-          console.log(`⏳ Attempt ${i + 1}/${maxAttempts} - State: ${state}`);
         }
         
       } catch (error) {
@@ -566,17 +506,14 @@ export class KieAIProvider implements ImageGenerationProvider {
           
           const isTerminalError = terminalErrors.some(msg => error.message.includes(msg));
           if (isTerminalError) {
-            console.error(`🛑 Terminal error detected, stopping poll:`, error.message);
             throw error;
           }
         }
         
         // Only retry on network/connection errors
-        console.error(`⚠️ Network error on attempt ${i + 1}, retrying...`, error);
       }
     }
     
-    console.error(`❌ Timeout after ${maxAttempts * 2} seconds`);
     throw new Error('Task timeout - generation took too long');
   }
 
@@ -590,7 +527,6 @@ export class KieAIProvider implements ImageGenerationProvider {
       const blob = await response.blob();
       return await this.blobToBase64(blob);
     } catch (error) {
-      console.error('❌ Failed to download image:', error);
       throw error;
     }
   }

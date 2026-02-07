@@ -21,7 +21,6 @@ export const VideoStorageService = {
     moduleType: 'module6' | 'module7' | 'module9'
   ): Promise<string> {
     try {
-      console.log('📥 Downloading video from:', videoUrl);
       
       // Download the video from the URL
       const response = await fetch(videoUrl);
@@ -30,7 +29,6 @@ export const VideoStorageService = {
       }
 
       const videoBlob = await response.blob();
-      console.log('✅ Video downloaded, size:', (videoBlob.size / 1024 / 1024).toFixed(2), 'MB');
 
       // Create storage path
       const timestamp = Date.now();
@@ -40,7 +38,6 @@ export const VideoStorageService = {
       const storageRef = ref(storage, storagePath);
 
       // Upload with metadata
-      console.log('📤 Uploading to Firebase Storage...');
       await uploadBytes(storageRef, videoBlob, {
         contentType: 'video/mp4',
         customMetadata: {
@@ -54,11 +51,9 @@ export const VideoStorageService = {
       // Get download URL
       const downloadURL = await getDownloadURL(storageRef);
       
-      console.log(`✅ Video uploaded to Firebase Storage:`, downloadURL);
       return downloadURL;
 
     } catch (error) {
-      console.error('❌ Video upload error:', error);
       throw new Error(`Failed to upload video to storage: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   },
@@ -92,11 +87,9 @@ export const VideoStorageService = {
       });
 
       const downloadURL = await getDownloadURL(storageRef);
-      console.log(`✅ Video blob uploaded:`, downloadURL);
       
       return downloadURL;
     } catch (error) {
-      console.error('❌ Video blob upload error:', error);
       throw new Error('Failed to upload video blob to storage');
     }
   }

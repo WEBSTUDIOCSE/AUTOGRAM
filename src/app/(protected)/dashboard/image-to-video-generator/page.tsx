@@ -64,10 +64,8 @@ export default function ImageToVideoGeneratorPage() {
       const prefs = prefsResponse.data;
       if (prefs?.imageToVideoModel) {
         setSelectedModel(prefs.imageToVideoModel);
-        console.log('✅ Loaded image-to-video model:', prefs.imageToVideoModel);
       }
     } catch (err) {
-      console.error('Failed to load model preference:', err);
     }
   };
 
@@ -80,7 +78,6 @@ export default function ImageToVideoGeneratorPage() {
       const userCharacters = await APIBook.character.getCharactersByModule(user.uid, 'module7');
       setCharacters(userCharacters);
     } catch (err) {
-      console.error('Failed to load characters:', err);
       setError('Failed to load characters');
     } finally {
       setLoadingCharacters(false);
@@ -153,7 +150,6 @@ export default function ImageToVideoGeneratorPage() {
       const refinedPrompt = await Module7PromptRefiner.refineMotionPrompt(prompt);
       setPrompt(refinedPrompt);
     } catch (err) {
-      console.error('Failed to refine prompt:', err);
       setError(err instanceof Error ? err.message : 'Failed to refine prompt');
     } finally {
       setIsRefining(false);
@@ -211,7 +207,6 @@ export default function ImageToVideoGeneratorPage() {
       if (selectedCharacter && selectedCharacter.imageUrl) {
         // Use the character's existing Firebase Storage URL directly
         imageUrlToUse = selectedCharacter.imageUrl;
-        console.log('Using character image URL:', imageUrlToUse);
       } else {
         // Upload new image to storage
         const uploadResult = await UnifiedImageStorageService.uploadFromFile(
@@ -220,7 +215,6 @@ export default function ImageToVideoGeneratorPage() {
           'module7/image-to-video'
         );
         imageUrlToUse = uploadResult.imageUrl;
-        console.log('Uploaded new image:', imageUrlToUse);
       }
 
       // Generate video

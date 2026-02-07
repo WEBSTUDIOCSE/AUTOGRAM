@@ -15,7 +15,6 @@ import { MotivationalBlogGeneratorService } from '@/lib/services/module9/motivat
  */
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
-  console.log(`[Manual Quote Generator] ===== NEW REQUEST =====`);
 
   try {
     // Get authenticated user
@@ -26,9 +25,6 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { category, style, contentType, language } = body;
-
-    console.log(`[Manual Quote Generator] User: ${user.uid}`);
-    console.log(`[Manual Quote Generator] Category: ${category}, Style: ${style}, Type: ${contentType}, Language: ${language || 'english'}`);
 
     // Validate inputs
     if (!category || !style || !contentType) {
@@ -49,14 +45,10 @@ export async function POST(request: NextRequest) {
     const textToImageModel = moduleAIConfig?.textToImageModel || globalPreferences?.textToImageModel;
     const textToVideoModel = moduleAIConfig?.textToVideoModel || globalPreferences?.textToVideoModel;
 
-    console.log(`🔧 [AI Models] Text-to-Image: ${textToImageModel || 'default'} | Text-to-Video: ${textToVideoModel || 'default'}`);
-    console.log(`   Source: ${moduleAIConfig?.textToImageModel ? 'Module-specific' : 'Global settings'}`);
-
     // Get recent quotes to avoid duplication
     const recentLogs = await APIBook.motivationalAutoPostLog.getRecentLogs(user.uid, undefined, 20);
     const recentQuotes = recentLogs.filter((log): log is string => typeof log === 'string' && !!log);
 
-    console.log(`📝 Generating unique quote...`);
     
     // Generate unique quote
     const quoteData = await APIBook.motivationalPromptRefiner.generateUniqueQuote({
@@ -67,8 +59,6 @@ export async function POST(request: NextRequest) {
       language: language || 'english', // Default to English if not specified
       recentQuotes,
     });
-
-    console.log(`✨ Quote generated: "${quoteData.quoteText.substring(0, 60)}..."`);
 
     // Strip markdown formatting from quote text (**, __, etc.)
     const cleanQuoteText = quoteData.quoteText
@@ -85,7 +75,6 @@ export async function POST(request: NextRequest) {
 
     // Generate media based on content type
     if (contentType === 'image') {
-      console.log(`📸 Generating image with model: ${textToImageModel || 'default'}...`);
       
       // Determine provider from model
       let provider: 'gemini' | 'kieai' | undefined;
@@ -118,10 +107,7 @@ export async function POST(request: NextRequest) {
         }, { status: 500 });
       }
 
-      console.log(`✅ Image generated successfully with ${result.provider}`);
-
       // Upload to Firebase
-      console.log(`📤 Uploading to Firebase Storage...`);
       const uploadResult = await UnifiedImageStorageService.uploadImage(
         result.imageBase64,
         user.uid,
@@ -130,10 +116,8 @@ export async function POST(request: NextRequest) {
       );
       
       mediaUrl = uploadResult.imageUrl;
-      console.log(`✅ Image uploaded: ${mediaUrl.substring(0, 80)}...`);
       
     } else {
-      console.log(`🎬 Generating video with model: ${textToVideoModel || 'default'}...`);
       
       // Create explicit prompt with exact quote text for video
       const explicitVideoPrompt = `CRITICAL: Display this EXACT text prominently: "${cleanQuoteText}"\n\nStyle and motion: ${quoteData.visualPrompt}`;
@@ -157,7 +141,6 @@ export async function POST(request: NextRequest) {
         'module9'
       );
       
-      console.log(`✅ Video uploaded: ${mediaUrl.substring(0, 80)}...`);
     }
 
     // Create caption with TITLE only (quote is on the image)
@@ -165,7 +148,6 @@ export async function POST(request: NextRequest) {
     const caption = `${quoteData.title}${quoteData.author ? `\n— ${quoteData.author}` : ''}\n\n${hashtags}`;  
 
     // Generate blog content
-    console.log(`📝 Generating blog content...`);
     const blogContent = await MotivationalBlogGeneratorService.generateBlogContent({
       quoteText: quoteData.quoteText,
       author: quoteData.author,
@@ -174,10 +156,8 @@ export async function POST(request: NextRequest) {
       subcategories: quoteData.subcategories || [quoteData.subcategory],
       language,
     });
-    console.log(`✅ Blog content generated successfully`);
 
     const duration = Date.now() - startTime;
-    console.log(`[Manual Quote Generator] ===== COMPLETED in ${duration}ms =====`);
 
     // Save to log for tracking and future deduplication
     try {
@@ -199,9 +179,7 @@ export async function POST(request: NextRequest) {
         blogContent: blogContent.htmlContent,
         status: 'success',
       });
-      console.log(`✅ Manual quote saved to log with blog content`);
     } catch (logError) {
-      console.error(`⚠️ Failed to save manual quote to log:`, logError);
       // Don't fail the request if logging fails
     }
 
@@ -225,7 +203,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     const duration = Date.now() - startTime;
-    console.error(`❌ [Manual Quote Generator] Error (${duration}ms):`, error);
     
     return NextResponse.json({
       success: false,

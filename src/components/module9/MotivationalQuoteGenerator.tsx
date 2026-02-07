@@ -61,7 +61,6 @@ export function MotivationalQuoteGenerator() {
                 name: data.name || account.name
               };
             } catch (err) {
-              console.error(`Failed to fetch username for account ${account.accountId}:`, err);
               return account;
             }
           })
@@ -74,7 +73,6 @@ export function MotivationalQuoteGenerator() {
           setSelectedAccountId(accountsWithUsernames[0].id);
         }
       } catch (error) {
-        console.error('Failed to load Instagram accounts:', error);
       }
     }
     
@@ -112,7 +110,6 @@ export function MotivationalQuoteGenerator() {
         throw new Error(result.error || 'Failed to generate quote');
       }
     } catch (error) {
-      console.error('Generation error:', error);
       toast.error("Generation Failed", {
         description: error instanceof Error ? error.message : 'Failed to generate quote',
       });
@@ -165,7 +162,6 @@ export function MotivationalQuoteGenerator() {
         throw new Error(result.error || 'Failed to post');
       }
     } catch (error) {
-      console.error('Post error:', error);
       toast.error('Post Failed', {
         description: error instanceof Error ? error.message : 'Failed to post to Instagram'
       });

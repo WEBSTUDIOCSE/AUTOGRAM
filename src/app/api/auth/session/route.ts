@@ -45,7 +45,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error setting session:', error);
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }
@@ -58,7 +57,6 @@ export async function DELETE() {
     
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error deleting session:', error);
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }

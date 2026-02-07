@@ -22,8 +22,6 @@ Photorealistic, ultra‑realistic: ${userPrompt}, natural soft lighting, subtle 
 
 Keep it under 500 characters. Output refined prompt only.`;
 
-      console.log('🎨 [Module 1] Refining prompt...');
-
       const response = await genAI.models.generateContent({
         model: modelName,
         contents: refinementPrompt,
@@ -41,7 +39,6 @@ Keep it under 500 characters. Output refined prompt only.`;
       }
 
       if (!refinedPrompt) {
-        console.warn('No refined prompt received, using original');
         return userPrompt;
       }
 
@@ -60,11 +57,9 @@ Keep it under 500 characters. Output refined prompt only.`;
         }
       }
 
-      console.log('✅ [Module 1] Refined:', refinedPrompt.length, 'chars');
       return refinedPrompt;
 
     } catch (error) {
-      console.error('❌ [Module 1] Refinement error:', error);
       return userPrompt;
     }
   },

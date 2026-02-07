@@ -20,7 +20,6 @@ export function RecentPostsList({ userId }: { userId: string }) {
       const logs = await AutoPostLogService.getUserLogs(userId, 10);
       setPosts(logs);
     } catch (error) {
-      console.error('Error loading posts:', error);
     } finally {
       setLoading(false);
     }
@@ -43,7 +42,6 @@ export function RecentPostsList({ userId }: { userId: string }) {
 
   const handleRetry = async (postId: string) => {
     // TODO: Implement retry logic
-    console.log('Retry post:', postId);
   };
 
   if (loading) {

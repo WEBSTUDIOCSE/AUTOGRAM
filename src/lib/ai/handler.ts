@@ -21,7 +21,6 @@ export async function aiHandler<T>(
   } catch (error: unknown) {
     // Log error in development
     if (process.env.NODE_ENV === 'development') {
-      console.error(`[AI Error${context ? ` - ${context}` : ''}]:`, error);
     }
     
     // Handle Gemini-specific errors

@@ -90,7 +90,6 @@ export function TodaySchedule({ userId }: { userId: string }) {
           });
         });
       } catch (error) {
-        console.error('Error loading character schedules:', error);
       }
 
       // Load Module 4 (Family) schedule
@@ -136,7 +135,6 @@ export function TodaySchedule({ userId }: { userId: string }) {
           });
         });
       } catch (error) {
-        console.error('Error loading family schedules:', error);
       }
 
       // Sort by time
@@ -145,7 +143,6 @@ export function TodaySchedule({ userId }: { userId: string }) {
       // Limit to next 6 posts
       setScheduledPosts(posts.slice(0, 6));
     } catch (error) {
-      console.error('Error loading schedule:', error);
     } finally {
       setLoading(false);
     }

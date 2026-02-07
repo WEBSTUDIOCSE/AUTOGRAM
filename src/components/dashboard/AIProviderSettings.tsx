@@ -57,19 +57,16 @@ export function AIProviderSettings() {
   const loadProviderSettings = async () => {
     setLoading(true);
     try {
-      console.log('🔍 Loading provider preferences from Firebase...');
       // Get saved preferences from Firebase
       const prefsResponse = await UserPreferencesService.getPreferences();
       const prefs = prefsResponse.data;
       
       const currentProvider = prefs?.aiProvider || 'gemini';
-      console.log('✅ Provider loaded from Firebase:', currentProvider);
       setSelectedProvider(currentProvider);
       AIService.setDefaultProvider(currentProvider);
       
       // Load model selections
       if (prefs?.textToImageModel) {
-        console.log('🎨 Text-to-Image Model:', prefs.textToImageModel);
         setTextToImageModel(prefs.textToImageModel);
       } else {
         // Set default based on provider
@@ -78,7 +75,6 @@ export function AIProviderSettings() {
       }
       
       if (prefs?.imageToImageModel) {
-        console.log('🖼️ Image-to-Image Model:', prefs.imageToImageModel);
         setImageToImageModel(prefs.imageToImageModel);
       } else {
         // Set default based on provider
@@ -88,14 +84,12 @@ export function AIProviderSettings() {
       
       // Load video model selections
       if (prefs?.textToVideoModel) {
-        console.log('🎬 Text-to-Video Model:', prefs.textToVideoModel);
         setTextToVideoModel(prefs.textToVideoModel);
       } else {
         setTextToVideoModel('bytedance/v1-pro-text-to-video');
       }
       
       if (prefs?.imageToVideoModel) {
-        console.log('🎥 Image-to-Video Model:', prefs.imageToVideoModel);
         setImageToVideoModel(prefs.imageToVideoModel);
       } else {
         setImageToVideoModel('bytedance/v1-pro-image-to-video');
@@ -116,7 +110,6 @@ export function AIProviderSettings() {
       // Test connections
       await testConnections();
     } catch (error) {
-      console.error('Failed to load provider settings:', error);
     } finally {
       setLoading(false);
     }
@@ -130,7 +123,6 @@ export function AIProviderSettings() {
         setConnections(response.data);
       }
     } catch (error) {
-      console.error('Connection test failed:', error);
     } finally {
       setTesting(false);
     }
@@ -139,12 +131,6 @@ export function AIProviderSettings() {
   const handleSaveProvider = async () => {
     setSaving(true);
     try {
-      console.log(`💾 Saving settings to Firebase:`);
-      console.log(`   Provider: ${selectedProvider}`);
-      console.log(`   Text-to-Image Model: ${textToImageModel}`);
-      console.log(`   Image-to-Image Model: ${imageToImageModel}`);
-      console.log(`   Text-to-Video Model: ${textToVideoModel}`);
-      console.log(`   Image-to-Video Model: ${imageToVideoModel}`);
       
       // Get current preferences
       const prefsResponse = await UserPreferencesService.getPreferences();
@@ -164,13 +150,11 @@ export function AIProviderSettings() {
       await UserPreferencesService.savePreferences(updatedPrefs);
       AIService.setDefaultProvider(selectedProvider);
       
-      console.log(`✅ Settings successfully saved to Firebase`);
       
       setTimeout(() => {
         setSaving(false);
       }, 1000);
     } catch (error) {
-      console.error('Failed to save settings:', error);
       setSaving(false);
     }
   };

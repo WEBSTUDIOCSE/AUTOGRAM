@@ -51,8 +51,6 @@ export const UnifiedImageStorageService = {
       const finalFileName = fileName || `image_${timestamp}_${randomId}`;
       const storagePath = `users/${userId}/${folder}/${finalFileName}`;
 
-      console.log(`📤 Uploading image to: ${storagePath}`);
-
       // Upload to Firebase Storage
       const storageRef = ref(storage, storagePath);
       await uploadString(storageRef, normalizedBase64, 'data_url');
@@ -63,9 +61,6 @@ export const UnifiedImageStorageService = {
       // Calculate file size
       const fileSize = this.getBase64Size(normalizedBase64);
 
-      console.log(`✅ Image uploaded successfully: ${imageUrl}`);
-      console.log(`📊 File size: ${(fileSize / 1024).toFixed(2)} KB`);
-
       return {
         imageUrl,
         imageBase64: normalizedBase64, // Return normalized base64 with data URI
@@ -73,7 +68,6 @@ export const UnifiedImageStorageService = {
         fileSize,
       };
     } catch (error) {
-      console.error('❌ Failed to upload image:', error);
       throw error;
     }
   },
@@ -87,7 +81,6 @@ export const UnifiedImageStorageService = {
     folder: string
   ): Promise<ImageUploadResult[]> {
     try {
-      console.log(`📤 Uploading ${images.length} images to ${folder}`);
 
       const uploadPromises = images.map((img, index) => 
         this.uploadImage(
@@ -100,10 +93,8 @@ export const UnifiedImageStorageService = {
 
       const results = await Promise.all(uploadPromises);
 
-      console.log(`✅ All ${results.length} images uploaded successfully`);
       return results;
     } catch (error) {
-      console.error('❌ Failed to upload multiple images:', error);
       throw error;
     }
   },
@@ -139,12 +130,10 @@ export const UnifiedImageStorageService = {
     fileName?: string
   ): Promise<ImageUploadResult> {
     try {
-      console.log(`📤 Converting file to base64: ${file.name}`);
       const imageBase64 = await this.fileToBase64(file);
       
       return await this.uploadImage(imageBase64, userId, folder, fileName);
     } catch (error) {
-      console.error('❌ Failed to upload from file:', error);
       throw error;
     }
   },
@@ -154,14 +143,11 @@ export const UnifiedImageStorageService = {
    */
   async deleteImage(imageUrl: string): Promise<void> {
     try {
-      console.log(`🗑️ Deleting image: ${imageUrl}`);
       
       const storageRef = ref(storage, imageUrl);
       await deleteObject(storageRef);
       
-      console.log('✅ Image deleted successfully');
     } catch (error) {
-      console.error('❌ Failed to delete image:', error);
       throw error;
     }
   },

@@ -41,7 +41,6 @@ export class AutoPostLogService {
         executedAt: new Date().toISOString(),
       };
     } catch (error) {
-      console.error('Error saving auto-post log:', error);
       throw new Error('Failed to save auto-post log');
     }
   }
@@ -86,7 +85,6 @@ export class AutoPostLogService {
         };
       });
     } catch (error) {
-      console.error('Error getting user logs:', error);
       throw new Error('Failed to get auto-post logs');
     }
   }
@@ -132,7 +130,6 @@ export class AutoPostLogService {
         };
       });
     } catch (error) {
-      console.error('Error getting successful posts:', error);
       throw new Error('Failed to get successful posts');
     }
   }
@@ -178,7 +175,6 @@ export class AutoPostLogService {
         };
       });
     } catch (error) {
-      console.error('Error getting failed posts:', error);
       throw new Error('Failed to get failed posts');
     }
   }
@@ -225,7 +221,6 @@ export class AutoPostLogService {
         };
       });
     } catch (error) {
-      console.error('Error getting character logs:', error);
       throw new Error('Failed to get character logs');
     }
   }
@@ -257,7 +252,6 @@ export class AutoPostLogService {
         successRate: Math.round(successRate * 10) / 10,
       };
     } catch (error) {
-      console.error('Error getting statistics:', error);
       throw new Error('Failed to get statistics');
     }
   }

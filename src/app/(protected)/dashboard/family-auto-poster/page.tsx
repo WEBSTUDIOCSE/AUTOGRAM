@@ -55,7 +55,6 @@ export default function FamilyAutoPosterPage() {
               name: data.name || account.name
             };
           } catch (err) {
-            console.error(`Failed to fetch username for account ${account.accountId}:`, err);
             return account;
           }
         })
@@ -68,7 +67,6 @@ export default function FamilyAutoPosterPage() {
       setProfiles(profilesData);
       setInstagramAccounts(accountsWithUsernames);
     } catch (error) {
-      console.error('Error loading data:', error);
       setError('Failed to load family profiles');
     } finally {
       setLoading(false);

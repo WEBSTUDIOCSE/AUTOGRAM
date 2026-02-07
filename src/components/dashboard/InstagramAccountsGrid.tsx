@@ -101,7 +101,6 @@ export function InstagramAccountsGrid({ userId }: { userId: string }) {
 
       setAccountsData(accountsWithData);
     } catch (error) {
-      console.error('Error loading accounts:', error);
     } finally {
       setLoading(false);
     }

@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Instagram post error:', error);
     return NextResponse.json(
       {
         success: false,

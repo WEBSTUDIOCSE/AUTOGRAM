@@ -59,7 +59,6 @@ export function AlertsBanner({ userId }: { userId: string }) {
 
       setAlerts(alertsList);
     } catch (error) {
-      console.error('Error loading alerts:', error);
     } finally {
       setLoading(false);
     }

@@ -34,7 +34,6 @@ export function FamilyProfileCard({
       await FamilyProfileService.deleteProfile(profile.id);
       onDelete(profile.id);
     } catch (error) {
-      console.error('Error deleting profile:', error);
       alert('Failed to delete family profile');
     } finally {
       setIsDeleting(false);

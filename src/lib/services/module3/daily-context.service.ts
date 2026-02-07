@@ -48,12 +48,10 @@ export const DailyContextService = {
     // Try to get cached context from Firestore
     const cached = await DailyContextService.getCachedContext(today);
     if (cached) {
-      console.log('✅ Using cached daily context for:', today);
       return cached;
     }
     
     // Generate new context using Gemini
-    console.log('🔄 Generating new daily context for:', today);
     const context = await DailyContextService.generateContext(today);
     
     // Cache for future use
@@ -78,7 +76,6 @@ export const DailyContextService = {
       
       return null;
     } catch (error) {
-      console.error('Failed to get cached context:', error);
       return null;
     }
   },
@@ -91,9 +88,7 @@ export const DailyContextService = {
     try {
       const docRef = doc(db, 'daily_context', context.date);
       await setDoc(docRef, context);
-      console.log('✅ Cached daily context for:', context.date);
     } catch (error) {
-      console.error('Failed to cache context:', error);
     }
   },
 
@@ -190,7 +185,6 @@ Generate the JSON now:`;
           .trim();
         parsedResponse = JSON.parse(cleanResponse);
       } catch (parseError) {
-        console.error('Failed to parse Gemini response:', responseText);
         // Return default context if parsing fails
         parsedResponse = {
           summary: 'Regular day',
@@ -217,10 +211,8 @@ Generate the JSON now:`;
         generatedAt: new Date().toISOString()
       };
 
-      console.log('✅ Generated daily context:', context);
       return context;
     } catch (error) {
-      console.error('Failed to generate context with Gemini:', error);
       
       // Return default context on error
       return {

@@ -42,7 +42,6 @@ export function InstagramAccountSelector({
                 name: data.name || account.name
               };
             } catch (err) {
-              console.error(`Failed to fetch username for account ${account.accountId}:`, err);
               return account;
             }
           })
@@ -55,7 +54,6 @@ export function InstagramAccountSelector({
           onSelectAccount(accountsWithUsernames[0].id);
         }
       } catch (err) {
-        console.error('Failed to fetch Instagram accounts:', err);
         setError(err instanceof Error ? err.message : 'Failed to load accounts');
       } finally {
         setLoading(false);

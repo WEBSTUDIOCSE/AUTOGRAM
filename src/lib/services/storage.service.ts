@@ -66,11 +66,9 @@ export const StorageService = {
       // Get download URL
       const downloadURL = await getDownloadURL(storageRef);
       
-      console.log(`✅ Image uploaded to ${moduleType}:`, downloadURL);
       return downloadURL;
 
     } catch (error) {
-      console.error('❌ Storage upload error:', error);
       throw new Error('Failed to upload image to storage');
     }
   },
@@ -83,9 +81,7 @@ export const StorageService = {
     try {
       const imageRef = ref(storage, imageUrl);
       await deleteObject(imageRef);
-      console.log('✅ Image deleted from storage');
     } catch (error) {
-      console.error('❌ Storage delete error:', error);
       throw new Error('Failed to delete image from storage');
     }
   },

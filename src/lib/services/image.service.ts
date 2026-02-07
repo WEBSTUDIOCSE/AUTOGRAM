@@ -87,10 +87,8 @@ export const ImageService = {
         updatedAt: Timestamp.now()
       });
 
-      console.log(`✅ Image saved to Firestore (${moduleType}):`, docRef.id);
       return docRef.id;
     } catch (error) {
-      console.error('❌ Failed to save image:', error);
       throw error;
     }
   },
@@ -112,7 +110,6 @@ export const ImageService = {
 
       return null;
     } catch (error) {
-      console.error('❌ Failed to get image:', error);
       throw error;
     }
   },
@@ -163,7 +160,6 @@ export const ImageService = {
 
       return images;
     } catch (error) {
-      console.error('❌ Failed to fetch user images:', error);
       return [];
     }
   },
@@ -179,9 +175,7 @@ export const ImageService = {
         updatedAt: Timestamp.now()
       });
 
-      console.log('✅ Image status updated:', status);
     } catch (error) {
-      console.error('❌ Failed to update image status:', error);
       throw error;
     }
   },
@@ -197,9 +191,7 @@ export const ImageService = {
         updatedAt: Timestamp.now()
       });
 
-      console.log('✅ Favorite toggled:', isFavorite);
     } catch (error) {
-      console.error('❌ Failed to toggle favorite:', error);
       throw error;
     }
   },
@@ -210,9 +202,7 @@ export const ImageService = {
   async deleteImage(imageId: string): Promise<void> {
     try {
       await this.updateStatus(imageId, 'deleted');
-      console.log('✅ Image deleted (soft)');
     } catch (error) {
-      console.error('❌ Failed to delete image:', error);
       throw error;
     }
   },
@@ -233,10 +223,8 @@ export const ImageService = {
         const docRef = doc(db, 'generated_images', imageId);
         await deleteDoc(docRef);
         
-        console.log('✅ Image permanently deleted');
       }
     } catch (error) {
-      console.error('❌ Failed to permanently delete image:', error);
       throw error;
     }
   }

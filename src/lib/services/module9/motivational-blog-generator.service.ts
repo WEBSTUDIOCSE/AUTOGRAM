@@ -32,8 +32,6 @@ export const MotivationalBlogGeneratorService = {
       ? { name: 'Marathi', instruction: 'Write all content in Marathi (Devanagari script)' }
       : { name: 'English', instruction: 'Write all content in English' };
 
-    console.log(`📝 [Blog Generator] Generating blog content for quote in ${langConfig.name}...`);
-
     const prompt = `Create a comprehensive, beautifully formatted blog post about this motivational quote: "${context.quoteText}"${context.author ? ` by ${context.author}${context.profession ? ` (${context.profession})` : ''}` : ''}.
 
 Category: ${context.category}
@@ -230,8 +228,6 @@ Return ONLY valid JSON with properly escaped HTML:
         throw new Error('No response from AI model');
       }
 
-      console.log('📄 [Blog Generator] Raw response length:', generatedText.length);
-
       // Try to extract JSON from response - handle markdown code blocks
       let jsonString = '';
       
@@ -241,7 +237,6 @@ Return ONLY valid JSON with properly escaped HTML:
       // Find JSON object
       const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
-        console.error('Failed to find JSON in response:', generatedText.substring(0, 300));
         throw new Error('Failed to parse blog content response - no JSON found');
       }
 
@@ -252,8 +247,6 @@ Return ONLY valid JSON with properly escaped HTML:
       try {
         parsed = JSON.parse(jsonString);
       } catch (parseError) {
-        console.error('JSON parse error:', parseError);
-        console.error('Problematic JSON substring:', jsonString.substring(0, 500));
         
         // Attempt to fix common JSON issues
         // 1. Fix unescaped quotes in HTML content
@@ -275,7 +268,6 @@ Return ONLY valid JSON with properly escaped HTML:
             throw parseError; // Re-throw if we can't extract content
           }
         } catch (fixError) {
-          console.error('Failed to fix JSON:', fixError);
           throw new Error(`JSON parsing failed: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
         }
       }
@@ -285,15 +277,11 @@ Return ONLY valid JSON with properly escaped HTML:
         throw new Error('Incomplete blog content generated - missing htmlContent field');
       }
 
-      console.log('✅ [Blog Generator] Blog content generated successfully');
-      console.log(`   HTML Content: ${parsed.htmlContent.length} chars`);
-
       return {
         htmlContent: parsed.htmlContent.trim(),
       };
 
     } catch (error) {
-      console.error('❌ [Blog Generator] Error:', error);
       
       // Don't use fallback - throw error so caller knows generation failed
       throw new Error(`Blog content generation failed: ${error instanceof Error ? error.message : String(error)}`);

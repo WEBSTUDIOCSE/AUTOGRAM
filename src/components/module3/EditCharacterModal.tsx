@@ -67,7 +67,6 @@ export default function EditCharacterModal({
       await onRename(character.id, name.trim());
       onClose();
     } catch (error) {
-      console.error("Failed to rename character:", error);
     } finally {
       setIsRenaming(false);
     }
@@ -113,7 +112,6 @@ export default function EditCharacterModal({
       onUpdate?.(); // Refresh the character list
       onClose();
     } catch (error) {
-      console.error("Failed to update character:", error);
       alert("Failed to update character. Please try again.");
     } finally {
       setIsRenaming(false);
@@ -129,7 +127,6 @@ export default function EditCharacterModal({
       setShowDeleteConfirm(false);
       onClose();
     } catch (error) {
-      console.error("Failed to delete character:", error);
     } finally {
       setIsDeleting(false);
     }

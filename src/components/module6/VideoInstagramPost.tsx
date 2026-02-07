@@ -56,13 +56,11 @@ export default function VideoInstagramPost({
 
       // Step 1: Download video and upload to Firebase Storage
       // Instagram requires videos to be hosted on publicly accessible URLs
-      console.log('📤 Uploading video to Firebase Storage...');
       const firebaseVideoUrl = await VideoStorageService.uploadVideoFromUrl(
         videoUrl,
         userId,
         moduleType
       );
-      console.log('✅ Video uploaded to Firebase:', firebaseVideoUrl);
 
       // Step 2: Post video to Instagram using Firebase URL
       const instagramPostId = await APIBook.instagram.postImage(

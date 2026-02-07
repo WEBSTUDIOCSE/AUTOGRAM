@@ -50,8 +50,6 @@ Create a unique scenario that stands out from recent posts.
 Be CREATIVE and SPECIFIC. Avoid generic descriptions.
 Output the prompt only, no explanations.`;
 
-      console.log('🤖 [Module 3] Generating AI-varied prompt...');
-
       const response = await genAI.models.generateContent({
         model: modelName,
         contents: generationPrompt,
@@ -69,7 +67,6 @@ Output the prompt only, no explanations.`;
       }
 
       if (!generatedPrompt) {
-        console.warn('AI generation failed, using base prompt with random variation');
         return this.createSimpleVariation(basePrompt, context);
       }
 
@@ -88,11 +85,9 @@ Output the prompt only, no explanations.`;
         }
       }
 
-      console.log('✅ [Module 3] Generated unique prompt:', generatedPrompt.length, 'chars');
       return generatedPrompt;
 
     } catch (error) {
-      console.error('❌ [Module 3] Generation error:', error);
       return this.createSimpleVariation(basePrompt, context);
     }
   },

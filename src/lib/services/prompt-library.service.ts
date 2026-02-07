@@ -49,7 +49,6 @@ export class PromptLibraryService {
         };
       });
     } catch (error) {
-      console.error('Error getting user prompts:', error);
       throw new Error('Failed to get prompt templates');
     }
   }
@@ -87,7 +86,6 @@ export class PromptLibraryService {
         updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
       };
     } catch (error) {
-      console.error('Error getting prompt:', error);
       throw new Error('Failed to get prompt template');
     }
   }
@@ -131,7 +129,6 @@ export class PromptLibraryService {
         updatedAt: new Date().toISOString(),
       };
     } catch (error) {
-      console.error('Error creating prompt:', error);
       throw new Error('Failed to create prompt template');
     }
   }
@@ -171,7 +168,6 @@ export class PromptLibraryService {
 
       await updateDoc(promptRef, updateData);
     } catch (error) {
-      console.error('Error updating prompt:', error);
       throw new Error('Failed to update prompt template');
     }
   }
@@ -184,7 +180,6 @@ export class PromptLibraryService {
       const promptRef = doc(db, COLLECTION_NAME, promptId);
       await deleteDoc(promptRef);
     } catch (error) {
-      console.error('Error deleting prompt:', error);
       throw new Error('Failed to delete prompt template');
     }
   }
@@ -216,7 +211,6 @@ export class PromptLibraryService {
         updatedAt: serverTimestamp(),
       });
     } catch (error) {
-      console.error('Error incrementing prompt usage:', error);
       throw new Error('Failed to update prompt usage');
     }
   }
@@ -254,7 +248,6 @@ export class PromptLibraryService {
         };
       });
     } catch (error) {
-      console.error('Error getting prompts by category:', error);
       throw new Error('Failed to get prompts by category');
     }
   }
@@ -278,7 +271,6 @@ export class PromptLibraryService {
    * No default prompts - users should create their own authentic prompts
    */
   static async createDefaultPrompts(userId: string): Promise<void> {
-    console.log(`No default prompts created - user ${userId} should create custom prompts`);
     // Users create their own authentic prompts
   }
 }

@@ -23,7 +23,6 @@ export async function uploadCharacterImage(
   fileName?: string
 ): Promise<ImageUploadResult> {
   try {
-    console.log(`📤 Uploading ${folder} image for user ${userId}`);
     
     const result = await UnifiedImageStorageService.uploadFromFile(
       file,
@@ -32,12 +31,9 @@ export async function uploadCharacterImage(
       fileName
     );
     
-    console.log(`✅ Image uploaded successfully: ${result.imageUrl}`);
-    console.log(`📊 Image size: ${(result.fileSize / 1024).toFixed(2)} KB`);
     
     return result;
   } catch (error) {
-    console.error(`❌ Failed to upload ${folder} image:`, error);
     throw error;
   }
 }
@@ -51,7 +47,6 @@ export async function uploadMultipleImages(
   folder: 'characters' | 'family_members' = 'family_members'
 ): Promise<ImageUploadResult[]> {
   try {
-    console.log(`📤 Uploading ${files.length} ${folder} images for user ${userId}`);
     
     // Convert files to base64 first
     const imagesWithBase64 = await Promise.all(
@@ -68,11 +63,9 @@ export async function uploadMultipleImages(
       folder
     );
     
-    console.log(`✅ All ${results.length} images uploaded successfully`);
     
     return results;
   } catch (error) {
-    console.error(`❌ Failed to upload multiple ${folder} images:`, error);
     throw error;
   }
 }

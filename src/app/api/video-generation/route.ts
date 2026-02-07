@@ -42,8 +42,6 @@ export async function POST(req: NextRequest) {
       enableSafetyChecker
     };
 
-    console.log('🎬 Starting video generation:', options);
-
     const result = await unifiedVideoGeneration.generateVideo(options);
 
     return NextResponse.json({
@@ -59,7 +57,6 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Video generation API error:', error);
     
     return NextResponse.json(
       { 
@@ -94,7 +91,6 @@ export async function GET(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('❌ Task status check error:', error);
     
     return NextResponse.json(
       { 

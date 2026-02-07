@@ -31,13 +31,6 @@ export async function POST(req: NextRequest) {
       scheduledTime 
     } = body;
 
-    console.log('[VideoAutoPost] Starting video auto-post:', {
-      userId,
-      promptId,
-      videoType,
-      scheduledTime
-    });
-
     // 1. Generate unique prompt variation using AI
     const context = {
       timeOfDay: scheduledTime,
@@ -52,10 +45,7 @@ export async function POST(req: NextRequest) {
       context
     );
 
-    console.log('[VideoAutoPost] Generated prompt variation:', promptVariation);
-
     // 2. Generate video
-    console.log('[VideoAutoPost] Loading video model from user preferences for userId:', userId);
     let videoOptions: VideoGenerationOptions = {
       prompt: promptVariation,
       aspectRatio: '9:16', // Instagram Reels format
@@ -65,39 +55,19 @@ export async function POST(req: NextRequest) {
 
     // For image-to-video, get character image
     if (videoType === 'image-to-video' && characterId) {
-      console.log('[VideoAutoPost] Fetching character for image-to-video:', characterId);
       const character = await APIBook.character.getCharacter(characterId);
-      console.log('[VideoAutoPost] Character fetched:', { 
-        characterId, 
-        hasCharacter: !!character, 
-        hasImageUrl: !!character?.imageUrl,
-        imageUrl: character?.imageUrl 
-      });
       if (character?.imageUrl) {
         videoOptions.imageUrl = character.imageUrl;
-        console.log('[VideoAutoPost] ✅ Image URL set for image-to-video generation');
       } else {
-        console.error('[VideoAutoPost] ❌ Character found but NO IMAGE URL! This will generate wrong video!');
       }
     }
 
-    console.log('[VideoAutoPost] Final video generation options:', { 
-      videoType, 
-      userId, 
-      hasImageUrl: !!videoOptions.imageUrl,
-      imageUrl: videoOptions.imageUrl,
-      promptLength: promptVariation.length,
-      aspectRatio: videoOptions.aspectRatio,
-      duration: videoOptions.duration
-    });
     
     const videoResult = await unifiedVideoGeneration.generateVideo(videoOptions);
     
     if (!videoResult.videoUrl) {
       throw new Error('Video generation failed - no video URL returned');
     }
-
-    console.log('[VideoAutoPost] Video generated:', videoResult.videoUrl);
 
     // 3. IMMEDIATELY SAVE VIDEO to Firestore (before Instagram posting)
     // This ensures we don't lose videos if Instagram posting times out or fails
@@ -126,7 +96,6 @@ export async function POST(req: NextRequest) {
 
     // Save video log immediately
     const logId = await APIBook.videoAutoPostLog.createLog(logData as any);
-    console.log('[VideoAutoPost] Video saved to Firestore:', logId);
 
     // 4. Now try to post to Instagram
     let instagramResult: string | undefined;
@@ -141,7 +110,6 @@ export async function POST(req: NextRequest) {
       );
 
       if (instagramResult) {
-        console.log('[VideoAutoPost] Posted to Instagram:', instagramResult);
         finalStatus = 'success';
         
         // Update log with Instagram post ID
@@ -151,7 +119,6 @@ export async function POST(req: NextRequest) {
         });
       }
     } catch (instagramError) {
-      console.error('[VideoAutoPost] Instagram posting failed:', instagramError);
       finalStatus = 'instagram_failed';
       
       // Update log with error but keep the video
@@ -176,7 +143,6 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[VideoAutoPost] Error:', error);
     
     // Log failed attempt
     try {
@@ -208,7 +174,6 @@ export async function POST(req: NextRequest) {
 
       await APIBook.videoAutoPostLog.createLog(errorLogData as any);
     } catch (logError) {
-      console.error('[VideoAutoPost] Failed to log error:', logError);
     }
 
     return NextResponse.json(
@@ -238,7 +203,6 @@ async function getRecentPrompts(userId: string): Promise<string[]> {
       .map(log => log.generatedPrompt)
       .filter(Boolean);
   } catch (error) {
-    console.error('Failed to get recent prompts:', error);
     return [];
   }
 }
@@ -248,7 +212,6 @@ async function getCharacterName(characterId: string): Promise<string | undefined
     const character = await APIBook.character.getCharacter(characterId);
     return character?.name;
   } catch (error) {
-    console.error('Failed to get character name:', error);
     return undefined;
   }
 }
@@ -258,7 +221,6 @@ async function getAccountName(accountId: string): Promise<string> {
     const account = InstagramService.getAccountById(accountId);
     return account?.name || account?.username || accountId;
   } catch (error) {
-    console.error('Failed to get account name:', error);
     return accountId;
   }
 }

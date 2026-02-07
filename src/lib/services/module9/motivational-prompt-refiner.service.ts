@@ -87,8 +87,6 @@ export const MotivationalPromptRefinerService = {
         ? 'Be bold and unexpected in your word choices.' 
         : 'Use fresh perspectives and uncommon phrasing.';
 
-      console.log(`🎲 [Generation Seed] ${uniqueSeed} | Variation: ${randomVariation}`);
-
       // Language configuration
       const language = context.language || 'english';
       const languageInstructions = {
@@ -304,9 +302,6 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
 
 🚀 REMEMBER: The goal is to create something that makes people stop scrolling. Be bold, be different, be memorable!`;
 
-      console.log('🤖 [Module 9] Generating motivational quote with Gemini AI...');
-      console.log('   Category:', context.category, '| Style:', context.style, '| Time:', timeContext);
-
       // Note: Using higher randomness through prompt engineering since generationConfig
       // temperature is not supported in this Gemini API version
       const response = await genAI.models.generateContent({
@@ -360,8 +355,6 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
         processedVisualPrompt += typographyEnhancement;
       }
 
-      console.log('✅ [Module 9] Visual prompt enhanced with quote text integration');
-
       // Check for similarity with recent quotes (basic deduplication)
       const generatedQuote = parsed.quoteText.toLowerCase().trim();
       const isTooSimilar = context.recentQuotes.some(recent => {
@@ -377,18 +370,12 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
         
         // Much stricter threshold: 50% similarity triggers duplicate detection (was 60%)
         if (similarity > 0.5) {
-          console.warn(`⚠️ [Similarity Check] ${(similarity * 100).toFixed(1)}% overlap detected`);
-          console.warn(`   Generated: "${generatedQuote.substring(0, 60)}..."`);
-          console.warn(`   Similar to: "${recentLower.substring(0, 60)}..."`);
           return true;
         }
         return false;
       });
 
       if (isTooSimilar) {
-        console.warn('⚠️ [Module 9] Generated quote too similar to recent ones');
-        console.warn('   Generated:', generatedQuote.substring(0, 80));
-        console.warn('   Retrying with more strict uniqueness requirements...');
         // Retry once with different variation
         if (!context.recentQuotes.includes('__RETRY__')) {
           return this.generateUniqueQuote({
@@ -396,14 +383,9 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
             recentQuotes: [...context.recentQuotes, generatedQuote, '__RETRY__'],
           });
         } else {
-          console.error('❌ [Module 9] Retry limit reached, failed to generate unique quote');
           throw new Error('Failed to generate unique quote after multiple attempts');
         }
       }
-
-      console.log('✅ [Module 9] Generated unique motivational quote');
-      console.log('   Quote:', parsed.quoteText.substring(0, 60) + '...');
-      console.log('   Subcategories:', parsed.subcategories || 'not provided');
 
       const subcategoriesArray = Array.isArray(parsed.subcategories) 
         ? parsed.subcategories.map((s: string) => s.trim().toLowerCase())
@@ -429,22 +411,11 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
       };
 
     } catch (error) {
-      console.error('❌ [Module 9] Quote generation error:', error);
-      console.error('❌ [Module 9] Error details:', {
-        message: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-        category: context.category,
-        style: context.style,
-        language: context.language,
-      });
       
       // Try one more time with a simpler prompt
       try {
-        console.log('🔄 [Module 9] Retrying with simplified prompt...');
         return await this.generateSimpleQuote(context);
       } catch (retryError) {
-        console.error('❌ [Module 9] Both generation attempts failed. No fallback quotes available.');
-        console.error('❌ [Module 9] Retry error:', retryError);
         // Throw error - no fallback quotes, only dynamic generation
         throw new Error(`Failed to generate unique quote after retry. Original error: ${error instanceof Error ? error.message : String(error)}`);
       }
@@ -510,8 +481,6 @@ Return ONLY valid JSON:
 
     const parsed = JSON.parse(jsonMatch[0]);
     
-    console.log('✅ [Module 9] Simple quote generation successful');
-    console.log('   Subcategories:', parsed.subcategories || 'not provided');
     
     const subcategoriesArray = Array.isArray(parsed.subcategories) 
       ? parsed.subcategories.map((s: string) => s.trim().toLowerCase())
@@ -588,7 +557,6 @@ Output only the visual prompt description, no other text.`;
       return refinedPrompt || `${style} ${contentType} with motivational quote: ${quoteText}`;
 
     } catch (error) {
-      console.error('Error refining quote prompt:', error);
       return `${style} ${contentType} with motivational quote: ${quoteText}`;
     }
   },
