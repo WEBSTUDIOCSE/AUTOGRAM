@@ -52,22 +52,54 @@ Then deploy to prod with: `firebase use production && firebase deploy`
 
 ### 1.2 Firestore Indexes — Deploy to Production
 
-The `firestore.indexes.json` file has all 20 composite indexes. 
+The `firestore.indexes.json` file contains all 20 composite indexes required for your queries.
 
-#### Option 1: Automatic (Recommended) — Firebase CLI
+#### 🚀 Option 1: Automated Setup (Recommended)
+This script installs Firebase CLI (if needed), authenticates, and deploys all indexes automatically:
+
+```bash
+# Make sure you're in the project root
+cd /path/to/AUTOGRAM
+
+# Run the automated setup script
+./scripts/setup-firestore-indexes.sh autogram-14ddc
+```
+
+This will:
+- ✅ Install Firebase CLI if not already installed
+- ✅ Prompt for authentication if needed
+- ✅ Deploy all 20 composite indexes to your production project
+- ✅ Print a link to view the deployed indexes
+
+#### Option 2: Manual Firebase CLI Deployment
+If you already have Firebase CLI installed and authenticated:
+
 ```bash
 firebase use production
 firebase deploy --only firestore:indexes
 ```
 
-#### Option 2: Get Direct Links — Run Helper Script
+#### Option 3: Get Direct Console Links
+Run the helper script to get direct links for each collection:
+
 ```bash
 node scripts/create-firestore-indexes.js autogram-14ddc
 ```
-This will output all direct console links organized by collection group.
 
-#### Option 3: Manual Creation via Console
-Use the links below to open the Firestore Indexes page filtered by collection group, then click **"Add Index"** for each entry:
+This will output all indexes with direct links to the Firebase Console where you can manually add each index.
+
+#### Option 4: Manual Creation via Console
+Click the links below to open the Firestore Indexes page for each collection group, then click **"Add Index"** for each entry:
+
+> **ℹ️ About These Indexes**
+> 
+> Firestore requires **composite indexes** for queries with multiple filters or sorting. Without these indexes, your queries will fail with an error linking to create the index. These 20 indexes power your app's core features:
+> - Auto-posting schedules (Module 3, 4, 6, 8, 9)
+> - Prompt template filtering and sorting
+> - Post history and logs retrieval
+> - Character and family profile queries
+> 
+> **Status columns:** ↑ = Ascending, ↓ = Descending
 
 | # | Collection | Fields | Indexes Page |
 |---|---|---|---|
