@@ -6,6 +6,38 @@
 
 ## 1. Firebase Project Setup (`autogram-14ddc`)
 
+### Quick Links — Firebase Console (PROD)
+
+| Service | Direct Link |
+|---|---|
+| 🏠 Project Overview | [Open](https://console.firebase.google.com/project/autogram-14ddc/overview) |
+| 📊 Firestore Database | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore) |
+| 📑 Firestore Indexes | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes) |
+| 🔒 Firestore Rules | [Open](https://console.firebase.google.com/project/autogram-14ddc/firestore/rules) |
+| 🔐 Authentication | [Open](https://console.firebase.google.com/project/autogram-14ddc/authentication) |
+| 🔑 Auth Sign-in Methods | [Open](https://console.firebase.google.com/project/autogram-14ddc/authentication/providers) |
+| ✉️ Auth Email Templates | [Open](https://console.firebase.google.com/project/autogram-14ddc/authentication/emails) |
+| 🌐 Auth Authorized Domains | [Open](https://console.firebase.google.com/project/autogram-14ddc/authentication/settings) |
+| 📦 Storage | [Open](https://console.firebase.google.com/project/autogram-14ddc/storage) |
+| 📦 Storage Rules | [Open](https://console.firebase.google.com/project/autogram-14ddc/storage/rules) |
+| ⚡ Cloud Functions | [Open](https://console.firebase.google.com/project/autogram-14ddc/functions) |
+| 📧 Cloud Messaging (VAPID) | [Open](https://console.firebase.google.com/project/autogram-14ddc/settings/cloudmessaging) |
+| ⚙️ Project Settings | [Open](https://console.firebase.google.com/project/autogram-14ddc/settings/general) |
+| 🔑 Service Accounts | [Open](https://console.firebase.google.com/project/autogram-14ddc/settings/serviceaccounts) |
+
+### Quick Links — Firebase Console (UAT — for reference)
+
+| Service | Direct Link |
+|---|---|
+| 🏠 Project Overview | [Open](https://console.firebase.google.com/project/env-uat-cd3c5/overview) |
+| 📊 Firestore Database | [Open](https://console.firebase.google.com/project/env-uat-cd3c5/firestore) |
+| 📑 Firestore Indexes | [Open](https://console.firebase.google.com/project/env-uat-cd3c5/firestore/indexes) |
+| 🔒 Firestore Rules | [Open](https://console.firebase.google.com/project/env-uat-cd3c5/firestore/rules) |
+| 🔐 Authentication | [Open](https://console.firebase.google.com/project/env-uat-cd3c5/authentication) |
+| ⚡ Cloud Functions | [Open](https://console.firebase.google.com/project/env-uat-cd3c5/functions) |
+
+---
+
 ### 1.1 `.firebaserc` — Add Production Alias
 Currently only UAT is configured. Add production:
 ```json
@@ -25,20 +57,36 @@ firebase use production
 firebase deploy --only firestore:indexes
 ```
 
-**Collections that need indexes in PROD (currently configured for UAT):**
-- `character_posts` (userId + timestamp)
-- `auto_post_logs` (userId + executedAt)
-- `prompt_templates` (userId + createdAt, userId + isActive)
-- `family_auto_post_logs` (userId + executedAt, userId + familyProfileId + status + executedAt)
-- `family_prompt_templates` (userId + familyProfileId + createdAt, userId + familyProfileId + category + isActive)
-- `characters` (userId + module + uploadedAt)
-- `video_auto_post_logs` (userId + executedAt)
-- `video_prompts` (userId + createdAt)
-- `motivational_quotes` (userId + createdAt, userId + category + createdAt)
-- `motivational_quote_prompts` (userId + createdAt, userId + isActive + createdAt)
-- `motivational_auto_post_logs` (userId + createdAt, promptId + createdAt, userId + timestamp)
+**Or create indexes manually via console** → [PROD Indexes](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes) | [UAT Indexes](https://console.firebase.google.com/project/env-uat-cd3c5/firestore/indexes)
+
+**Collections that need indexes in PROD (20 composite indexes total):**
+
+| # | Collection | Fields | Console Link |
+|---|---|---|---|
+| 1 | `character_posts` | `userId` ↑ + `timestamp` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=character_posts&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=timestamp&fieldOrder2=DESCENDING) |
+| 2 | `character_posts` | `characterId` ↑ + `timestamp` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=character_posts&queryScope=COLLECTION&fieldPath=characterId&fieldOrder=ASCENDING&fieldPath2=timestamp&fieldOrder2=DESCENDING) |
+| 3 | `auto_post_logs` | `userId` ↑ + `executedAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=auto_post_logs&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=executedAt&fieldOrder2=DESCENDING) |
+| 4 | `prompt_templates` | `userId` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=prompt_templates&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=createdAt&fieldOrder2=DESCENDING) |
+| 5 | `prompt_templates` | `userId` ↑ + `isActive` ↑ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=prompt_templates&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=isActive&fieldOrder2=ASCENDING) |
+| 6 | `family_auto_post_logs` | `userId` ↑ + `executedAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=family_auto_post_logs&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=executedAt&fieldOrder2=DESCENDING) |
+| 7 | `family_auto_post_logs` | `userId` ↑ + `familyProfileId` ↑ + `executedAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=family_auto_post_logs&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=familyProfileId&fieldOrder2=ASCENDING&fieldPath3=executedAt&fieldOrder3=DESCENDING) |
+| 8 | `family_auto_post_logs` | `userId` ↑ + `familyProfileId` ↑ + `status` ↑ + `executedAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=family_auto_post_logs&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=familyProfileId&fieldOrder2=ASCENDING&fieldPath3=status&fieldOrder3=ASCENDING&fieldPath4=executedAt&fieldOrder4=DESCENDING) |
+| 9 | `family_prompt_templates` | `userId` ↑ + `familyProfileId` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=family_prompt_templates&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=familyProfileId&fieldOrder2=ASCENDING&fieldPath3=createdAt&fieldOrder3=DESCENDING) |
+| 10 | `family_prompt_templates` | `userId` ↑ + `familyProfileId` ↑ + `category` ↑ + `isActive` ↑ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=family_prompt_templates&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=familyProfileId&fieldOrder2=ASCENDING&fieldPath3=category&fieldOrder3=ASCENDING&fieldPath4=isActive&fieldOrder4=ASCENDING) |
+| 11 | `characters` | `userId` ↑ + `module` ↑ + `uploadedAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=characters&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=module&fieldOrder2=ASCENDING&fieldPath3=uploadedAt&fieldOrder3=DESCENDING) |
+| 12 | `video_auto_post_logs` | `userId` ↑ + `executedAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=video_auto_post_logs&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=executedAt&fieldOrder2=DESCENDING) |
+| 13 | `video_prompts` | `userId` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=video_prompts&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=createdAt&fieldOrder2=DESCENDING) |
+| 14 | `motivational_quotes` | `userId` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=motivational_quotes&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=createdAt&fieldOrder2=DESCENDING) |
+| 15 | `motivational_quotes` | `userId` ↑ + `category` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=motivational_quotes&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=category&fieldOrder2=ASCENDING&fieldPath3=createdAt&fieldOrder3=DESCENDING) |
+| 16 | `motivational_quote_prompts` | `userId` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=motivational_quote_prompts&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=createdAt&fieldOrder2=DESCENDING) |
+| 17 | `motivational_quote_prompts` | `userId` ↑ + `isActive` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=motivational_quote_prompts&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=isActive&fieldOrder2=ASCENDING&fieldPath3=createdAt&fieldOrder3=DESCENDING) |
+| 18 | `motivational_auto_post_logs` | `userId` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=motivational_auto_post_logs&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=createdAt&fieldOrder2=DESCENDING) |
+| 19 | `motivational_auto_post_logs` | `promptId` ↑ + `createdAt` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=motivational_auto_post_logs&queryScope=COLLECTION&fieldPath=promptId&fieldOrder=ASCENDING&fieldPath2=createdAt&fieldOrder2=DESCENDING) |
+| 20 | `motivational_auto_post_logs` | `userId` ↑ + `timestamp` ↓ | [Create](https://console.firebase.google.com/project/autogram-14ddc/firestore/indexes/new?collectionGroup=motivational_auto_post_logs&queryScope=COLLECTION&fieldPath=userId&fieldOrder=ASCENDING&fieldPath2=timestamp&fieldOrder2=DESCENDING) |
 
 ### 1.3 Firestore Security Rules — Deploy to Production
+
+Go to [PROD Firestore Rules](https://console.firebase.google.com/project/autogram-14ddc/firestore/rules) and deploy:
 ```bash
 firebase use production
 firebase deploy --only firestore:rules
@@ -59,6 +107,8 @@ The following collections are used in code but have NO security rules:
 - `instagram_posts`
 
 ### 1.4 Storage Rules — Deploy to Production
+
+Go to [PROD Storage Rules](https://console.firebase.google.com/project/autogram-14ddc/storage/rules) and deploy:
 ```bash
 firebase use production
 firebase deploy --only storage
@@ -216,3 +266,91 @@ export const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 - [ ] Test Instagram posting
 - [ ] Test auto-post scheduling
 - [ ] Console logs removed from production code
+
+---
+
+## 11. Code Optimization Recommendations
+
+### 🔴 Critical Priority
+
+#### 11.1 Move Hardcoded Secrets to Environment Variables
+**File:** `src/lib/firebase/config/environments.ts`
+- UAT Instagram access tokens, app secrets, and API keys are **hardcoded in source code** — visible in Git history
+- **Fix:** Move all secrets to `.env.local` (local dev) and Vercel env vars (deployed). Reference via `process.env.NEXT_PUBLIC_*` or server-only `process.env.*`
+- Create a `.env.example` file documenting required variables
+
+#### 11.2 Add Firestore Query Limits & Pagination
+**Files:** All service files in `src/lib/services/`
+- Most Firestore queries have **no `.limit()`** — fetching unbounded data causes excessive reads and slow load times
+- **Fix:** Add `.limit(20)` (or appropriate page size) to all list queries. Implement cursor-based pagination with `startAfter()` for "load more" functionality
+- **Impact:** Reduces Firestore read costs and dramatically improves page load
+
+#### 11.3 Standardize API Route Error Handling
+**Files:** All files in `src/app/api/`
+- Error handling is inconsistent — some routes swallow errors, some return unstructured responses
+- **Fix:** Create a shared `apiErrorHandler()` utility that wraps route handlers, logs errors consistently, and returns structured `{ error, message, statusCode }` responses
+
+### 🟠 High Priority
+
+#### 11.4 Component Memoization
+**Files:** Components in `src/components/module1/`, `module3/`, `module4/`, `module9/`
+- No `React.memo`, `useMemo`, or `useCallback` usage — causes unnecessary re-renders on large forms and lists
+- **Fix:** Wrap pure list-item components in `React.memo`. Use `useCallback` for event handlers passed as props. Use `useMemo` for expensive computed values (filtered lists, sorted data)
+
+#### 11.5 Optimize Image Upload Flow
+**File:** `src/lib/services/storage.service.ts`, `src/lib/services/image-upload.helper.ts`
+- Images are converted to base64 before upload — doubles memory usage and blocks the UI thread
+- **Fix:** Use direct `File` object uploads with `uploadBytesResumable()` for progress tracking. Compress images client-side before upload using canvas resize (max 1920px)
+
+#### 11.6 Bundle Size — Dynamic Imports
+**File:** `package.json` — `firebase` (~200KB), `@google/genai`, `lucide-react`
+- All Firebase services imported at app startup even when not needed
+- **Fix:**
+  - Use `import { getAuth } from 'firebase/auth'` (tree-shakeable) — already done ✅
+  - Dynamic `import()` for heavy pages: video generator, image-to-video, motivational quotes
+  - Replace full `lucide-react` imports with individual icon imports: `import { Home } from 'lucide-react/dist/esm/icons/home'`
+
+### 🟡 Medium Priority
+
+#### 11.7 Convert Dashboard Pages to Server Components
+**Files:** `src/app/(protected)/dashboard/page.tsx` and subpages
+- All dashboard pages use `'use client'` at the top — entire page bundles ship to browser
+- **Fix:** Split into server component (layout, data fetch) + client component (interactive parts). Use `<Suspense>` with skeleton loaders
+
+#### 11.8 Add Loading States & Suspense Boundaries
+**Files:** All page components
+- Missing `loading.tsx` files in route segments — users see blank screens during navigation
+- **Fix:** Add `loading.tsx` with skeleton loaders for each dashboard route. Wrap async components in `<Suspense fallback={<Skeleton />}>`
+
+#### 11.9 Unify Duplicated Service Logic
+**Files:**
+- `src/lib/services/module1/prompt-refiner.service.ts`
+- `src/lib/services/module2/prompt-refiner.service.ts`
+- `src/lib/services/module3/prompt-refiner.service.ts`
+- `src/lib/services/module4/prompt-refiner.service.ts`
+- `src/lib/services/module6/prompt-refiner.service.ts`
+- `src/lib/services/module7/prompt-refiner.service.ts`
+- Near-identical prompt refiner logic duplicated across 6+ modules
+- **Fix:** Create a unified `src/lib/services/shared/prompt-refiner.service.ts` with module-specific configuration passed as parameters (strategy pattern)
+
+#### 11.10 Add Rate Limiting to API Routes
+**Files:** All files in `src/app/api/`
+- No rate limiting on any API route — vulnerable to abuse (especially auto-post and image generation endpoints)
+- **Fix:** Add a simple in-memory rate limiter or use Vercel's edge config for rate limiting. At minimum, validate `AUTO_POST_SECRET_TOKEN` strictly on all scheduled endpoints
+
+### 🟢 Low Priority
+
+#### 11.11 Firebase Singleton & SSR Safety
+**File:** `src/lib/firebase/firebase.ts`
+- Add explicit check: `typeof window !== 'undefined'` before initializing client-side Firebase services
+- Use `getApps().length === 0` guard before `initializeApp()`
+
+#### 11.12 Auth Token Refresh
+**Files:** `src/contexts/AuthContext.tsx`, `src/lib/auth/server.ts`
+- No explicit token refresh or expiration handling
+- **Fix:** Add `onIdTokenChanged` listener for automatic token refresh. Set shorter cookie expiration and refresh proactively
+
+#### 11.13 Environment Switcher Improvement
+**File:** `src/lib/firebase/config/environments.ts`
+- Uses hardcoded `IS_PRODUCTION = false` boolean — requires code change to switch
+- **Fix:** Replace with `process.env.NODE_ENV === 'production'` or a dedicated `NEXT_PUBLIC_ENV` variable
