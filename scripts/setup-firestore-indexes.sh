@@ -12,21 +12,31 @@ echo "🔥 Firestore Indexes Setup"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-# Check if Firebase CLI is installed
+# Check if Firebase CLI is installed globally
 if ! command -v firebase &> /dev/null; then
-    echo "❌ Firebase CLI not found"
+    echo "❌ Firebase CLI not found globally"
     echo ""
-    echo "Installing Firebase CLI globally..."
-    npm install -g firebase-tools
+    
+    # Try local installation first (no sudo needed)
+    echo "📦 Installing Firebase CLI locally in this project..."
+    npm install firebase-tools --no-save
+    
+    # Use local firebase executable
+    FIREBASE_CMD="npx firebase"
+    echo "✅ Using local Firebase CLI: $FIREBASE_CMD"
+    echo ""
+else
+    FIREBASE_CMD="firebase"
+    echo "✅ Using global Firebase CLI"
     echo ""
 fi
 
 # Check if user is authenticated
-if ! firebase projects:list &> /dev/null 2>&1; then
+if ! $FIREBASE_CMD projects:list &> /dev/null 2>&1; then
     echo "⚠️  You need to authenticate with Firebase"
     echo ""
-    echo "Running: firebase login"
-    firebase login
+    echo "Running: $FIREBASE_CMD login"
+    $FIREBASE_CMD login
     echo ""
 fi
 
@@ -56,10 +66,10 @@ echo ""
 cd "$ROOT_DIR"
 
 # Set the project
-firebase use "$PROJECT_ID" --add || firebase use "$PROJECT_ID"
+$FIREBASE_CMD use "$PROJECT_ID" --add || $FIREBASE_CMD use "$PROJECT_ID"
 
 # Deploy indexes
-firebase deploy --only firestore:indexes
+$FIREBASE_CMD deploy --only firestore:indexes
 
 echo ""
 echo "✅ Firestore indexes deployed successfully!"
