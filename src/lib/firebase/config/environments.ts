@@ -158,7 +158,7 @@ export const ENVIRONMENTS: Record<'UAT' | 'PROD', EnvironmentConfig> = {
  * - UAT branch: IS_PRODUCTION = false (uses env-uat-cd3c5 Firebase project)
  * - Production branch: IS_PRODUCTION = true (uses autogram-14ddc Firebase project)
  */
-export const IS_PRODUCTION = false;
+export const IS_PRODUCTION = true;
 
 /**
  * Get current environment configuration
