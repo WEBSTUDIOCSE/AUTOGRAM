@@ -60,18 +60,48 @@ export async function POST(request: NextRequest) {
       recentQuotes,
     });
 
-    // Strip markdown formatting from quote text (**, __, etc.)
-    const cleanQuoteText = quoteData.quoteText
-      .replace(/\*\*/g, '')  // Remove **
-      .replace(/__/g, '')      // Remove __
-      .replace(/\*/g, '')     // Remove *
-      .replace(/_/g, '')       // Remove _
+    // ═══ TEXT SANITIZER ═══
+    // Strip markdown + fix common AI text hallucinations
+    let cleanQuoteText = quoteData.quoteText
+      .replace(/\*\*/g, '')   // Remove **
+      .replace(/__/g, '')       // Remove __
+      .replace(/\*/g, '')      // Remove *
+      .replace(/_/g, '')        // Remove _
       .trim();
+    
+    // Fix AI text hallucination patterns
+    cleanQuoteText = cleanQuoteText
+      .replace(/\b(will)\s+ill\b/gi, 'will be')        // "will ill" -> "will be"
+      .replace(/\b(the)\s+\1\b/gi, '$1')                // "the the" -> "the"
+      .replace(/\b(is)\s+\1\b/gi, '$1')                  // "is is" -> "is"
+      .replace(/\b(to)\s+\1\b/gi, '$1')                  // "to to" -> "to"
+      .replace(/\b(a)\s+\1\b/gi, '$1')                    // "a a" -> "a"
+      .replace(/\b(in)\s+\1\b/gi, '$1')                  // "in in" -> "in"
+      .replace(/\b(of)\s+\1\b/gi, '$1')                  // "of of" -> "of"
+      .replace(/\b(and)\s+\1\b/gi, '$1')                // "and and" -> "and"
+      .replace(/[<>]/g, '')                                // Remove stray < > characters
+      .replace(/\s{2,}/g, ' ')                             // Collapse multiple spaces
+      .trim();
+    
+    // Ensure proper quote marks (remove mismatched/extra ones)
+    cleanQuoteText = cleanQuoteText
+      .replace(/^["\u201C\u201D]+/, '')   // Remove leading quotes
+      .replace(/["\u201C\u201D]+$/, '')   // Remove trailing quotes
+      .trim();
+    
+    // Capitalize first letter
+    cleanQuoteText = cleanQuoteText.charAt(0).toUpperCase() + cleanQuoteText.slice(1);
     
     quoteData.quoteText = cleanQuoteText;
 
     let mediaUrl: string;
     let mediaType: 'image' | 'video' = contentType;
+
+    // Extract background/mood keywords from visual prompt (strip text instructions)
+    // Used by both image and video generation
+    const bgKeywords = (quoteData.visualPrompt || '')
+      .replace(/text|font|typography|display|quote|word|character|letter|spelling/gi, '')
+      .split('.').slice(0, 3).join('.').trim();
 
     // Generate media based on content type
     if (contentType === 'image') {
@@ -83,40 +113,13 @@ export async function POST(request: NextRequest) {
         provider = modelInfo?.provider;
       }
       
-      // Build text-first prompt - text accuracy is #1 priority
-      // Break quote into lines for better AI text rendering
-      const quoteWords = cleanQuoteText.split(' ');
-      const lines: string[] = [];
-      let currentLine = '';
-      for (const word of quoteWords) {
-        if ((currentLine + ' ' + word).trim().length > 40) {
-          lines.push(currentLine.trim());
-          currentLine = word;
-        } else {
-          currentLine = currentLine ? currentLine + ' ' + word : word;
-        }
-      }
-      if (currentLine.trim()) lines.push(currentLine.trim());
+      // ═══ SIMPLIFIED IMAGE PROMPT ═══
+      // Key insight: Shorter prompts = better text accuracy from AI image generators
+      // Long prompts cause the model to hallucinate characters (<, extra quotes, misspellings)
       
-      const lineByLine = lines.map((line, i) => `Line ${i + 1}: "${line}"`).join('\n');
-      
-      const explicitPrompt = `TEXT ACCURACY IS THE #1 PRIORITY. Generate an image with this EXACT TEXT displayed on it.
+      const explicitPrompt = `EXACT TEXT on image: "${cleanQuoteText}"
 
-EXACT TEXT TO DISPLAY (copy character-by-character, do NOT add, remove, or change ANY words):
-${lineByLine}
-
-Full quote: "${cleanQuoteText}"
-
-TEXT RULES:
-- Every single word must be spelled correctly and appear exactly as shown above
-- Use a clean, bold, highly readable font (similar to Playfair Display or DM Serif Display)
-- Text color should have strong contrast against the background
-- Text must be large, centered, and the dominant element
-- If the quote has a powerful last word, make it slightly larger for emphasis
-- DO NOT hallucinate or invent extra words
-
-BACKGROUND & STYLE (secondary to text accuracy):
-${quoteData.visualPrompt}`;
+Rules: Bold white text, centered, dark moody background. ${bgKeywords || 'Cinematic lighting, 35mm film grain, dark atmosphere.'} No extra characters. No quotation marks around text. Spell every word exactly as given.`;
       
       // Generate image using unified service with specific model/provider
       const result = await unifiedImageGeneration.generateImage({
@@ -151,19 +154,10 @@ ${quoteData.visualPrompt}`;
       
     } else {
       
-      // Build text-first prompt for video too
-      const explicitVideoPrompt = `TEXT ACCURACY IS THE #1 PRIORITY. Display this EXACT TEXT in the video.
+      // Simplified video prompt
+      const explicitVideoPrompt = `EXACT TEXT: "${cleanQuoteText}"
 
-EXACT TEXT (copy character-by-character):
-"${cleanQuoteText}"
-
-TEXT RULES:
-- Every word must be spelled correctly
-- Use clean, bold, readable typography
-- Text is the dominant visual element
-
-STYLE & MOTION:
-${quoteData.visualPrompt}`;
+Bold white text, centered, dark cinematic background. Word-by-word reveal animation. ${bgKeywords || 'Moody atmosphere, volumetric fog.'} Spell every word exactly.`;
       
       const videoService = new UnifiedVideoGenerationService();
       const videoResult = await videoService.generateVideo({
