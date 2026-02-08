@@ -96,8 +96,8 @@ export function MotivationalQuoteSettings() {
   
   // Form state
   const [selectedAccountId, setSelectedAccountId] = React.useState('');
-  const [category, setCategory] = React.useState('motivation');
-  const [style, setStyle] = React.useState('modern');
+  const [category, setCategory] = React.useState('discipline');
+  const [style, setStyle] = React.useState('monks-midnight');
   const [contentType, setContentType] = React.useState<'image' | 'video'>('image');
   const [language, setLanguage] = React.useState<'english' | 'hindi' | 'marathi'>('english');
   const [postingTimes, setPostingTimes] = React.useState<string[]>([]);
@@ -179,8 +179,8 @@ export function MotivationalQuoteSettings() {
       // New config
       setEditingConfigIndex(null);
       setSelectedAccountId('');
-      setCategory('motivation');
-      setStyle('modern');
+      setCategory('discipline');
+      setStyle('monks-midnight');
       setContentType('image');
       setLanguage('english');
       setPostingTimes([]);
