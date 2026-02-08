@@ -7,3 +7,15 @@ git commit -m "Your feature description"
 
 # After testing, deploy to production
 .\scripts\deploy-to-production.ps1
+
+
+
+# Make your changes
+git add .
+git commit -m "Your feature description"
+
+# ... make changes ...
+./scripts/merge-to-uat.sh  # Auto-deploys to Vercel preview
+
+# Deploy to production
+./scripts/deploy-to-production.sh  # Auto-deploys to autograminsta.online

@@ -1,5 +1,24 @@
 {
   "projects": {
-    "default": "env-uat-cd3c5"
-  }
+    "default": "env-uat-cd3c5",
+    "uat": "env-uat-cd3c5",
+    "production": "autogram-14ddc"
+  },
+  "targets": {
+    "autogram-14ddc": {
+      "hosting": {
+        "production": [
+          "autogram-14ddc"
+        ]
+      }
+    },
+    "env-uat-cd3c5": {
+      "hosting": {
+        "uat": [
+          "env-uat-cd3c5"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

@@ -1,15 +1,15 @@
 #!/bin/bash
-# Push to Production
-# Quick script to push changes to production branch for deployment
+# Push to Production (Vercel)
+# Quick script to push changes to main branch for production deployment
 
 echo "=== Push to Production ==="
 
 # Get current branch
 currentBranch=$(git branch --show-current)
 
-if [ "$currentBranch" != "production" ]; then
-    echo "❌ Error: You're on '$currentBranch' branch, not 'production'"
-    echo "Switch to production branch first: git checkout production"
+if [ "$currentBranch" != "main" ]; then
+    echo "❌ Error: You're on '$currentBranch' branch, not 'main'"
+    echo "Switch to main branch first: git checkout main"
     exit 1
 fi
 
@@ -63,10 +63,10 @@ git config user.email "saurabhjadhav.webstudio@gmail.com"
 # Amend last commit with new author
 git commit --amend --reset-author --no-edit
 
-# Push
+# Push to main (Vercel auto-deploys)
 echo ""
-echo "Pushing to production..."
-git push origin production --force
+echo "Pushing to main..."
+git push origin main --force
 
 if [ $? -eq 0 ]; then
     # Restore original Git config
@@ -75,10 +75,10 @@ if [ $? -eq 0 ]; then
     
     echo ""
     echo "=== Complete! ==="
-    echo "✅ Pushed to production successfully! 🚀"
+    echo "✅ Pushed to main successfully! 🚀"
     echo ""
-    echo "Production URL: https://www.elitemindsetforge.com"
-    echo "GitHub Actions will complete the deployment"
+    echo "Production URL: https://www.autograminsta.online"
+    echo "Vercel is now deploying... Check Vercel dashboard for status"
 else
     # Restore original Git config
     git config user.name "$originalName"
