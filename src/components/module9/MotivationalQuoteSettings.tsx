@@ -499,7 +499,7 @@ export function MotivationalQuoteSettings() {
                       </SelectTrigger>
                       <SelectContent>
                         {getAvailableAccounts().length === 0 ? (
-                          <SelectItem value="" disabled>
+                          <SelectItem value="no-accounts" disabled>
                             {editingConfigIndex !== null ? 'Loading...' : 'No accounts available'}
                           </SelectItem>
                         ) : (
