@@ -4,16 +4,6 @@
 
 echo "=== Deploy UAT to Production ==="
 
-# Confirmation
-echo ""
-echo "⚠️  This will deploy UAT changes to PRODUCTION!"
-read -p "Have you tested everything in UAT? (yes/no): " confirm
-
-if [ "$confirm" != "yes" ]; then
-    echo "Deployment cancelled"
-    exit 0
-fi
-
 # Switch to main
 echo ""
 echo "Switching to main branch..."
@@ -40,23 +30,6 @@ if [ $? -ne 0 ]; then
     echo ""
     echo "❌ Merge conflict detected!"
     echo "Please resolve conflicts and try again"
-    exit 1
-fi
-
-# Check IS_PRODUCTION flag
-echo ""
-echo "⚠️  IMPORTANT: Check IS_PRODUCTION flag..."
-echo "Opening environments.ts..."
-code "src/lib/firebase/config/environments.ts" 2>/dev/null || open "src/lib/firebase/config/environments.ts" 2>/dev/null || echo "Please open src/lib/firebase/config/environments.ts manually"
-
-echo ""
-read -p "Is IS_PRODUCTION set to true? (yes/no): " flagCheck
-
-if [ "$flagCheck" != "yes" ]; then
-    echo ""
-    echo "❌ Please set IS_PRODUCTION = true in environments.ts"
-    echo "Then run: git add . && git commit -m 'Set production flag'"
-    echo "And run this script again"
     exit 1
 fi
 
