@@ -22,12 +22,12 @@ export class GeminiProvider implements ImageGenerationProvider {
     const modelName = model || getImageModelName();
     
     
-    // If prompt already contains explicit text instructions (e.g., motivational quotes), use as-is
-    // Otherwise, add generic enhancement wrapper
+    // If prompt contains explicit text instructions (motivational quotes, etc.), pass through as-is
+    // Adding wrapper text dilutes the text accuracy instructions and causes hallucinations
     const hasExplicitTextInstruction = prompt.includes('EXACT TEXT') || prompt.includes('CRITICAL:') || prompt.includes('TEXT ACCURACY');
     const enhancedPrompt = hasExplicitTextInstruction 
       ? prompt 
-      : `Create a high-quality, detailed, professional picture of: ${prompt}. The image should be visually appealing, well-composed, and suitable for Instagram posting.`;
+      : `Create a high-quality, detailed, professional image: ${prompt}. Visually appealing, well-composed, Instagram-ready.`;
     
     
     // Call Gemini Image Generation API
