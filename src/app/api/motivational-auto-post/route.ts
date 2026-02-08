@@ -74,17 +74,23 @@ export async function POST(request: NextRequest) {
         }
 
         // Check if it's time to post (based on current time and posting schedule)
-        const currentHour = new Date().toLocaleString('en-US', { 
-          timeZone: 'Asia/Kolkata',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false
-        });
-        
-        const shouldPost = accountConfig.postingTimes.some(time => time === currentHour.substring(0, 5));
+        // Skip this check when called from the Firebase scheduler (authToken present)
+        // because the scheduler already verified the posting time before calling this API.
+        // Re-checking here causes silent failures due to cold start / network delays
+        // (e.g., scheduler triggers at 20:00 but API processes at 20:01 -> mismatch).
+        if (!authToken) {
+          const currentHour = new Date().toLocaleString('en-US', { 
+            timeZone: 'Asia/Kolkata',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          });
+          
+          const shouldPost = accountConfig.postingTimes.some(time => time === currentHour.substring(0, 5));
 
-        if (!shouldPost) {
-          continue;
+          if (!shouldPost) {
+            continue;
+          }
         }
 
         // Create log entry
