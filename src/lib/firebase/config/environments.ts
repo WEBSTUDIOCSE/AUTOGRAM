@@ -152,13 +152,32 @@ export const ENVIRONMENTS: Record<'UAT' | 'PROD', EnvironmentConfig> = {
 
 /**
  * Boolean environment switcher
- * Set to true for PROD, false for UAT
+ * Automatically detects environment based on:
+ * 1. NEXT_PUBLIC_ENVIRONMENT env var (set in Vercel)
+ * 2. VERCEL_ENV (production/preview/development)
+ * 3. Branch name via VERCEL_GIT_COMMIT_REF
  * 
  * IMPORTANT:
- * - UAT branch: IS_PRODUCTION = false (uses env-uat-cd3c5 Firebase project)
- * - Production branch: IS_PRODUCTION = true (uses autogram-14ddc Firebase project)
+ * In Vercel, set environment variable:
+ * - Production (main branch): NEXT_PUBLIC_ENVIRONMENT = "production"
+ * - Preview (uat branch): NEXT_PUBLIC_ENVIRONMENT = "uat"
  */
-export const IS_PRODUCTION = false;
+export const IS_PRODUCTION = (() => {
+  // Priority 1: Explicit environment variable
+  if (process.env.NEXT_PUBLIC_ENVIRONMENT === 'production') return true;
+  if (process.env.NEXT_PUBLIC_ENVIRONMENT === 'uat') return false;
+  
+  // Priority 2: Vercel environment
+  if (process.env.VERCEL_ENV === 'production') return true;
+  
+  // Priority 3: Branch detection
+  const branch = process.env.VERCEL_GIT_COMMIT_REF || '';
+  if (branch === 'main') return true;
+  if (branch === 'uat') return false;
+  
+  // Default to UAT for safety (prevents accidental production)
+  return false;
+})();
 
 /**
  * Get current environment configuration
