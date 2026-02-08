@@ -51,7 +51,7 @@ You are writing as "The Digital Stoic" — a modern mentor who combines ancient 
 - PRACTICAL: Every section must have actionable takeaways.
 
 Stylistic Rules:
-- Use "Bionic Reading" principle: Bold the first few letters of KEY words for skimming
+- Bold KEY WORDS using HTML <strong> tags, not markdown. Example: <strong>discipline</strong>
 - Frequent line breaks. No walls of text.
 - Short, devastating sentences that hit like punches.
 - Concrete examples with real names, situations, outcomes
@@ -319,8 +319,20 @@ Return ONLY valid JSON with properly escaped HTML:
         throw new Error('Incomplete blog content generated - missing htmlContent field');
       }
 
+      // Post-process: clean markdown artifacts from HTML content
+      let cleanedHtml = parsed.htmlContent.trim();
+      // Remove markdown bold syntax (e.g. **word** or **wo**rd) and replace with HTML <strong>
+      cleanedHtml = cleanedHtml.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      // Remove any remaining stray markdown bold markers
+      cleanedHtml = cleanedHtml.replace(/\*\*/g, '');
+      // Remove markdown italic syntax
+      cleanedHtml = cleanedHtml.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+      // Clean up any double <strong> nesting
+      cleanedHtml = cleanedHtml.replace(/<strong><strong>/g, '<strong>');
+      cleanedHtml = cleanedHtml.replace(/<\/strong><\/strong>/g, '</strong>');
+
       return {
-        htmlContent: parsed.htmlContent.trim(),
+        htmlContent: cleanedHtml,
       };
 
     } catch (error) {
