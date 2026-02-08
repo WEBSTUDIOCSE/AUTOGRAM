@@ -358,7 +358,7 @@ Return ONLY valid JSON (no markdown, no backticks):
   "author": "",
   "profession": "",
   "subcategories": ["theme1", "theme2", "theme3"],
-  "visualPrompt": "Create a ${palette.name} aesthetic ${context.contentType} with the text '[INSERT COMPLETE QUOTE TEXT HERE]' prominently displayed. [Continue with 200+ word visual description including: ${palette.name} color palette (primary: ${palette.primary}, secondary: ${palette.secondary}, accent: ${palette.accent}, text: ${palette.text}), ${palette.fonts.header} header font, ${palette.fonts.body} body font, ${palette.vibe} aesthetic, specific lighting, texture, composition, and mood details that MATCH the quote's meaning. For video: include kinetic typography instructions, camera movement, and motion effects.]",
+  "visualPrompt": "Create a ${palette.name} aesthetic background for a motivational quote image. The quote is: '[INSERT QUOTE TEXT]'. Background scene: [describe scene matching quote emotion - e.g. misty forest, dark library, noir city]. Color palette: primary ${palette.primary}, secondary ${palette.secondary}, accent ${palette.accent}. Mood: ${palette.vibe}. Lighting: dramatic, low-key. Texture: 35mm film grain, atmospheric depth. The text '${`[QUOTE]`}' should be displayed in ${palette.text} color with strong contrast. Keep composition clean with generous negative space for text readability. ${context.contentType === 'video' ? 'Motion: slow camera push-in, atmospheric particles.' : 'Static: layered depth, subtle vignette.'}",
   "suggestedHashtags": "#monkmode #discipline #stoicism ... (15-20 total using 3-tier method)"
 }
 
@@ -366,16 +366,20 @@ Return ONLY valid JSON (no markdown, no backticks):
 1. **AUTHOR**: Leave "" for original quotes. Use REAL Stoic/philosophical figures only if genuinely matches (Marcus Aurelius, Seneca, Nietzsche, etc.)
 2. **PROFESSION**: If author provided: "Roman Emperor", "Stoic Philosopher", "German Philosopher", etc. If no author, leave "".
 3. **SUBCATEGORIES**: REQUIRED 2-4 from the ${context.category} pool. Analyze quote content to choose most relevant.
-4. **VISUAL PROMPT**: 200+ words. MUST include exact quote text. MUST reference the ${palette.name} color palette with actual hex values. MUST specify ${palette.fonts.header} for headers and ${palette.fonts.body} for body.
+4. **VISUAL PROMPT**: 100-150 words MAX. Focus on BACKGROUND SCENE and ATMOSPHERE. The text rendering is handled separately - your visual prompt should describe the MOOD, LIGHTING, COLORS, and BACKGROUND SCENE only. Include the quote text for context but the image generation system will handle text placement.
 5. **HOOK TITLE**: This is NOT the quote. It's the Instagram caption hook. Use NEGATIVE FRAMING or CURIOSITY GAP.
 
-🚨 VISUAL PROMPT MUST:
-- Include the EXACT quote text using "[INSERT COMPLETE QUOTE TEXT HERE]" placeholder (replace with actual quote)
-- Reference specific hex colors: primary ${palette.primary}, accent ${palette.accent}, text ${palette.text}
-- Specify fonts: ${palette.fonts.header} for quote display, ${palette.fonts.body} for any secondary text
-- Describe the ${palette.vibe} atmosphere in detail
-- For video: Include kinetic typography (word-by-word reveal, "Stomp" effect on key words, synchronized to imagined beat)
-- Include "imperfection" keywords for raw authentic feel: 35mm film grain, subtle noise texture, atmospheric fog
+🚨 VISUAL PROMPT RULES:
+- Keep it SHORT (100-150 words) - long prompts confuse image AI
+- Describe the BACKGROUND SCENE (forest at dawn, dark library, noir city, etc.)
+- Specify the COLOR PALETTE: primary ${palette.primary}, accent ${palette.accent}, text ${palette.text}
+- Include the quote text wrapped in single quotes
+- Specify the mood/atmosphere (dramatic lighting, film grain, mist, etc.)
+- DO NOT write detailed typography instructions (text rendering is handled by the image system)
+- DO NOT describe text placement, font sizes, or text effects
+- Focus on creating a visually stunning BACKGROUND that matches the quote's emotion
+- For video: Include motion keywords (slow push-in, particles, fog movement)
+- Include "imperfection" keywords: 35mm film grain, subtle noise texture, atmospheric fog
 
 🚀 REMEMBER: In 2026, positive sugary motivation is IGNORED. Raw truth STOPS THE SCROLL. Be the mentor who tells hard truths, not the friend who sugarcoats. Make them SAVE this post.`;
 
@@ -670,22 +674,13 @@ Output only the visual prompt description, no other text.`;
    🚨 LANGUAGE: ${textInstruction}
    
    - BACKGROUND: Pure black (#000000), completely solid
-   - QUOTE TEXT: The COMPLETE quote displayed as the MAIN and ONLY element
-   - TYPOGRAPHY: ${palette.fonts.header} or "The Bold Font" / "Integral CF" - BOLD, LARGE
-   - TEXT COLOR: Pure white (#FFFFFF) with subtle GLOW EFFECT on key words (slight white bloom/halo)
-   - TEXT SIZE: Large, readable on mobile (24px+ equivalent)
-   - TEXT PLACEMENT: Centered vertically and horizontally
-   - TEXT FORMATTING: Multi-line, generous line spacing (1.5x)
-   - NO DECORATIONS: Zero graphics, icons, shapes - pure typography only
-   - NO AUTHOR ON IMAGE: Author goes in caption
-   - PADDING: 20%+ margins from all edges
-   - GLOW EFFECT: Key words in the quote should have a subtle white glow/bloom effect
-   - MOBILE: Instagram square (1:1) format
-   ${context.contentType === 'video' ? `
-   - KINETIC TYPOGRAPHY: Words appear one-by-one ("Spritz" method), synced to an imagined beat
-   - "STOMP" EFFECT: The most powerful word appears 2x larger with impact animation
-   - TEXT REVEAL: Typewriter effect or word-by-word pop-in
-   - DURATION: 5-8 second loop` : ''}`;
+   - TEXT COLOR: Pure white (#FFFFFF)
+   - GLOW: Subtle white glow on key words
+   - COMPOSITION: Text centered, generous margins (20%+), instagram square 1:1
+   - NO decorations, graphics, or icons - pure typography only
+   ${context.contentType === 'video' ? '- MOTION: Words appear one-by-one, powerful word 2x larger with impact' : ''}
+   
+   ⚠️ Keep visual prompt SHORT (80-120 words). Focus on background mood only. Text rendering is handled separately.`;
     }
 
     return `
@@ -693,58 +688,26 @@ Output only the visual prompt description, no other text.`;
    
    🚨 LANGUAGE: ${textInstruction}
    
-   ═══ COLOR SYSTEM (MUST USE EXACT HEX VALUES) ═══
-   • Primary Background: ${palette.primary}
-   • Secondary/Depth: ${palette.secondary}
-   • Accent/Highlight: ${palette.accent}
-   • Text Color: ${palette.text}
-   • Psychology: ${palette.psychology}
+   ═══ COLORS ═══
+   • Primary: ${palette.primary} | Secondary: ${palette.secondary} | Accent: ${palette.accent} | Text: ${palette.text}
    
-   ═══ TYPOGRAPHY ═══
-   • Header/Quote Font: ${palette.fonts.header} (for the main quote text)
-   • Body/Secondary Font: ${palette.fonts.body} (for any supporting text)
-   • Visual Vibe: ${palette.vibe}
-   • Key word in the quote should be 2x size with "Stomp" animation effect (if video)
-   • Text hierarchy: Quote > Key Word Emphasis > Any secondary element
+   ═══ BACKGROUND SCENE (match quote emotion) ═══
+   ${context.style === 'monks-midnight' ? '• Deep navy scene, champagne gold rim lighting, dark wood, luxury study at midnight' : ''}
+   ${context.style === 'dark-academia' ? '• Dimly lit library, leather-bound books, rain on windows, candle flames' : ''}
+   ${context.style === 'noir-cinematic' ? '• Noir lighting, cold blue tints, light trails, motion blur, neon on wet streets' : ''}
+   ${context.style === 'olive-spruce' ? '• Dense forest at dawn, morning mist, bark/moss textures, earthy atmosphere' : ''}
+   ${context.style === 'plum-noir' ? '• Candlelit scene, velvet textures, wine-dark shadows, antique elements' : ''}
+   ${context.style === 'slate-rust' ? '• Industrial textures (leather, wood, stone), worn surfaces, gritty' : ''}
+   ${context.style === 'raw-authentic' ? '• Handheld camera look, 35mm film grain, VHS glitch, raw texture' : ''}
    
-   ═══ THEME-MATCHED BACKGROUNDS (Analyze quote meaning FIRST) ═══
-   Style-specific backgrounds for ${palette.name}:
-   ${context.style === 'monks-midnight' ? '• Deep navy atmospheric scene, champagne gold rim lighting, marble or dark wood textures, luxury study at midnight' : ''}
-   ${context.style === 'dark-academia' ? '• Dimly lit library, leather-bound books, rain on windows, candle flames, tweed textures, ancient architecture' : ''}
-   ${context.style === 'noir-cinematic' ? '• High contrast noir lighting, cold blue tints, light trails, motion blur, digital noir, neon reflections on wet streets' : ''}
-   ${context.style === 'olive-spruce' ? '• Dense forest at dawn, morning mist, natural textures (bark, moss, stone), earthy grounding atmosphere' : ''}
-   ${context.style === 'plum-noir' ? '• Candlelit introspection scene, velvet textures, wine-dark shadows, antique elements, philosophical depth' : ''}
-   ${context.style === 'slate-rust' ? '• Industrial textures (leather, wood, stone), worn gym equipment, weathered surfaces, gritty determination' : ''}
-   ${context.style === 'raw-authentic' ? '• Handheld camera aesthetic, 35mm film grain, VHS glitch, flash photography, CRT monitor glow, rain on lens' : ''}
-   
-   ═══ RAW AUTHENTICITY TEXTURES (Required for all styles) ═══
-   • 35mm film grain overlay (subtle, adds human touch)
-   • Slight noise texture (separates from sterile AI look)
-   • Atmospheric fog or depth haze
-   • Low key dramatic lighting
-   • Subtle vignette effect
-   
-   ═══ COMPOSITION ═══
-   • Quote text is the HERO element - large, prominent, 100% readable
-   • NO author text on image (goes in caption)
+   ═══ ATMOSPHERE ═══
+   • 35mm film grain, noise texture, atmospheric fog, vignette
+   • Dramatic low-key lighting, Instagram square 1:1
+   • Clean composition with generous negative space for text readability
    • NO faces or people (abstract/symbolic only)
-   • Mobile optimized: Instagram square (1:1) format
-   • "Quiet Luxury" feel - premium, not cluttered
+   ${context.contentType === 'video' ? '• MOTION: Slow push-in camera, atmospheric particles, fog drift' : '• STATIC: Layered depth, dramatic shadows'}
    
-   ${context.contentType === 'video' ? `
-   ═══ KINETIC TYPOGRAPHY & MOTION (VIDEO-SPECIFIC) ═══
-   • TEXT REVEAL: Words appear one-by-one ("Spritz" method) or "Liquid Text" flow
-   • "STOMP" EFFECT: The most powerful word in the quote appears 2x larger with impact animation
-   • CAMERA MOVEMENT: Slow push-in or handheld drift (adds cinematic depth)
-   • BACKGROUND MOTION: Subtle atmospheric particles, drifting fog, or flickering candlelight
-   • AUDIO SYNC: Text animations timed to imagined phonk/dark wave beat
-   • TRANSITIONS: Smooth crossfade or glitch transitions between text blocks
-   • DURATION: 5-10 second loop with text fully readable for 3+ seconds
-   • SPLIT-SECOND CHANGES: Camera angle change every 1.5s to maintain retention` : `
-   ═══ STATIC IMAGE SPECIFICS ═══
-   • Layered depth: Text foreground, atmospheric background
-   • Dramatic lighting that matches quote tone (hard shadows for discipline, soft for wisdom)
-   • Slight text effects: subtle drop shadow, outer glow on key words, or debossed effect
-   • Professional grade composition with generous negative space`}`;
+   ⚠️ IMPORTANT: Keep visual prompt SHORT (100-150 words). Describe BACKGROUND & MOOD only.
+   Text rendering is handled separately - do NOT describe fonts, text sizes, or text placement details.`;
   },
 };
