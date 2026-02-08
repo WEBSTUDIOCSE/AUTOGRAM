@@ -1,6 +1,6 @@
 #!/bin/bash
-# Merge Feature to UAT
-# This script merges your current feature branch to uat (main branch)
+# Merge Feature to UAT (Vercel)
+# This script merges your current feature branch to uat
 
 echo "=== Merge Feature to UAT ==="
 
@@ -8,7 +8,7 @@ echo "=== Merge Feature to UAT ==="
 featureBranch=$(git branch --show-current)
 
 # Check if on a feature branch
-if [ "$featureBranch" = "uat" ] || [ "$featureBranch" = "production" ]; then
+if [ "$featureBranch" = "uat" ] || [ "$featureBranch" = "main" ]; then
     echo "❌ Error: You're on $featureBranch branch. Switch to a feature branch first."
     exit 1
 fi
@@ -76,7 +76,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Push to uat
+# Push to uat (Vercel auto-deploys)
 echo ""
 echo "Pushing to uat..."
 git push origin uat
@@ -86,6 +86,6 @@ echo "=== Complete! ==="
 echo "✅ Feature merged to uat successfully!"
 echo ""
 echo "Next steps:"
-echo "1. Test in UAT environment"
-echo "2. Monitor deployment at https://autogram-orpin.vercel.app"
+echo "1. Check Vercel dashboard for UAT preview deployment"
+echo "2. Test in UAT environment"
 echo "3. When ready, run: ./scripts/deploy-to-production.sh"
