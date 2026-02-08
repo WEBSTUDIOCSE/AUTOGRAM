@@ -22,8 +22,12 @@ export class GeminiProvider implements ImageGenerationProvider {
     const modelName = model || getImageModelName();
     
     
-    // Enhanced prompt for better image generation
-    const enhancedPrompt = `Create a high-quality, detailed, professional picture of: ${prompt}. The image should be visually appealing, well-composed, and suitable for Instagram posting.`;
+    // If prompt already contains explicit text instructions (e.g., motivational quotes), use as-is
+    // Otherwise, add generic enhancement wrapper
+    const hasExplicitTextInstruction = prompt.includes('EXACT TEXT') || prompt.includes('CRITICAL:') || prompt.includes('TEXT ACCURACY');
+    const enhancedPrompt = hasExplicitTextInstruction 
+      ? prompt 
+      : `Create a high-quality, detailed, professional picture of: ${prompt}. The image should be visually appealing, well-composed, and suitable for Instagram posting.`;
     
     
     // Call Gemini Image Generation API

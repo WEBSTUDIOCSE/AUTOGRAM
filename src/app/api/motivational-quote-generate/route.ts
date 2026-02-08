@@ -83,8 +83,40 @@ export async function POST(request: NextRequest) {
         provider = modelInfo?.provider;
       }
       
-      // Create explicit prompt with exact quote text
-      const explicitPrompt = `CRITICAL: Display this EXACT text prominently on the image: "${cleanQuoteText}"\n\nStyle and composition: ${quoteData.visualPrompt}`;
+      // Build text-first prompt - text accuracy is #1 priority
+      // Break quote into lines for better AI text rendering
+      const quoteWords = cleanQuoteText.split(' ');
+      const lines: string[] = [];
+      let currentLine = '';
+      for (const word of quoteWords) {
+        if ((currentLine + ' ' + word).trim().length > 40) {
+          lines.push(currentLine.trim());
+          currentLine = word;
+        } else {
+          currentLine = currentLine ? currentLine + ' ' + word : word;
+        }
+      }
+      if (currentLine.trim()) lines.push(currentLine.trim());
+      
+      const lineByLine = lines.map((line, i) => `Line ${i + 1}: "${line}"`).join('\n');
+      
+      const explicitPrompt = `TEXT ACCURACY IS THE #1 PRIORITY. Generate an image with this EXACT TEXT displayed on it.
+
+EXACT TEXT TO DISPLAY (copy character-by-character, do NOT add, remove, or change ANY words):
+${lineByLine}
+
+Full quote: "${cleanQuoteText}"
+
+TEXT RULES:
+- Every single word must be spelled correctly and appear exactly as shown above
+- Use a clean, bold, highly readable font (similar to Playfair Display or DM Serif Display)
+- Text color should have strong contrast against the background
+- Text must be large, centered, and the dominant element
+- If the quote has a powerful last word, make it slightly larger for emphasis
+- DO NOT hallucinate or invent extra words
+
+BACKGROUND & STYLE (secondary to text accuracy):
+${quoteData.visualPrompt}`;
       
       // Generate image using unified service with specific model/provider
       const result = await unifiedImageGeneration.generateImage({
@@ -119,8 +151,19 @@ export async function POST(request: NextRequest) {
       
     } else {
       
-      // Create explicit prompt with exact quote text for video
-      const explicitVideoPrompt = `CRITICAL: Display this EXACT text prominently: "${cleanQuoteText}"\n\nStyle and motion: ${quoteData.visualPrompt}`;
+      // Build text-first prompt for video too
+      const explicitVideoPrompt = `TEXT ACCURACY IS THE #1 PRIORITY. Display this EXACT TEXT in the video.
+
+EXACT TEXT (copy character-by-character):
+"${cleanQuoteText}"
+
+TEXT RULES:
+- Every word must be spelled correctly
+- Use clean, bold, readable typography
+- Text is the dominant visual element
+
+STYLE & MOTION:
+${quoteData.visualPrompt}`;
       
       const videoService = new UnifiedVideoGenerationService();
       const videoResult = await videoService.generateVideo({
