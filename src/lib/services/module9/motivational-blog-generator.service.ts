@@ -39,167 +39,209 @@ Themes: ${context.subcategories.join(', ')}
 
 🌍 **LANGUAGE**: ${langConfig.instruction}
 
-🎨 **DESIGN SYSTEM - CLASSIC EDITORIAL STYLE**
-Follow the EliteMindsetForge newspaper/editorial aesthetic - minimal, sophisticated, timeless.
+═══════════════════════════════════════════════════════
+  2026 "DIGITAL STOIC" BLOG VOICE
+═══════════════════════════════════════════════════════
+
+You are writing as "The Digital Stoic" — a modern mentor who combines ancient philosophy with 2026 realities. Your voice is:
+- DIRECT: Address the reader as "You". No fluff, no filler.
+- AUTHORITATIVE: Like a letter from Seneca meets James Clear's Atomic Habits.
+- RAW: Short paragraphs (2-4 sentences MAX). Punchy. Cuts through the noise.
+- HONEST: Not afraid to tell hard truths. Discipline > feelings.
+- PRACTICAL: Every section must have actionable takeaways.
+
+Stylistic Rules:
+- Use "Bionic Reading" principle: Bold the first few letters of KEY words for skimming
+- Frequent line breaks. No walls of text.
+- Short, devastating sentences that hit like punches.
+- Concrete examples with real names, situations, outcomes
+- Open with a pattern interrupt or negative frame hook
+- Close with a "Protocol" or actionable system, not just inspiration
+
+🎨 **DESIGN SYSTEM - MONK MODE DARK EDITORIAL**
+Think high-quality dark mode editorial. Premium. "Quiet Luxury" aesthetic.
 
 ✅ **DESIGN PRINCIPLES**:
-- **Minimalist Color Palette**: Use only zinc/gray tones - NO bright colors
+- **Dark Mode First**: Content designed for nighttime readers (prime Monk Mode demographic)
 - **Typography Focus**: Let the words shine through clean hierarchy
 - **Subtle Elegance**: Delicate borders, generous whitespace, refined details
-- **Editorial Feel**: Think high-quality newspaper or literary magazine
+- **Monk Mode Feel**: Think dimly lit study, not bright office
 
 🎯 **STRICT STYLING RULES**:
 
-**Color Palette (ONLY USE THESE)**:
-- Background (Paper): #FAFAFA (light) / #09090B (dark)
-- Foreground (Ink): #18181B (light) / #FAFAFA (dark)
-- Card/Surface: #FFFFFF (light) / #18181B (dark)
-- Borders: #E4E4E7 (light) / #27272A (dark)
-- Muted Text: #71717A (metadata, captions)
-- Secondary Background: #F4F4F5 (light) / #27272A (dark)
+**Color Palette (DARK MODE - MONK'S MIDNIGHT)**:
+- Background: #07162A (Deep Navy) — primary surface
+- Card/Surface: #0B2340 (Midnight Blue) — elevated elements
+- Text (Primary): #FDFDFD (Off-White) — body and headers
+- Text (Muted): #8899AA (Slate Blue) — metadata, captions
+- Accent/Highlight: #E6D3A6 (Champagne Gold) — key terms, borders, emphasis
+- Secondary Accent: #B8A992 (Universal Khaki) — subtle highlights
+- Borders: #1A3355 (Dark Border) — card and section borders
+- Error/Warning: #FF6B6B — for "hard truth" callouts
 
-**Container Styling** (use throughout):
-- Insight Boxes: white background, border: 1px solid #E4E4E7, border-radius: 0.5rem
-- Quote Blocks: border-left: 3px solid #18181B, padding-left: 1.5rem, italic, color: #71717A
-- Key Sections: background: #FFFFFF, border: 1px solid #E4E4E7, rounded corners
-- Highlighted Text: background: #F4F4F5 (subtle gray), NO bright colors
-- Metadata Sections: uppercase text, letter-spacing: 0.05em, color: #71717A, font-size: 0.75rem
+**Container Styling**:
+- Insight Boxes: background #0B2340, border: 1px solid #1A3355, border-radius: 0.5rem
+- Quote Blocks: border-left: 3px solid #E6D3A6, padding-left: 1.5rem, italic, color: #8899AA
+- "Hard Truth" Callouts: background #1A0A0A, border-left: 3px solid #FF6B6B
+- Key Sections: background #0B2340, border: 1px solid #1A3355, rounded corners
+- Highlighted Text: background: #1A3355 (subtle navy), color: #E6D3A6 (gold)
+- Metadata Sections: uppercase text, letter-spacing: 0.05em, color: #8899AA, font-size: 0.75rem
 
 **Typography**:
-- Headings: font-weight: 700, letter-spacing: -0.02em, color: #18181B
-- Body: line-height: 1.75, color: #18181B, font-size: 1.125rem (18px)
-- Captions/Meta: text-transform: uppercase, letter-spacing: 0.1em, font-size: 0.75rem
-- Short paragraphs: 2-4 sentences max
+- Headings: font-weight: 700, letter-spacing: -0.02em, color: #FDFDFD
+- Body: line-height: 1.75, color: #FDFDFD, font-size: 1.125rem (18px)
+- Captions/Meta: text-transform: uppercase, letter-spacing: 0.1em, font-size: 0.75rem, color: #8899AA
+- Short paragraphs: 2-4 sentences max — the "Digital Stoic" way
+- Bold key terms: <strong style="color: #E6D3A6"> for emphasis (gold highlights)
 
 **Spacing & Layout**:
 - Section spacing: margin: 2.5rem 0
 - Container padding: 1.5rem to 2rem
 - Line height: 1.75 for readability
-- Border radius: 0.5rem (8px) - consistent throughout
+- Border radius: 0.5rem (8px) — consistent throughout
 
-📝 **CONTENT STRUCTURE** (arrange dynamically in editorial style):
+📝 **CONTENT STRUCTURE** (2026 Digital Stoic editorial):
 
 **Opening Section**:
-- Start with a centered, prominent quote block (see styling example above)
-- Follow with metadata tags (category, themes) in uppercase small text
-- Opening analysis paragraph(s) - what THIS specific quote means
+- Start with a PATTERN INTERRUPT or negative frame hook (first line must stop the scroll)
+- Example openings: "You've been lied to." / "Stop reading this if you're comfortable." / "Most people will ignore this."
+- Follow with the centered, prominent quote block (styled as below)
+- Metadata tags (category, themes) in uppercase small gold text
+- Opening analysis: what THIS specific quote means in the context of 2026
 
-**Main Content Sections** (use editorial hierarchy):
-- Section headings with bottom borders (#E4E4E7)
-- Mix of regular paragraphs and styled containers
-- Real-world examples in subtle gray boxes (#F4F4F5 background)
-- Psychological/scientific backing in clean white bordered boxes
-- Supporting quotes as side-bordered blockquotes
+**The Core Analysis** (use "Digital Stoic" voice):
+- Break down the quote word by word - what EXACTLY does it mean
+- Reference Stoic philosophers (Marcus Aurelius, Seneca, Epictetus) where relevant
+- Use concrete modern examples: a coder at 3AM, an entrepreneur burning through savings, a student studying while friends party
+- "Hard Truth" callout boxes for uncomfortable wisdom
+- Short paragraphs. Punchy sentences. No filler.
 
-**Practical Application**:
-- Action steps in organized list format within bordered container
-- Implementation advice in clear, scannable format
-- Concrete, specific guidance
+**The Protocol Section** (Actionable System):
+- Don't just inspire - give a SYSTEM
+- "The 3-Step Protocol" or "The Monk Mode Implementation"
+- Concrete action steps in numbered format
+- Include time-specific guidance ("Week 1: ...", "Day 1-7: ...")
+- This section differentiates from generic motivation blogs
 
 **Closing Section**:
-- Key insights/takeaways in prominent styled container
+- Key insight in a prominent gold-accented container
+- A "Hard Truth" final statement
+- Reflection question that haunts the reader
+- NO fluffy "you can do it!" ending - end with a challenge or stoic reflection
 - Reflection questions in clean layout
 - Final thoughts connecting back to the main quote
 
 **Visual Variety**:
-- Mix plain paragraphs with styled containers (70% plain, 30% styled)
+- Mix plain paragraphs with styled containers (65% plain, 35% styled)
 - Strategic use of spacing for visual rhythm
 - Clean scannable sections with clear typography hierarchy
 - Balance text-heavy sections with visual breaks
-- Minimal but impactful use of emojis (🎯 💡 📖 ✨)
+- Minimal but impactful use of emojis (⚡ 🎯 📖 💀 🔥 ⚔️)
+- Use "Hard Truth" callout boxes sparingly (max 2-3 per post)
 
 **Content Quality**:
 - Length: 1500-3000 words for depth
 - 100% specific to THIS quote: "${context.quoteText}"
-- NO generic templates - unique analysis for this wisdom
-- Short paragraphs (2-4 sentences max) for readability
+- NO generic templates - unique analysis rooted in Stoic philosophy
+- Short paragraphs (2-4 sentences max) - the "Digital Stoic" standard
 - Concrete, specific examples with details (names, situations, outcomes)
-- Actionable and practical advice
-- Inspirational yet evidence-based
-- Engaging tone (use "you" to connect with readers)
-- Editorial voice: sophisticated, thoughtful, authoritative yet approachable
+- Actionable "Protocol" section - systems, not just inspiration
+- RAW and HONEST tone - uncomfortable truths > comfortable lies
+- "You" voice throughout - direct address to the reader
+- Editorial voice: sophisticated, stoic, authoritative, no-nonsense
+- Reference real philosophical sources where applicable
 
 🎨 **VISUAL BALANCE**:
-- 70% clean paragraphs, 30% styled containers
+- 65% clean paragraphs, 35% styled containers
 - Use white space generously (margin: 2.5rem between major sections)
-- Maintain consistent border styling (#E4E4E7, 1px)
-- Keep colors minimal - only zinc/gray palette
+- Maintain consistent border styling (#1A3355, 1px) with gold accents (#E6D3A6)
+- Dark Mode first - all colors designed for #07162A background
 - Typography does the heavy lifting - let words breathe
 - Scannable sections with clear visual hierarchy
-- Modern editorial aesthetic - timeless, not trendy
+- Monk Mode editorial aesthetic - premium, timeless, dark
 
 ⛔ **FORBIDDEN**:
-- NO bright colors (blue, green, yellow, indigo, etc.)
+- NO bright happy colors (yellow, lime green, sky blue, etc.)
 - NO gradient backgrounds
 - NO heavy shadows or effects
+- NO "You can do it!" or "Believe in yourself!" generic motivation
 - NO cluttered layouts
-- NO excessive decoration
-- Keep it clean, minimal, editorial
+- NO emoji overload
+- NO preachy or condescending tone
+- Keep it dark, clean, premium, editorial
 
-**Remember**: The EliteMindsetForge aesthetic is about sophisticated minimalism - think *The New Yorker* or *Medium*, not colorful blogs. Let typography, spacing, and subtle borders create the visual interest.
+**Remember**: The "Digital Stoic" aesthetic is about DARK PREMIUM MINIMALISM. Think *The New Yorker* at midnight, not a colorful motivational blog. Deep Navy backgrounds, Champagne Gold accents, and typography that commands respect.
 
-⚡ **STYLING EXAMPLES** (Editorial Aesthetic):
+⚡ **STYLING EXAMPLES** (Monk Mode Dark Editorial):
 
-**Main Quote Block** (prominent feature):
-<div style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 0.5rem; padding: 2rem; margin: 2.5rem 0; text-align: center;">
-  <blockquote style="font-size: 1.5rem; font-style: italic; color: #18181B; line-height: 1.6; margin: 0; font-weight: 600; letter-spacing: -0.02em;">
+**Main Quote Block** (prominent feature - gold accent):
+<div style="background: #0B2340; border: 1px solid #1A3355; border-radius: 0.5rem; padding: 2rem; margin: 2.5rem 0; text-align: center;">
+  <blockquote style="font-size: 1.5rem; font-style: italic; color: #E6D3A6; line-height: 1.6; margin: 0; font-weight: 600; letter-spacing: -0.02em;">
     "${context.quoteText}"
   </blockquote>
-  <p style="margin-top: 1rem; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.1em; color: #71717A; font-weight: 500;">
-    — ${context.author}${context.profession ? `, ${context.profession}` : ''}
+  <p style="margin-top: 1rem; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.1em; color: #8899AA; font-weight: 500;">
+    — ${context.author || 'The Digital Stoic'}${context.profession ? `, ${context.profession}` : ''}
   </p>
 </div>
 
-**Insight/Key Point Box** (clean, minimal):
-<div style="background: #FFFFFF; border: 1px solid #E4E4E7; border-left: 3px solid #18181B; border-radius: 0.5rem; padding: 1.5rem; margin: 2rem 0;">
-  <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #71717A; margin-bottom: 0.75rem;">
-    💡 Key Insight
+**"Hard Truth" Callout Box** (uncomfortable wisdom):
+<div style="background: #1A0A0A; border: 1px solid #331A1A; border-left: 3px solid #FF6B6B; border-radius: 0.5rem; padding: 1.5rem; margin: 2rem 0;">
+  <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #FF6B6B; margin-bottom: 0.75rem;">
+    💀 Hard Truth
   </p>
-  <p style="color: #18181B; line-height: 1.75; margin: 0; font-size: 1.125rem;">
+  <p style="color: #FDFDFD; line-height: 1.75; margin: 0; font-size: 1.125rem;">
+    Your hard truth text here...
+  </p>
+</div>
+
+**Insight/Key Point Box** (clean, dark):
+<div style="background: #0B2340; border: 1px solid #1A3355; border-left: 3px solid #E6D3A6; border-radius: 0.5rem; padding: 1.5rem; margin: 2rem 0;">
+  <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #E6D3A6; margin-bottom: 0.75rem;">
+    ⚡ Key Insight
+  </p>
+  <p style="color: #FDFDFD; line-height: 1.75; margin: 0; font-size: 1.125rem;">
     Your insight text here...
   </p>
 </div>
 
-**Story/Example Section** (subtle gray background):
-<div style="background: #F4F4F5; border: 1px solid #E4E4E7; border-radius: 0.5rem; padding: 1.5rem; margin: 2rem 0;">
-  <h3 style="font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; color: #18181B; margin-bottom: 1rem;">
-    📖 Real-World Example
+**Story/Example Section** (subtle dark background):
+<div style="background: #0B2340; border: 1px solid #1A3355; border-radius: 0.5rem; padding: 1.5rem; margin: 2rem 0;">
+  <h3 style="font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; color: #E6D3A6; margin-bottom: 1rem;">
+    📖 The Real Story
   </h3>
-  <p style="color: #18181B; line-height: 1.75; margin: 0; font-size: 1rem;">
+  <p style="color: #FDFDFD; line-height: 1.75; margin: 0; font-size: 1rem;">
     Story content here...
   </p>
 </div>
 
-**Section Heading** (minimal, editorial):
-<h2 style="font-size: 1.875rem; font-weight: 700; letter-spacing: -0.02em; color: #18181B; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid #E4E4E7;">
+**Section Heading** (dark editorial with gold accent border):
+<h2 style="font-size: 1.875rem; font-weight: 700; letter-spacing: -0.02em; color: #FDFDFD; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid #E6D3A6;">
   Section Title
 </h2>
 
-**Supporting Quote** (side-bordered):
-<blockquote style="border-left: 3px solid #18181B; padding-left: 1.5rem; margin: 2rem 0; font-style: italic; color: #71717A; font-size: 1.125rem; line-height: 1.75;">
+**Supporting Quote** (side-bordered, gold):
+<blockquote style="border-left: 3px solid #E6D3A6; padding-left: 1.5rem; margin: 2rem 0; font-style: italic; color: #8899AA; font-size: 1.125rem; line-height: 1.75;">
   "Supporting quote text here..."
 </blockquote>
 
-**Action Steps List** (clean, organized):
-<div style="background: #FFFFFF; border: 1px solid #E4E4E7; border-radius: 0.5rem; padding: 2rem; margin: 2rem 0;">
-  <h3 style="font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; color: #18181B; margin-bottom: 1.5rem;">
-    Practical Steps
+**"The Protocol" Action Steps** (clean, dark, organized):
+<div style="background: #0B2340; border: 1px solid #1A3355; border-radius: 0.5rem; padding: 2rem; margin: 2rem 0;">
+  <h3 style="font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; color: #E6D3A6; margin-bottom: 1.5rem;">
+    ⚔️ The Protocol
   </h3>
-  <ol style="color: #18181B; line-height: 2; margin: 0; padding-left: 1.5rem; font-size: 1.125rem;">
+  <ol style="color: #FDFDFD; line-height: 2; margin: 0; padding-left: 1.5rem; font-size: 1.125rem;">
     <li style="margin-bottom: 1rem;">First action step...</li>
     <li style="margin-bottom: 1rem;">Second action step...</li>
   </ol>
 </div>
 
 **Metadata/Caption Style**:
-<p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #71717A; margin: 1rem 0; font-weight: 500;">
-  Research • Psychology • Mindset
+<p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #8899AA; margin: 1rem 0; font-weight: 500;">
+  Discipline • Stoicism • Monk Mode
 </p>
 
-**Highlighted Text** (inline emphasis):
-<span style="background: #F4F4F5; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-weight: 500;">
-  important term
-</span>
+**Highlighted Text** (inline gold emphasis):
+<strong style="color: #E6D3A6;">important term</strong>
 
 Return ONLY valid JSON with properly escaped HTML:
 {

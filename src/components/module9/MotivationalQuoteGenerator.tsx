@@ -28,8 +28,8 @@ interface InstagramAccount {
 
 export function MotivationalQuoteGenerator() {
   const { user } = useAuth();
-  const [category, setCategory] = useState<string>('motivation');
-  const [style, setStyle] = useState<string>('bold');
+  const [category, setCategory] = useState<string>('discipline');
+  const [style, setStyle] = useState<string>('monks-midnight');
   const [language, setLanguage] = useState<'english' | 'hindi' | 'marathi'>('english');
   const [contentType, setContentType] = useState<'image' | 'video'>('image');
   const [isGenerating, setIsGenerating] = useState(false);
@@ -188,12 +188,14 @@ export function MotivationalQuoteGenerator() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="motivation">Motivation</SelectItem>
-                <SelectItem value="success">Success</SelectItem>
-                <SelectItem value="mindset">Mindset</SelectItem>
-                <SelectItem value="growth">Personal Growth</SelectItem>
-                <SelectItem value="leadership">Leadership</SelectItem>
-                <SelectItem value="wellness">Wellness</SelectItem>
+                <SelectItem value="discipline">🔥 Discipline</SelectItem>
+                <SelectItem value="stoicism">🏛️ Stoicism</SelectItem>
+                <SelectItem value="wealth">💰 Wealth & Freedom</SelectItem>
+                <SelectItem value="grindset">⚡ Grindset</SelectItem>
+                <SelectItem value="philosophy">📖 Philosophy</SelectItem>
+                <SelectItem value="focus">🎯 Deep Focus</SelectItem>
+                <SelectItem value="resilience">🛡️ Resilience</SelectItem>
+                <SelectItem value="shadow-work">🌑 Shadow Work</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -205,12 +207,14 @@ export function MotivationalQuoteGenerator() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="bold">Bold & Dynamic</SelectItem>
-                <SelectItem value="minimal">Minimal & Clean</SelectItem>
-                <SelectItem value="nature">Nature & Serene</SelectItem>
-                <SelectItem value="urban">Urban & Modern</SelectItem>
-                <SelectItem value="abstract">Abstract & Artistic</SelectItem>
-                <SelectItem value="custom">Custom (Black Theme)</SelectItem>
+                <SelectItem value="monks-midnight">🌙 Monk's Midnight</SelectItem>
+                <SelectItem value="dark-academia">📚 Dark Academia</SelectItem>
+                <SelectItem value="noir-cinematic">🎬 Noir Cinematic</SelectItem>
+                <SelectItem value="olive-spruce">🌿 Olive Spruce</SelectItem>
+                <SelectItem value="plum-noir">🍷 Plum Noir</SelectItem>
+                <SelectItem value="slate-rust">🪨 Slate & Rust</SelectItem>
+                <SelectItem value="raw-authentic">📱 Raw & Authentic</SelectItem>
+                <SelectItem value="custom">⬛ Custom (Black Theme)</SelectItem>
               </SelectContent>
             </Select>
           </div>

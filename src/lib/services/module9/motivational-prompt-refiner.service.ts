@@ -1,40 +1,163 @@
 /**
  * Module 9: Motivational Quote Prompt Refiner
  * Uses AI to generate unique motivational quotes and visual prompts
+ * 
+ * 2026 Strategy: "Monk Mode" era - Raw Authenticity, Dark Aesthetics,
+ * Negative Framing hooks, Stoic philosophy, and "Quiet Luxury" visuals.
+ * Shifted from generic positive motivation to deep, actionable wisdom
+ * with premium dark visual identity.
  */
 
 import { genAI, getTextModelName } from '@/lib/ai/gemini';
 
 interface MotivationalGenerationContext {
-  category: string; // 'success', 'mindset', 'motivation', 'inspiration', 'life', 'wisdom'
+  category: string; // 'discipline', 'stoicism', 'wealth', 'grindset', 'philosophy', 'focus', 'resilience', 'shadow-work'
   themeDescription: string;
   contentType: 'image' | 'video';
-  style: string;
-  language?: 'english' | 'hindi' | 'marathi'; // Language preference for quote generation
-  recentQuotes: string[]; // Last 10 quotes to avoid repetition
-  quoteTemplate?: string; // Optional template to base on
+  style: string; // 'monks-midnight', 'dark-academia', 'noir-cinematic', 'olive-spruce', 'plum-noir', 'slate-rust', 'raw-authentic', 'custom'
+  language?: 'english' | 'hindi' | 'marathi';
+  recentQuotes: string[];
+  quoteTemplate?: string;
 }
 
 interface GeneratedMotivationalContent {
   quoteText: string;
-  title: string; // Short catchy title for caption
+  title: string; // Short catchy hook-title for caption (uses negative/curiosity framing)
   author?: string;
-  profession?: string; // Author's profession (e.g., "Entrepreneur", "Philosopher", "Author")
-  subcategory: string; // Primary subcategory (for backward compatibility)
-  subcategories: string[]; // 2-4 specific themes within category (AI-generated based on quote content)
-  visualPrompt: string; // For AI image/video generation
+  profession?: string;
+  subcategory: string;
+  subcategories: string[];
+  visualPrompt: string;
   suggestedHashtags: string;
 }
+
+// ═══════════════════════════════════════════════════════════════
+// 2026 MONK MODE VISUAL SYSTEM - Strategic Color Palettes
+// ═══════════════════════════════════════════════════════════════
+const STYLE_PALETTES: Record<string, { name: string; primary: string; secondary: string; accent: string; text: string; psychology: string; fonts: { header: string; body: string }; vibe: string }> = {
+  'monks-midnight': {
+    name: "Monk's Midnight",
+    primary: '#07162A', secondary: '#0B2340', accent: '#E6D3A6', text: '#FDFDFD',
+    psychology: 'Authority & Wealth. Deep blues suggest intelligence and stability, champagne gold signals Old Money value.',
+    fonts: { header: 'Playfair Display', body: 'Lato' },
+    vibe: 'Editorial Luxury, high contrast curves, high-end magazine aesthetic',
+  },
+  'dark-academia': {
+    name: 'Dark Academia',
+    primary: '#1A1410', secondary: '#2C2318', accent: '#C4A87C', text: '#E8E0D4',
+    psychology: 'Classical wisdom, romanticized learning, heritage and depth. Dim libraries, rain-streaked windows, ancient architecture.',
+    fonts: { header: 'Cinzel', body: 'Montserrat' },
+    vibe: 'Roman Stoic, marble statues, ancient wisdom, leather and tweed textures',
+  },
+  'noir-cinematic': {
+    name: 'Noir Cinematic',
+    primary: '#0A0A0A', secondary: '#1A1A1A', accent: '#FF4444', text: '#E0E0E0',
+    psychology: 'Technical, moody, digital-native. Aggressive motion blur, cold tints, digital noir. The Monk in the modern machine.',
+    fonts: { header: 'Oswald', body: 'Quicksand' },
+    vibe: 'Gen X Soft Club, aggressive focus, high impact, film grain and light trails',
+  },
+  'olive-spruce': {
+    name: 'Olive Spruce',
+    primary: '#4A5F3C', secondary: '#2D362B', accent: '#D9D0C1', text: '#E8E5E0',
+    psychology: 'Growth & Grounding. Connects viewer to nature and stoic biology. Organic discipline over artificial hustle.',
+    fonts: { header: 'DM Serif Display', body: 'Inter' },
+    vibe: 'Touch grass, biohacking, natural discipline, forest at dawn',
+  },
+  'plum-noir': {
+    name: 'Plum Noir',
+    primary: '#3B1E20', secondary: '#512C3A', accent: '#8E5645', text: '#EDD5B1',
+    psychology: 'Deep, emotional, introspective. Used for Shadow Work, emotional regulation, and stoic philosophy.',
+    fonts: { header: 'Playfair Display', body: 'Lato' },
+    vibe: 'Stoic Philosophy, introspection, candle-lit depth, velvet and wine tones',
+  },
+  'slate-rust': {
+    name: 'Slate & Rust',
+    primary: '#2C3241', secondary: '#744033', accent: '#B8A992', text: '#E0E0E0',
+    psychology: 'Resilience & Grit. Earthy, gritty tones of leather, wood, and stone. Implies durability and timelessness.',
+    fonts: { header: 'Oswald', body: 'Quicksand' },
+    vibe: 'Workout grind, physical stoic, worn textures, industrial strength',
+  },
+  'raw-authentic': {
+    name: 'Raw & Authentic',
+    primary: '#0D0D0D', secondary: '#1C1C1C', accent: '#FFFFFF', text: '#FFFFFF',
+    psychology: 'Anti-curation. Looks like a real moment captured, not a designed post. FaceTime call energy.',
+    fonts: { header: 'Inter', body: 'Inter' },
+    vibe: 'Handheld camera, 35mm film grain, VHS glitch, flash photography, raw texture',
+  },
+  'custom': {
+    name: 'Pure Black',
+    primary: '#000000', secondary: '#000000', accent: '#FFFFFF', text: '#FFFFFF',
+    psychology: 'Maximum contrast minimalism. Premium, stops the scroll in dark mode. Batman/Bruce Wayne energy.',
+    fonts: { header: 'Integral CF / The Bold Font', body: 'Helvetica Neue' },
+    vibe: 'Pure typography, zero decoration, white on black, glow effect on keywords',
+  },
+};
+
+// ═══════════════════════════════════════════════════════════════
+// 2026 CATEGORY THEME SYSTEM
+// ═══════════════════════════════════════════════════════════════  
+const CATEGORY_THEMES: Record<string, { hookStyle: string; subcategoryPool: string[]; tonality: string; referenceVoices: string }> = {
+  'discipline': {
+    hookStyle: 'negative_warning',
+    subcategoryPool: ['self-control', 'consistency', 'habits', '75hard', 'routine', 'delayed gratification', 'monk mode', 'willpower'],
+    tonality: 'Aggressive and direct. Use imperatives. "Stop doing X." "You are failing because Y."',
+    referenceVoices: 'David Goggins, Jocko Willink, Marcus Aurelius',
+  },
+  'stoicism': {
+    hookStyle: 'contrarian',
+    subcategoryPool: ['memento mori', 'amor fati', 'temperance', 'virtue', 'inner citadel', 'dichotomy of control', 'premeditatio malorum', 'eudaimonia'],
+    tonality: 'Philosophical and ancient. Short, devastating truths. "Motivation is a lie." "Stop trying to be happy."',
+    referenceVoices: 'Marcus Aurelius, Seneca, Epictetus, Ryan Holiday',
+  },
+  'wealth': {
+    hookStyle: 'forbidden_knowledge',
+    subcategoryPool: ['financial freedom', 'passive income', 'investing', 'money mindset', 'automation', 'compound interest', 'leverage', 'silent wealth'],
+    tonality: 'Secretive and exclusive. "The 1% don\'t want you to know..." "This feels illegal to know."',
+    referenceVoices: 'Naval Ravikant, Charlie Munger, Warren Buffett, Robert Kiyosaki',
+  },
+  'grindset': {
+    hookStyle: 'attack_identity',
+    subcategoryPool: ['hustle', 'work ethic', 'sacrifice', 'ambition', 'lock in', 'no excuses', 'outwork', 'relentless'],
+    tonality: 'Intense and confrontational. "If you wake up past 8 AM, you\'re already behind." Pure action energy.',
+    referenceVoices: 'Andrew Tate (cleaned), Gary Vee, Kobe Bryant, Michael Jordan',
+  },
+  'philosophy': {
+    hookStyle: 'regret_frame',
+    subcategoryPool: ['truth', 'meaning', 'existence', 'wisdom', 'consciousness', 'perspective', 'paradox', 'deep thought'],
+    tonality: 'Deep and reflective. "I wish I knew this at 18..." "The truth about your 20s no one tells you."',
+    referenceVoices: 'Alan Watts, Jordan Peterson, Dostoevsky, Nietzsche',
+  },
+  'focus': {
+    hookStyle: 'specific_audience',
+    subcategoryPool: ['deep work', 'dopamine detox', 'digital minimalism', 'flow state', 'attention', 'second brain', 'productivity', 'monk mode'],
+    tonality: 'Technical and precise. "If you\'re a student in your 20s, read this." Calls out the user directly.',
+    referenceVoices: 'Cal Newport, James Clear, Sahil Bloom',
+  },
+  'resilience': {
+    hookStyle: 'transformation_story',
+    subcategoryPool: ['comeback', 'pain', 'struggle', 'adversity', 'unbreakable', 'anti-fragile', 'survival', 'rock bottom'],
+    tonality: 'Raw and emotional. "I ghosted everyone for 6 months. Here is what happened." Show the ugly work.',
+    referenceVoices: 'David Goggins, Nelson Mandela, Viktor Frankl',
+  },
+  'shadow-work': {
+    hookStyle: 'secret_frame',
+    subcategoryPool: ['self-awareness', 'inner child', 'emotional regulation', 'trauma', 'healing', 'authenticity', 'vulnerability', 'ego death'],
+    tonality: 'Introspective and haunting. "They don\'t want you to know this about yourself." Deep emotional territory.',
+    referenceVoices: 'Carl Jung, Brené Brown, Eckhart Tolle',
+  },
+};
 
 export const MotivationalPromptRefinerService = {
   /**
    * Generate a unique motivational quote with visual prompt
+   * Updated for 2026 Monk Mode strategy: Dark Aesthetics, Raw Authenticity,
+   * Negative Framing hooks, and premium visual architecture.
    */
   async generateUniqueQuote(context: MotivationalGenerationContext): Promise<GeneratedMotivationalContent> {
     try {
       const modelName = getTextModelName();
 
-      // Get time-based context for more variation
+      // Get time-based context for more variation (Monk Mode scheduling)
       const now = new Date();
       const hour = now.getHours();
       const dayOfWeek = now.getDay();
@@ -43,21 +166,25 @@ export const MotivationalPromptRefinerService = {
       const isFriday = dayOfWeek === 5;
       
       let timeContext = '';
-      if (hour < 12) {
-        timeContext = 'morning inspiration to start the day strong';
+      if (hour < 6) {
+        timeContext = '4AM grinder energy - you are up while the world sleeps. Deep discipline vibes.';
+      } else if (hour < 12) {
+        timeContext = 'morning protocol activation - set the tone for domination today';
       } else if (hour < 17) {
-        timeContext = 'afternoon motivation to keep pushing forward';
+        timeContext = 'afternoon lock-in session - deep work, no distractions, monk mode active';
+      } else if (hour < 21) {
+        timeContext = 'evening reflection and journaling - review the day, plan tomorrow\'s attack';
       } else {
-        timeContext = 'evening reflection and tomorrow\'s possibilities';
+        timeContext = 'late night grind session - the lonely chapter nobody talks about';
       }
       
       let dayContext = '';
       if (isMonday) {
-        dayContext = ' (Monday fresh start theme)';
+        dayContext = ' (Monday: "Lock In" energy - fresh week, zero excuses)';
       } else if (isFriday) {
-        dayContext = ' (Friday celebration of progress theme)';
+        dayContext = ' (Friday: "While they party, you build" theme)';
       } else if (isWeekend) {
-        dayContext = ' (weekend growth and self-improvement theme)';
+        dayContext = ' (Weekend: "The gap widens on weekends" - silent work theme)';
       }
 
       const avoidanceText = context.recentQuotes.length > 0
@@ -68,24 +195,32 @@ export const MotivationalPromptRefinerService = {
         ? `\n\n💡 QUOTE TEMPLATE (Use as loose inspiration but transform it completely):\n"${context.quoteTemplate}"`
         : '';
 
-      // Random variation in prompt structure for more diversity
-      const variations = [
-        'a powerful one-liner that hits hard',
-        'an actionable call-to-action quote',
-        'a thought-provoking question-based quote',
-        'a metaphor-rich inspirational statement',
-        'a contrast-based quote (before vs after mindset)',
-        'a future-focused vision statement',
+      // 2026 Hook-style variation system based on category
+      const hookVariations = [
+        'a devastating truth that makes them stop scrolling (negative frame)',
+        'a contrarian take that challenges conventional wisdom',
+        'a forbidden-knowledge reveal that feels "illegal to know"',
+        'a transformation story hook - before vs after mindset shift',
+        'a direct attack on comfort zones - confrontational and raw',
+        'a stoic paradox that rewires their thinking',
+        'a "regret frame" wisdom bomb - "I wish I knew this at 18"',
+        'a quiet, deadly one-liner with maximum density of meaning',
       ];
-      const randomVariation = variations[Math.floor(Math.random() * variations.length)];
+      const randomVariation = hookVariations[Math.floor(Math.random() * hookVariations.length)];
 
       // Add unique timestamp-based seed to prevent AI caching
       const uniqueSeed = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
       
       // Add randomness context to force variation
-      const randomnessBoost = Math.random() > 0.5 
-        ? 'Be bold and unexpected in your word choices.' 
-        : 'Use fresh perspectives and uncommon phrasing.';
+      const randomnessBoosts = [
+        'Channel the energy of a 4AM workout. Raw and aggressive.', 
+        'Write like Seneca writing his last letter. Urgent wisdom.',
+        'Imagine you\'re writing on a black wall at 3AM. Haunting truth.',
+        'Think "Peaky Blinders" monologue energy. Cold and calculating.',
+        'Channel Marcus Aurelius in his tent before battle. Stoic fire.',
+        'Write like a coded message from the future. Cryptic and powerful.',
+      ];
+      const randomnessBoost = randomnessBoosts[Math.floor(Math.random() * randomnessBoosts.length)];
 
       // Language configuration
       const language = context.language || 'english';
@@ -109,198 +244,140 @@ export const MotivationalPromptRefinerService = {
 
       const langConfig = languageInstructions[language];
 
-      const generationPrompt = `You are an elite motivational quote creator specializing in profound, meaningful wisdom that resonates deeply with audiences.
+      // Resolve palette and category theme
+      const palette = STYLE_PALETTES[context.style] || STYLE_PALETTES['monks-midnight'];
+      const categoryTheme = CATEGORY_THEMES[context.category] || CATEGORY_THEMES['discipline'];
 
-🎲 GENERATION SEED: ${uniqueSeed} - This ensures every generation is unique
-🔀 RANDOMNESS BOOST: ${randomnessBoost}
+      // Build the visual prompt section based on style
+      const visualPromptSection = this._buildVisualPromptSection(context, palette, langConfig.textInstruction);
 
-STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
-"The best way to predict your future is to create it."
-"Whatever you are, be a good one."
-"Give me six hours to chop down a tree and I will spend the first four sharpening the axe."
-"I am a slow walker, but I never walk back."
-"You cannot escape the responsibility of tomorrow by evading it today."
-"Character is like a tree and reputation like its shadow. The shadow is what we think of it; the tree is the real thing."
+      const generationPrompt = `You are an elite "Monk Mode" content strategist for 2026. You create PROFOUND, DARK, RAW wisdom that STOPS THE SCROLL. The era of generic positive motivation is DEAD. You specialize in Stoic philosophy, raw authenticity, and "Quiet Luxury" aesthetics.
+
+🎲 GENERATION SEED: ${uniqueSeed}
+🔀 ENERGY: ${randomnessBoost}
+
+═══════════════════════════════════════════════════════
+  2026 MONK MODE REFERENCE QUOTES (study the TONE):
+═══════════════════════════════════════════════════════
+"The obstacle is the way." — Marcus Aurelius
+"He who has a why to live can bear almost any how." — Nietzsche
+"Discipline is choosing between what you want now and what you want most."
+"You are not lazy. You are just not obsessed enough."
+"The graveyard is full of people who had potential."
+"Comfort is the enemy of achievement."
+"Your silence is your superpower. Let them wonder."
+"Pain is the tuition fee for a life of meaning."
 
 📊 GENERATION PARAMETERS:
 • LANGUAGE: ${langConfig.quoteLanguage} - ${langConfig.instruction}
-• CATEGORY: ${context.category}
+• CATEGORY: ${context.category} (${categoryTheme.tonality})
+• HOOK STYLE: ${categoryTheme.hookStyle}
 • THEME: ${context.themeDescription}
 • CONTENT TYPE: ${context.contentType}
-• VISUAL STYLE: ${context.style}
+• VISUAL STYLE: ${palette.name} (${palette.vibe})
 • TIME CONTEXT: ${timeContext}${dayContext}
-• VARIATION TYPE: ${randomVariation}${templateText}${avoidanceText}
+• VARIATION TYPE: ${randomVariation}
+• REFERENCE VOICES: ${categoryTheme.referenceVoices}${templateText}${avoidanceText}
 
-🎯 YOUR MISSION: Create a profound, ORIGINAL quote IN ${langConfig.quoteLanguage.toUpperCase()} that delivers deep wisdom and actionable insight.
+═══════════════════════════════════════════════════════
+  🎯 QUOTE GENERATION RULES (2026 MONK MODE)
+═══════════════════════════════════════════════════════
 
 ✨ **Quote Requirements**:
-   - Length: 80-180 characters (dynamic based on message complexity)
-   - Aim for substance over brevity - let the message breathe
-   - Use concrete metaphors and vivid imagery like the reference quotes
-   - Focus on character, action, responsibility, and personal growth
-   - Structure should be clear and memorable (use paradox, comparison, or practical wisdom)
-   - Must be 100% unique - NO recycled motivational clichés
-   - Should feel timeless and wise, not trendy or shallow
-   - Attribution: Leave blank or use real historical figure ONLY if quote style genuinely matches
-   - Prefer philosophical depth over surface-level motivation
+   - Length: 80-200 characters (let the message breathe)
+   - TONE: ${categoryTheme.tonality}
+   - Use "NEGATIVE FRAMING" - tell people what they're LOSING, not what they'll gain
+   - Transformation examples:
+     * Generic: "Be consistent" → Monk Mode: "Your motivation dies by Day 3 because you negotiate with yourself."
+     * Generic: "Work hard" → Monk Mode: "While you sleep in, someone hungrier is stealing your future."
+     * Generic: "Stay positive" → Monk Mode: "Stop trying to be happy. Start being capable of suffering."
+   - Must feel like a PUNCH TO THE GUT, not a warm hug
+   - Prefer CONCRETE IMAGERY over abstract fluff (tree/shadow, sharpening the axe, etc.)
+   - Use paradox, contrast, or devastating simplicity
+   - Should feel timeless like Stoic wisdom, not trendy
+   - NO generic clichés like "believe in yourself" or "follow your dreams"
+   - Attribution: Leave blank for original OR use real historical Stoic/philosophical figure ONLY if style genuinely matches
 
-📝 **Title Requirements**:
-   - Create a SHORT catchy title (2-5 words)
-   - Should capture the essence of the wisdom
-   - Examples: "Shape Your Future", "The Real Thing", "Walk Forward Always"
-   - NOTE: This title will be used in Instagram caption (not the full quote)
-   - The Instagram caption will be: Title + Author (if any) + Hashtags
-   - The full quote text MUST be embedded in the image itself (compulsory)
+📝 **Title Requirements** (THIS IS YOUR INSTAGRAM HOOK):
+   - Create a SCROLL-STOPPING hook title (3-8 words)
+   - Use one of these 2026 viral hook frameworks:
+     * Negative/Warning: "Stop doing this if you want to grow"
+     * Contrarian: "Motivation is a lie"
+     * Forbidden: "The habit that feels illegal to know"
+     * Regret: "I wish I knew this at 18"
+     * Transformation: "POV: You disappeared for 6 months"
+     * Attack: "Why you are still stuck in 2026"
+     * Secret: "The dark truth about success"
+   - This title is the FIRST THING people see in their feed
+   - The Instagram caption will be: Hook Title + Author + Hashtags
+   - The full quote MUST be on the image/video itself
 
-🏷️ **Subcategories Requirements**:
-   - Generate 2-4 specific subcategories (single word or 2-word phrases) that capture different aspects of the quote's themes
-   - Must be relevant to main category: ${context.category}
-   - Examples based on category:
-     * success → "achievement", "goals", "ambition", "excellence", "winning mindset"
-     * mindset → "growth", "resilience", "perspective", "mental strength", "attitude"
-     * motivation → "action", "perseverance", "determination", "drive", "hustle"
-     * inspiration → "dreams", "possibilities", "courage", "hope", "belief"
-     * life → "purpose", "balance", "gratitude", "journey", "fulfillment"
-     * wisdom → "knowledge", "truth", "understanding", "experience", "insight"
-     * productivity → "habits", "focus", "decision-making", "deep work", "efficiency"
-   - Choose subcategories based on the ACTUAL QUOTE CONTENT, analyzing different themes present
+🏷️ **Subcategories** (2-4 from this pool for ${context.category}):
+   ${categoryTheme.subcategoryPool.map(s => `"${s}"`).join(', ')}
+   - Choose based on the ACTUAL QUOTE CONTENT
    - Use lowercase, no special characters
-   - Minimum 2, maximum 4 subcategories
-   
-💡 **Creative Techniques to Use**:
-   - Use concrete metaphors (like tree/shadow, walking, building, etc.)
-   - Focus on character, preparation, perseverance, wisdom
-   - Create visual imagery the reader can picture
-   - Include practical wisdom and life principles
-   - Use comparison to reveal deeper truths
-   - Build to a powerful conclusion
-   - Ground abstract concepts in tangible examples
-   - Balance simple language with profound meaning
 
-🎨 **Visual Prompt Requirements** (for AI ${context.contentType} generation):
-   
-   🚨 CRITICAL LANGUAGE REQUIREMENT: ${langConfig.textInstruction}
-   
-   🚨 IMPORTANT: Design the quote text as a beautiful, readable visual element in the image
-   
-   CRITICAL: Analyze the quote's meaning and theme FIRST, then design visuals that REFLECT that meaning.
-   
-   ${context.style === 'custom' ? `
-   - BACKGROUND: Pure black background (#000000), completely solid
-   - QUOTE TEXT: The COMPLETE quote should be prominently displayed as the MAIN and ONLY element
-   - NOTE: The quote will also appear in Instagram caption, so focus on visual design excellence
-   - TYPOGRAPHY: Select font that matches quote's tone (modern sans-serif for action quotes, elegant serif for wisdom quotes)
-   - FONT EXAMPLES: Helvetica/Open Sans for bold action, Playfair Display/Merriweather for wisdom, Montserrat for balance
-   - TEXT SIZE: Large enough to be easily readable on mobile (minimum 24px equivalent)
-   - TEXT PLACEMENT: Perfectly centered both horizontally and vertically
-   - TEXT FORMATTING: Multi-line layout if needed, with proper line spacing (1.4x line height)
-   - CONTRAST: Maximum contrast - pure white text on pure black background
-   - NO DECORATIONS: No graphics, icons, shapes, or decorative elements
-   - NO AUTHOR ON IMAGE: Only the quote text, author will be in caption
-   - PADDING: Generous margins around text (20% minimum from all edges)
-   - TEXT HIERARCHY: Quote text should be the only visual element
-   - READABILITY: Font weight should be bold/semi-bold for clarity
-   - PROFESSIONAL: Clean, minimalist design focusing purely on typography` : `
-   - THEME-MATCHED BACKGROUND: Choose background that RESONATES with the quote's message:
-     * Nature/Growth quotes → Natural landscapes, forests, mountains, sunrise
-     * Strength/Power quotes → Bold geometric patterns, strong architectural elements, dramatic skies
-     * Wisdom/Character quotes → Textured backgrounds, aged paper, classic elements, deep colors
-     * Action/Success quotes → Dynamic elements, movement, energy, vibrant gradients
-     * Reflection/Life quotes → Calm scenes, water, horizons, peaceful atmospheres
-   
-   - QUOTE INTEGRATION: The COMPLETE motivational quote should be beautifully designed as readable text within the image
-   - NOTE: The quote will also appear in Instagram caption, so the image serves as a visual enhancement
-   - TYPOGRAPHY: Font choice must match quote personality:
-     * Wisdom/Philosophy → Elegant serif fonts (Playfair Display, Merriweather, Crimson Text)
-     * Action/Motivation → Strong sans-serif (Montserrat Bold, Poppins SemiBold, Raleway Bold)
-     * Life/Balance → Clean modern fonts (Inter, Nunito Sans, Source Sans Pro)
-   - TEXT PLACEMENT: Quote text should be the focal point - large, prominent, and perfectly readable
-   - TEXT SIZE: Large enough to read easily on mobile devices (minimum 22-28pt)
-   - TEXT COLOR: Choose based on background AND quote tone (not just contrast):
-     * White/Light for dark, dramatic backgrounds
-     * Dark/Navy for light, calm backgrounds
-     * Gold/Warm tones for wisdom quotes
-     * Bold colors for action quotes
-   - TEXT EFFECTS: Subtle shadows, outlines, or glows if needed for readability
-   - NO AUTHOR TEXT ON IMAGE: Author attribution will be in caption only
-   - BACKGROUND DETAILS: ${context.style} aesthetic that CONNECTS to the quote's metaphor or message
-   ${context.contentType === 'image' ? `
-   - COMPOSITION: Balanced layout with quote as the hero element
-   - VISUAL ELEMENTS: A (15-20 high-quality hashtags):
-   - 3 broad trending: #motivation #inspiration #success
-   - 6-8 category-specific for ${context.category}:
-     * success → #successmindset #achieveyourgoals #winnersmentality #growthmindset #hustlehard #ambition
-     * mindset → #mindsetiseverything #positivevibes #mentalstrength #selfimprovement #personaldevelopment #mindfulness
-     * motivation → #dailymotivation #motivationalquotes #keepgoing #nevergiveup #pushyourself #staystrong
-     * inspiration → #inspiredaily #lifeinspiration #dreambig #believeinyourself #inspirationalquotes #positivity
-     * life → #lifelessons #wisdom #livewell #lifequotes #truthbomb #perspective
-     * wisdom → #dailywisdom #lifewisdom #wordsofwisdom #philosophy #deepthoughts #truth
-   - 4-5 engagement hashtags: #quoteoftheday #quotestagram #quotesdaily #motivationalpost #instaquotes
-   - 2-3 size-varied hashtags for reach: mix of 100K-500K, 500K-2M, and 2M+ post volumes
-   - All lowercase, no spaces
-   - Include action-oriented tags based on quote theme
-   - Avoid generic or oversaturated hashtags
-   - DEPTH: Layered design with text in foreground, thematic visuals in background
-   - MOOD: Visual atmosphere that AMPLIFIES the quote's message
-   - LIGHTING: Lighting that matches quote tone (dramatic for power, soft for wisdom)` : `
-   - MOTION: Smooth text animations, kinetic typography that enhances message
-   - TEXT REVEAL: Dynamic text appearance effects aligned with quote's rhythm
-   - BACKGROUND ANIMATION: Subtle moving elements that SUPPORT the quote's theme
-   - TRANSITIONS: Elegant text transitions and effects
-   - CINEMATIC: Professional video quality with smooth movements
-   - DURATION: 5-10 second loops with text fully visible for reading`}
-   - MOBILE OPTIMIZED: Perfect for Instagram square (1:1) format
-   - NO FACES/PEOPLE: Abstract, symbolic, or landscape elements only
-   - TEXT READABILITY: Ensure quote is 100% readable and prominent
-   - BRAND QUALITY: Professional, polished, and visually striking
-   - QUOTE PROMINENCE: The quote text should be the undisputed main element
-   - THEMATIC COHERENCE: Every visual element should feel connected to the quote's core message`}
+${visualPromptSection}
 
-📱 **Hashtag Strategy**:
-   - 12-15 hashtags total
-   - Mix: 3 trending (#motivation), 5 niche (category-specific), 4 branded
+📱 **Hashtag Strategy (3-TIER METHOD)**:
+   Generate 15-20 hashtags using this EXACT mix:
+   
+   🔥 TIER 1 - Broad/Viral (3-5): High-volume discovery hashtags
+   Examples: #disciplineovermotivation #monkmode #stoicism #grindset #2026vision #mindsetmatters #growthmindset
+   
+   🎯 TIER 2 - Niche/Specific (5-7): Category-targeted hashtags
+   Based on ${context.category}:
+     * discipline → #75hard #morningroutine #gymdiscipline #selfmastery #dailydiscipline #noexcuses #lockin
+     * stoicism → #stoicwisdom #marcusaurelius #seneca #mementomori #dailystoic #amorFati #innerpeace
+     * wealth → #financialfreedom #wealthmindset #passiveincome #silentwealth #moneymindset #buildwealth #investing
+     * grindset → #hustlehard #winnermindset #lockingIn #entrepreneurmindset #workethic #nodays off #relentless
+     * philosophy → #deepthoughts #lifephilosophy #existentialism #truthbomb #mindexpansion #wisdomquotes #thinking
+     * focus → #deepwork #dopaminedetox #digitalminimalism #focusmode #secondbrain #productivityhacks #flowstate
+     * resilience → #nevergiveup #comebackstory #unbreakable #painistemporary #keepgoing #fightback #survivor
+     * shadow-work → #shadowwork #selfawareness #healingjourney #innerchild #emotionalintelligence #authenticity #selflove
+   
+   🚀 TIER 3 - Community/Action (2-3): Engagement-driving hashtags
+   Examples: #1percentbettereveryday #lockin #claimit #levelup #grinddontstop
+   
    - All lowercase, no spaces
-   - Focus on ${context.category} + ${context.style} keywords
-   - Include 2-3 action hashtags (#hustlehard #growthmindset)
+   - Mix reach levels: some 100K-500K, some 500K-2M, some 2M+ post volumes
 
 🔒 SAFETY & BRAND GUIDELINES:
-✓ Family-friendly, universally appropriate
-✓ Empowering, never preachy
-✓ Action-oriented, noprofound, meaningful quote here (80-180 characters)",
-  "title": "Short Catchy Title", 
+✓ Family-friendly (intense but not toxic)
+✓ Discipline over motivation - ALWAYS
+✓ Raw and authentic, never preachy or fake
+✓ Stoic, never whiny or victim-mentality
+✓ Empowering through HARD TRUTHS, not sugar-coating
+✗ NO toxic masculinity, hate speech, or harmful content
+✗ NO "I'm better than you" energy - it's about self-improvement
+
+Return ONLY valid JSON (no markdown, no backticks):
+{
+  "quoteText": "Your devastating, scroll-stopping Monk Mode wisdom here (80-200 chars)",
+  "title": "Your Viral Hook Title Here (3-8 words, negative/curiosity frame)", 
   "author": "",
   "profession": "",
   "subcategories": ["theme1", "theme2", "theme3"],
-  "visualPrompt": "Create a ${context.style === 'custom' ? 'minimalist black background image' : `${context.style} style ${context.contentType}`} with the text '[INSERT COMPLETE QUOTE TEXT HERE]' prominently displayed. [Continue with detailed 200+ word visual description that ANALYZES the quote's meaning and designs visuals to MATCH that meaning. Include typography choice based on quote tone, background elements that symbolize the quote's message, color palette that evokes the right emotion, and complete styling specifications.]",
-  "suggestedHashtags": "#motivation #success #category1 #category2 #category3 #quoteoftheday #quotestagram #quotesdaily #motivationalpost ... (15-20 total)"
+  "visualPrompt": "Create a ${palette.name} aesthetic ${context.contentType} with the text '[INSERT COMPLETE QUOTE TEXT HERE]' prominently displayed. [Continue with 200+ word visual description including: ${palette.name} color palette (primary: ${palette.primary}, secondary: ${palette.secondary}, accent: ${palette.accent}, text: ${palette.text}), ${palette.fonts.header} header font, ${palette.fonts.body} body font, ${palette.vibe} aesthetic, specific lighting, texture, composition, and mood details that MATCH the quote's meaning. For video: include kinetic typography instructions, camera movement, and motion effects.]",
+  "suggestedHashtags": "#monkmode #discipline #stoicism ... (15-20 total using 3-tier method)"
 }
 
 🔑 CRITICAL INSTRUCTIONS:
-1. **AUTHOR FIELD**: Leave author empty "" UNLESS the quote style genuinely matches a specific historical figure. Do NOT use "Unknown" or generic attributions.
+1. **AUTHOR**: Leave "" for original quotes. Use REAL Stoic/philosophical figures only if genuinely matches (Marcus Aurelius, Seneca, Nietzsche, etc.)
+2. **PROFESSION**: If author provided: "Roman Emperor", "Stoic Philosopher", "German Philosopher", etc. If no author, leave "".
+3. **SUBCATEGORIES**: REQUIRED 2-4 from the ${context.category} pool. Analyze quote content to choose most relevant.
+4. **VISUAL PROMPT**: 200+ words. MUST include exact quote text. MUST reference the ${palette.name} color palette with actual hex values. MUST specify ${palette.fonts.header} for headers and ${palette.fonts.body} for body.
+5. **HOOK TITLE**: This is NOT the quote. It's the Instagram caption hook. Use NEGATIVE FRAMING or CURIOSITY GAP.
 
-2. **PROFESSION FIELD**: If you provide an author, also provide their profession (e.g., "Entrepreneur", "Philosopher", "Author", "Scientist", "Business Leader", "Poet"). If no author, leave profession empty "".
+🚨 VISUAL PROMPT MUST:
+- Include the EXACT quote text using "[INSERT COMPLETE QUOTE TEXT HERE]" placeholder (replace with actual quote)
+- Reference specific hex colors: primary ${palette.primary}, accent ${palette.accent}, text ${palette.text}
+- Specify fonts: ${palette.fonts.header} for quote display, ${palette.fonts.body} for any secondary text
+- Describe the ${palette.vibe} atmosphere in detail
+- For video: Include kinetic typography (word-by-word reveal, "Stomp" effect on key words, synchronized to imagined beat)
+- Include "imperfection" keywords for raw authentic feel: 35mm film grain, subtle noise texture, atmospheric fog
 
-3. **SUBCATEGORIES FIELD**: REQUIRED - Must provide 2-4 specific subcategories (lowercase, 1-2 words each) in an array format that match different themes present in the quote within the ${context.category} category. Analyze the quote content and choose the most relevant subcategories.
-
-4. **VISUAL PROMPT**: Must be 200+ words and follow this structure:
-   - First, analyze what the quote means and its core message
-   - Then specify background that SYMBOLIZES that message
-   - Choose typography that matches the quote's personality (wisdom=serif, action=bold sans)
-   - Select colors that evoke the quote's emotional tone
-   - Include exact quote text: "Display the text '[ACTUAL QUOTE]' in [specific font] font..."
-   - Describe how ALL visual elements connect to the quote's theme
-
-5. **HASHTAGS**: Generate 15-20 hashtags with strong category relevance, mixing reach levels
-
-🚀 REMEMBER: Create profound wisdom that resonates deeply, paired with visuals that amplify the messag
-
-🔑 CRITICAL INSTRUCTION FOR VISUAL PROMPT:
-- You MUST include the exact quote text in the visualPrompt using the placeholder "[INSERT COMPLETE QUOTE TEXT HERE]"
-- Replace this placeholder with the actual quote you generated
-- The visual prompt should describe HOW to display this specific quote text beautifully
-- Example: "Create a modern gradient background with the motivational text 'Your dreams are closer than you think' displayed in bold white Montserrat font, centered vertically..."
-
-🚀 REMEMBER: The goal is to create something that makes people stop scrolling. Be bold, be different, be memorable!`;
+🚀 REMEMBER: In 2026, positive sugary motivation is IGNORED. Raw truth STOPS THE SCROLL. Be the mentor who tells hard truths, not the friend who sugarcoats. Make them SAVE this post.`;
 
       // Note: Using higher randomness through prompt engineering since generationConfig
       // temperature is not supported in this Gemini API version
@@ -336,23 +413,26 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
         throw new Error('AI response missing required fields');
       }
 
-      // Ensure visual prompt includes the actual quote text
+      // Ensure visual prompt includes the actual quote text and palette references
       let processedVisualPrompt = parsed.visualPrompt;
       if (!processedVisualPrompt.includes(parsed.quoteText) && 
           !processedVisualPrompt.includes('[INSERT COMPLETE QUOTE TEXT HERE]')) {
-        // Add quote text to visual prompt if not included
-        processedVisualPrompt = `Create a ${context.style === 'custom' ? 'minimalist black background image' : `${context.style} style ${context.contentType}`} featuring the motivational quote "${parsed.quoteText}" as the main text element. ${processedVisualPrompt}`;
+        processedVisualPrompt = `Create a ${palette.name} aesthetic ${context.contentType} featuring the motivational quote "${parsed.quoteText}" as the main text element. Color palette: primary ${palette.primary}, accent ${palette.accent}, text ${palette.text}. Font: ${palette.fonts.header}. ${processedVisualPrompt}`;
       } else if (processedVisualPrompt.includes('[INSERT COMPLETE QUOTE TEXT HERE]')) {
-        // Replace placeholder with actual quote
         processedVisualPrompt = processedVisualPrompt.replace('[INSERT COMPLETE QUOTE TEXT HERE]', parsed.quoteText);
       }
 
-      // Enhance visual prompt with specific typography instructions
+      // Enhance visual prompt with 2026 Monk Mode aesthetic defaults
       if (!processedVisualPrompt.toLowerCase().includes('font') && !processedVisualPrompt.toLowerCase().includes('typography')) {
         const typographyEnhancement = context.style === 'custom' 
-          ? ' Use clean, bold sans-serif typography in pure white color against the black background.'
-          : ' Use modern, readable typography with high contrast and professional styling.';
+          ? ` Use ${palette.fonts.header} typography in pure white against black background. Slight glow effect on key words.`
+          : ` Use ${palette.fonts.header} for the quote text, ${palette.fonts.body} for secondary text. ${palette.vibe} aesthetic.`;
         processedVisualPrompt += typographyEnhancement;
+      }
+
+      // Inject rawthenticity texture keywords if not present
+      if (!processedVisualPrompt.toLowerCase().includes('grain') && !processedVisualPrompt.toLowerCase().includes('texture')) {
+        processedVisualPrompt += ' Subtle 35mm film grain overlay, slight noise texture for raw authentic feel, atmospheric depth.';
       }
 
       // Check for similarity with recent quotes (basic deduplication)
@@ -425,38 +505,44 @@ STUDY THESE REFERENCE QUOTES (for inspiration on style and depth):
   /**
    * Simplified quote generation (retry before fallback)
    * Uses a much simpler prompt that's less likely to fail
+   * Updated for 2026 Monk Mode aesthetic
    */
   async generateSimpleQuote(context: MotivationalGenerationContext): Promise<GeneratedMotivationalContent> {
     const modelName = getTextModelName();
     
     const avoidQuotes = context.recentQuotes.slice(0, 10).join('"\n"');
     const uniqueSeed = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
+    const palette = STYLE_PALETTES[context.style] || STYLE_PALETTES['monks-midnight'];
 
-    const simplePrompt = `Generate a unique ${context.category} motivational quote.
+    const simplePrompt = `Generate a unique ${context.category} quote in the 2026 "Monk Mode" style.
 
 SEED: ${uniqueSeed}
 LANGUAGE: ${context.language || 'english'}
-STYLE: ${context.style}
+STYLE: ${palette.name} (${palette.vibe})
+COLOR PALETTE: primary ${palette.primary}, accent ${palette.accent}, text ${palette.text}
+FONTS: ${palette.fonts.header} / ${palette.fonts.body}
 
 AVOID THESE RECENT QUOTES:
 "${avoidQuotes}"
 
 Requirements:
-- 80-180 characters
+- 80-200 characters
 - Original and unique
 - ${context.language || 'english'} language only
-- Deep, meaningful wisdom
+- DARK, RAW, STOIC wisdom - NOT generic positive motivation
+- Use negative framing or contrarian perspective
+- Should feel like a punch to the gut, not a warm hug
 - Not a cliché
 
 Return ONLY valid JSON:
 {
-  "quoteText": "your unique quote here",
-  "title": "Short Title",
+  "quoteText": "your devastating monk mode wisdom here",
+  "title": "Hook Title (Negative/Curiosity Frame)",
   "author": "",
   "profession": "",
   "subcategories": ["theme1", "theme2"],
-  "visualPrompt": "Visual description for ${context.style} ${context.contentType} with the quote prominently displayed",
-  "suggestedHashtags": "#motivation #inspiration #${context.category}"
+  "visualPrompt": "Create a ${palette.name} aesthetic ${context.contentType} with color palette primary ${palette.primary}, accent ${palette.accent}, text ${palette.text}. ${palette.fonts.header} font. ${palette.vibe} aesthetic. Display the quote prominently. 35mm film grain texture, atmospheric depth.",
+  "suggestedHashtags": "#monkmode #discipline #stoicism #${context.category} #grindset #lockin #2026vision"
 }`;
 
     const response = await genAI.models.generateContent({
@@ -517,25 +603,32 @@ Return ONLY valid JSON:
 
   /**
    * Refine existing quote for better visual generation
+   * Updated for 2026 Monk Mode dark aesthetic
    */
   async refineQuotePrompt(quoteText: string, contentType: 'image' | 'video', style: string): Promise<string> {
     try {
       const modelName = getTextModelName();
+      const palette = STYLE_PALETTES[style] || STYLE_PALETTES['monks-midnight'];
 
-      const prompt = `Create a detailed visual prompt for AI ${contentType} generation based on this motivational quote:
+      const prompt = `Create a detailed visual prompt for AI ${contentType} generation based on this Monk Mode quote:
 
 "${quoteText}"
 
 CONTENT TYPE: ${contentType}
-STYLE: ${style}
+VISUAL STYLE: ${palette.name}
+COLOR PALETTE: primary ${palette.primary}, secondary ${palette.secondary}, accent ${palette.accent}, text ${palette.text}
+FONTS: ${palette.fonts.header} (header) / ${palette.fonts.body} (body)
+AESTHETIC: ${palette.vibe}
 
-Generate a detailed visual description that:
-- Matches the quote's theme and emotion
-- Describes composition, colors, mood, atmosphere
-- ${contentType === 'video' ? 'Includes motion, transitions, and camera movements' : 'Focuses on static composition and typography'}
-- Professional and Instagram-ready
+Generate a detailed 2026 "Dark Aesthetic" visual description that:
+- Uses the EXACT color palette hex values above
+- Specifies ${palette.fonts.header} typography for the quote text
+- Creates a ${palette.vibe} atmosphere
+- Includes "raw authenticity" texture: 35mm film grain, subtle noise, atmospheric fog
 - NO people or faces (abstract/symbolic only)
-- ${style} aesthetic
+- ${contentType === 'video' ? 'Includes KINETIC TYPOGRAPHY: word-by-word text reveal synced to beat, "Stomp" effect on key words, camera movement (handheld shake, whip pan), light trails, and motion blur' : 'Focuses on typography hierarchy, layered depth, dramatic lighting, and "Quiet Luxury" composition'}
+- Instagram square (1:1) format, mobile optimized
+- Premium "Dark Mode" aesthetic that STOPS THE SCROLL
 
 Output only the visual prompt description, no other text.`;
 
@@ -554,10 +647,104 @@ Output only the visual prompt description, no other text.`;
         }
       }
 
-      return refinedPrompt || `${style} ${contentType} with motivational quote: ${quoteText}`;
+      return refinedPrompt || `${palette.name} aesthetic ${contentType} with quote: "${quoteText}". Color palette: ${palette.primary}, ${palette.accent}, ${palette.text}. ${palette.fonts.header} typography. ${palette.vibe}. 35mm film grain texture.`;
 
     } catch (error) {
-      return `${style} ${contentType} with motivational quote: ${quoteText}`;
+      const palette = STYLE_PALETTES[style] || STYLE_PALETTES['monks-midnight'];
+      return `${palette.name} aesthetic ${contentType} with quote: "${quoteText}". Color palette: ${palette.primary}, ${palette.accent}, ${palette.text}. ${palette.fonts.header} typography. ${palette.vibe}. 35mm film grain texture.`;
     }
+  },
+
+  /**
+   * Build the visual prompt section for the main generation prompt
+   * Handles style-specific instructions with 2026 Monk Mode aesthetics
+   * @internal
+   */
+  _buildVisualPromptSection(context: MotivationalGenerationContext, palette: typeof STYLE_PALETTES[string], textInstruction: string): string {
+    const isCustomBlack = context.style === 'custom';
+
+    if (isCustomBlack) {
+      return `
+🎨 **Visual Prompt Requirements** (${context.contentType} - PURE BLACK THEME):
+   
+   🚨 LANGUAGE: ${textInstruction}
+   
+   - BACKGROUND: Pure black (#000000), completely solid
+   - QUOTE TEXT: The COMPLETE quote displayed as the MAIN and ONLY element
+   - TYPOGRAPHY: ${palette.fonts.header} or "The Bold Font" / "Integral CF" - BOLD, LARGE
+   - TEXT COLOR: Pure white (#FFFFFF) with subtle GLOW EFFECT on key words (slight white bloom/halo)
+   - TEXT SIZE: Large, readable on mobile (24px+ equivalent)
+   - TEXT PLACEMENT: Centered vertically and horizontally
+   - TEXT FORMATTING: Multi-line, generous line spacing (1.5x)
+   - NO DECORATIONS: Zero graphics, icons, shapes - pure typography only
+   - NO AUTHOR ON IMAGE: Author goes in caption
+   - PADDING: 20%+ margins from all edges
+   - GLOW EFFECT: Key words in the quote should have a subtle white glow/bloom effect
+   - MOBILE: Instagram square (1:1) format
+   ${context.contentType === 'video' ? `
+   - KINETIC TYPOGRAPHY: Words appear one-by-one ("Spritz" method), synced to an imagined beat
+   - "STOMP" EFFECT: The most powerful word appears 2x larger with impact animation
+   - TEXT REVEAL: Typewriter effect or word-by-word pop-in
+   - DURATION: 5-8 second loop` : ''}`;
+    }
+
+    return `
+🎨 **Visual Prompt Requirements** (${context.contentType} - ${palette.name.toUpperCase()} AESTHETIC):
+   
+   🚨 LANGUAGE: ${textInstruction}
+   
+   ═══ COLOR SYSTEM (MUST USE EXACT HEX VALUES) ═══
+   • Primary Background: ${palette.primary}
+   • Secondary/Depth: ${palette.secondary}
+   • Accent/Highlight: ${palette.accent}
+   • Text Color: ${palette.text}
+   • Psychology: ${palette.psychology}
+   
+   ═══ TYPOGRAPHY ═══
+   • Header/Quote Font: ${palette.fonts.header} (for the main quote text)
+   • Body/Secondary Font: ${palette.fonts.body} (for any supporting text)
+   • Visual Vibe: ${palette.vibe}
+   • Key word in the quote should be 2x size with "Stomp" animation effect (if video)
+   • Text hierarchy: Quote > Key Word Emphasis > Any secondary element
+   
+   ═══ THEME-MATCHED BACKGROUNDS (Analyze quote meaning FIRST) ═══
+   Style-specific backgrounds for ${palette.name}:
+   ${context.style === 'monks-midnight' ? '• Deep navy atmospheric scene, champagne gold rim lighting, marble or dark wood textures, luxury study at midnight' : ''}
+   ${context.style === 'dark-academia' ? '• Dimly lit library, leather-bound books, rain on windows, candle flames, tweed textures, ancient architecture' : ''}
+   ${context.style === 'noir-cinematic' ? '• High contrast noir lighting, cold blue tints, light trails, motion blur, digital noir, neon reflections on wet streets' : ''}
+   ${context.style === 'olive-spruce' ? '• Dense forest at dawn, morning mist, natural textures (bark, moss, stone), earthy grounding atmosphere' : ''}
+   ${context.style === 'plum-noir' ? '• Candlelit introspection scene, velvet textures, wine-dark shadows, antique elements, philosophical depth' : ''}
+   ${context.style === 'slate-rust' ? '• Industrial textures (leather, wood, stone), worn gym equipment, weathered surfaces, gritty determination' : ''}
+   ${context.style === 'raw-authentic' ? '• Handheld camera aesthetic, 35mm film grain, VHS glitch, flash photography, CRT monitor glow, rain on lens' : ''}
+   
+   ═══ RAW AUTHENTICITY TEXTURES (Required for all styles) ═══
+   • 35mm film grain overlay (subtle, adds human touch)
+   • Slight noise texture (separates from sterile AI look)
+   • Atmospheric fog or depth haze
+   • Low key dramatic lighting
+   • Subtle vignette effect
+   
+   ═══ COMPOSITION ═══
+   • Quote text is the HERO element - large, prominent, 100% readable
+   • NO author text on image (goes in caption)
+   • NO faces or people (abstract/symbolic only)
+   • Mobile optimized: Instagram square (1:1) format
+   • "Quiet Luxury" feel - premium, not cluttered
+   
+   ${context.contentType === 'video' ? `
+   ═══ KINETIC TYPOGRAPHY & MOTION (VIDEO-SPECIFIC) ═══
+   • TEXT REVEAL: Words appear one-by-one ("Spritz" method) or "Liquid Text" flow
+   • "STOMP" EFFECT: The most powerful word in the quote appears 2x larger with impact animation
+   • CAMERA MOVEMENT: Slow push-in or handheld drift (adds cinematic depth)
+   • BACKGROUND MOTION: Subtle atmospheric particles, drifting fog, or flickering candlelight
+   • AUDIO SYNC: Text animations timed to imagined phonk/dark wave beat
+   • TRANSITIONS: Smooth crossfade or glitch transitions between text blocks
+   • DURATION: 5-10 second loop with text fully readable for 3+ seconds
+   • SPLIT-SECOND CHANGES: Camera angle change every 1.5s to maintain retention` : `
+   ═══ STATIC IMAGE SPECIFICS ═══
+   • Layered depth: Text foreground, atmospheric background
+   • Dramatic lighting that matches quote tone (hard shadows for discipline, soft for wisdom)
+   • Slight text effects: subtle drop shadow, outer glow on key words, or debossed effect
+   • Professional grade composition with generous negative space`}`;
   },
 };

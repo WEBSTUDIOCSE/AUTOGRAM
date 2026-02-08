@@ -22,8 +22,33 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
-const CATEGORIES = ['success', 'mindset', 'motivation', 'inspiration', 'life', 'wisdom', 'mixed'];
-const VISUAL_STYLES = ['modern', 'minimalist', 'vibrant', 'elegant', 'bold', 'serene', 'custom', 'mixed'];
+const CATEGORIES = ['discipline', 'stoicism', 'wealth', 'grindset', 'philosophy', 'focus', 'resilience', 'shadow-work', 'mixed'];
+const VISUAL_STYLES = ['monks-midnight', 'dark-academia', 'noir-cinematic', 'olive-spruce', 'plum-noir', 'slate-rust', 'raw-authentic', 'custom', 'mixed'];
+
+// Display labels for the new categories and styles (2026 Monk Mode Strategy)
+const CATEGORY_LABELS: Record<string, string> = {
+  'discipline': '🔥 Discipline',
+  'stoicism': '🏛️ Stoicism',
+  'wealth': '💰 Wealth & Freedom',
+  'grindset': '⚡ Grindset',
+  'philosophy': '📖 Philosophy',
+  'focus': '🎯 Deep Focus',
+  'resilience': '🛡️ Resilience',
+  'shadow-work': '🌑 Shadow Work',
+  'mixed': '🔀 Mixed',
+};
+
+const STYLE_LABELS: Record<string, string> = {
+  'monks-midnight': '🌙 Monk\'s Midnight (Deep Navy & Gold)',
+  'dark-academia': '📚 Dark Academia (Classic & Moody)',
+  'noir-cinematic': '🎬 Noir Cinematic (Film Grain & Shadows)',
+  'olive-spruce': '🌿 Olive Spruce (Nature & Grounding)',
+  'plum-noir': '🍷 Plum Noir (Stoic & Introspective)',
+  'slate-rust': '🪨 Slate & Rust (Gritty Resilience)',
+  'raw-authentic': '📱 Raw & Authentic (Handheld B-Roll)',
+  'custom': '⬛ Custom (Pure Black)',
+  'mixed': '🔀 Mixed',
+};
 const LANGUAGES = [
   { value: 'english', label: 'English' },
   { value: 'hindi', label: 'Hindi (हिंदी)' },
@@ -504,7 +529,7 @@ export function MotivationalQuoteSettings() {
                       <SelectContent>
                         {CATEGORIES.map((cat) => (
                           <SelectItem key={cat} value={cat}>
-                            {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                            {CATEGORY_LABELS[cat] || cat.charAt(0).toUpperCase() + cat.slice(1)}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -521,7 +546,7 @@ export function MotivationalQuoteSettings() {
                       <SelectContent>
                         {VISUAL_STYLES.map((s) => (
                           <SelectItem key={s} value={s}>
-                            {s.charAt(0).toUpperCase() + s.slice(1)}
+                            {STYLE_LABELS[s] || s.charAt(0).toUpperCase() + s.slice(1)}
                           </SelectItem>
                         ))}
                       </SelectContent>
