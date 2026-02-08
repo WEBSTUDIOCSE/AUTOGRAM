@@ -315,7 +315,7 @@ export function MotivationalPromptLibrary() {
                     </SelectTrigger>
                     <SelectContent>
                       {instagramAccounts.length === 0 ? (
-                        <SelectItem value="" disabled>No accounts connected</SelectItem>
+                        <SelectItem value="no-accounts" disabled>No accounts connected</SelectItem>
                       ) : (
                         instagramAccounts.map((account) => (
                           <SelectItem key={account.id} value={account.id}>
