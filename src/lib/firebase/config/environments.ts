@@ -88,7 +88,7 @@ const PROD_CONFIG: FirebaseConfig = {
   messagingSenderId: "1058876303528",
   appId: "1:1058876303528:web:dc1d26c72417769a933a9d",
   measurementId: "G-4FD6QRJBNW",
-  vapidKey: "" // TODO: Add VAPID key for push notifications
+  vapidKey: "BGSMIQ49eLCU9Z4CEgr1-P3cx-Jajqz0ChlzwjNkcbh8L6A9brZsQnuf8suqqX4a_J5fOgfVyU555BCX0krVv3U"
 };
 
 /**

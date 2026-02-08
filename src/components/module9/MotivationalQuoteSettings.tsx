@@ -216,15 +216,6 @@ export function MotivationalQuoteSettings() {
       return;
     }
     
-    // Check if account already configured (when adding new)
-    if (editingConfigIndex === null) {
-      const existingConfig = accountConfigs.find(c => c.accountId === selectedAccountId);
-      if (existingConfig) {
-        toast.error('This account is already configured. Please edit the existing configuration.');
-        return;
-      }
-    }
-    
     try {
       setSaving(true);
       
@@ -435,13 +426,8 @@ export function MotivationalQuoteSettings() {
   };
 
   const getAvailableAccounts = () => {
-    if (editingConfigIndex !== null) {
-      // When editing, show all accounts including the one being edited
-      return instagramAccounts;
-    }
-    // When adding new, exclude already configured accounts
-    const configuredAccountIds = accountConfigs.map(c => c.accountId);
-    return instagramAccounts.filter(acc => !configuredAccountIds.includes(acc.id));
+    // Allow same account to be configured multiple times with different settings
+    return instagramAccounts;
   };
 
   if (loading) {
@@ -514,8 +500,10 @@ export function MotivationalQuoteSettings() {
                         )}
                       </SelectContent>
                     </Select>
-                    {editingConfigIndex !== null && (
+                    {editingConfigIndex !== null ? (
                       <p className="text-xs text-muted-foreground">Account cannot be changed when editing</p>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">You can add the same account multiple times with different settings</p>
                     )}
                   </div>
 
