@@ -1,6 +1,6 @@
 #!/bin/bash
-# Deploy UAT to Production
-# This script merges uat into production and deploys to production
+# Deploy UAT to Production (Vercel)
+# This script merges uat into main and pushes (Vercel auto-deploys)
 
 echo "=== Deploy UAT to Production ==="
 
@@ -14,27 +14,27 @@ if [ "$confirm" != "yes" ]; then
     exit 0
 fi
 
-# Switch to production
+# Switch to main
 echo ""
-echo "Switching to production branch..."
-git checkout production
+echo "Switching to main branch..."
+git checkout main
 if [ $? -ne 0 ]; then
-    echo "❌ Error switching to production"
+    echo "❌ Error switching to main"
     exit 1
 fi
 
-# Update production
-echo "Updating production branch..."
-git pull origin production
+# Update main
+echo "Updating main branch..."
+git pull origin main
 if [ $? -ne 0 ]; then
-    echo "❌ Error pulling production"
+    echo "❌ Error pulling main"
     exit 1
 fi
 
-# Merge uat into production
+# Merge uat into main
 echo ""
-echo "Merging uat into production..."
-git merge uat --no-ff -m "Merge uat into production for production release"
+echo "Merging uat into main..."
+git merge uat --no-ff -m "Merge uat into main for production release"
 
 if [ $? -ne 0 ]; then
     echo ""
@@ -73,13 +73,13 @@ git config user.email "saurabhjadhav.webstudio@gmail.com"
 # Amend last commit with new author
 git commit --amend --reset-author --no-edit
 
-# Push to production
+# Push to main (Vercel auto-deploys)
 echo ""
-echo "Deploying to production..."
-git push origin production --force
+echo "Pushing to main..."
+git push origin main --force
 
 if [ $? -ne 0 ]; then
-    echo "❌ Error pushing to production"
+    echo "❌ Error pushing to main"
     git config user.name "$originalName"
     git config user.email "$originalEmail"
     exit 1
@@ -91,7 +91,7 @@ git config user.email "$originalEmail"
 
 echo ""
 echo "=== Complete! ==="
-echo "✅ Successfully deployed to PRODUCTION! 🚀"
+echo "✅ Successfully pushed to main branch! 🚀"
 echo ""
-echo "Production URL: https://www.elitemindsetforge.com"
-echo "GitHub Actions will complete the deployment"
+echo "Production URL: https://www.autograminsta.online"
+echo "Vercel is now deploying... Check Vercel dashboard for status"

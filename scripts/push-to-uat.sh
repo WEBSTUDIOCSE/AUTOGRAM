@@ -35,7 +35,7 @@ if [ -n "$status" ]; then
     fi
 fi
 
-# Push
+# Push to uat (Vercel auto-deploys)
 echo ""
 echo "Pushing to $currentBranch..."
 git push origin "$currentBranch"
@@ -45,8 +45,8 @@ if [ $? -eq 0 ]; then
     echo "=== Complete! ==="
     echo "✅ Pushed to $currentBranch successfully!"
     if [ "$currentBranch" = "uat" ]; then
-        echo "Deployment will start automatically"
-        echo "Monitor at: https://autogram-orpin.vercel.app"
+        echo "Vercel is now deploying to UAT preview..."
+        echo "Check Vercel dashboard for deployment status"
     fi
 else
     echo "❌ Error pushing to remote"
