@@ -98,60 +98,60 @@ const STYLE_PALETTES: Record<string, { name: string; primary: string; secondary:
 // ═══════════════════════════════════════════════════════════════  
 const CATEGORY_THEMES: Record<string, { hookStyle: string; subcategoryPool: string[]; tonality: string; referenceVoices: string }> = {
   'discipline': {
-    hookStyle: 'negative_warning',
-    subcategoryPool: ['self-control', 'consistency', 'habits', '75hard', 'routine', 'delayed gratification', 'monk mode', 'willpower'],
-    tonality: 'Aggressive and direct. Use imperatives. "Stop doing X." "You are failing because Y."',
-    referenceVoices: 'David Goggins, Jocko Willink, Marcus Aurelius',
+    hookStyle: 'direct_wisdom',
+    subcategoryPool: ['self-control', 'consistency', 'habits', '75hard', 'routine', 'delayed gratification', 'monk mode', 'willpower', 'accountability', 'daily practice'],
+    tonality: 'Direct and unflinching. Speak truth about what discipline actually requires. Be honest about the cost of inconsistency without exaggerating.',
+    referenceVoices: 'David Goggins, Jocko Willink, Marcus Aurelius, James Clear',
   },
   'stoicism': {
-    hookStyle: 'contrarian',
-    subcategoryPool: ['memento mori', 'amor fati', 'temperance', 'virtue', 'inner citadel', 'dichotomy of control', 'premeditatio malorum', 'eudaimonia'],
-    tonality: 'Philosophical and ancient. Short, devastating truths. "Motivation is a lie." "Stop trying to be happy."',
+    hookStyle: 'philosophical_insight',
+    subcategoryPool: ['memento mori', 'amor fati', 'temperance', 'virtue', 'inner citadel', 'dichotomy of control', 'premeditatio malorum', 'eudaimonia', 'equanimity', 'logos'],
+    tonality: 'Philosophical, precise, and timeless. Ground every statement in actual Stoic principles. Favor accuracy over drama.',
     referenceVoices: 'Marcus Aurelius, Seneca, Epictetus, Ryan Holiday',
   },
   'wealth': {
-    hookStyle: 'forbidden_knowledge',
-    subcategoryPool: ['financial freedom', 'passive income', 'investing', 'money mindset', 'automation', 'compound interest', 'leverage', 'silent wealth'],
-    tonality: 'Secretive and exclusive. "The 1% don\'t want you to know..." "This feels illegal to know."',
-    referenceVoices: 'Naval Ravikant, Charlie Munger, Warren Buffett, Robert Kiyosaki',
+    hookStyle: 'nuanced_truth',
+    subcategoryPool: ['financial freedom', 'passive income', 'investing', 'money mindset', 'automation', 'compound interest', 'leverage', 'silent wealth', 'financial literacy', 'risk management'],
+    tonality: 'Wise and nuanced. Acknowledge complexity of wealth building. Never oversimplify financial truths. Quotes should pass the "would a financial advisor agree?" test.',
+    referenceVoices: 'Naval Ravikant, Charlie Munger, Warren Buffett, Morgan Housel',
   },
   'grindset': {
-    hookStyle: 'attack_identity',
-    subcategoryPool: ['hustle', 'work ethic', 'sacrifice', 'ambition', 'lock in', 'no excuses', 'outwork', 'relentless'],
-    tonality: 'Intense and confrontational. "If you wake up past 8 AM, you\'re already behind." Pure action energy.',
-    referenceVoices: 'Andrew Tate (cleaned), Gary Vee, Kobe Bryant, Michael Jordan',
+    hookStyle: 'action_oriented',
+    subcategoryPool: ['hustle', 'work ethic', 'sacrifice', 'ambition', 'lock in', 'no excuses', 'outwork', 'relentless', 'execution', 'momentum'],
+    tonality: 'Intense and action-oriented. Emphasize effort and execution but stay grounded in reality. Avoid toxic "never sleep" energy.',
+    referenceVoices: 'Gary Vee, Kobe Bryant, Michael Jordan, Alex Hormozi',
   },
   'philosophy': {
-    hookStyle: 'regret_frame',
-    subcategoryPool: ['truth', 'meaning', 'existence', 'wisdom', 'consciousness', 'perspective', 'paradox', 'deep thought'],
-    tonality: 'Deep and reflective. "I wish I knew this at 18..." "The truth about your 20s no one tells you."',
-    referenceVoices: 'Alan Watts, Jordan Peterson, Dostoevsky, Nietzsche',
+    hookStyle: 'deep_reflection',
+    subcategoryPool: ['truth', 'meaning', 'existence', 'wisdom', 'consciousness', 'perspective', 'paradox', 'deep thought', 'human nature', 'purpose'],
+    tonality: 'Deep and reflective. Explore genuine philosophical insights about life, meaning, and human nature. Be profound, not pretentious.',
+    referenceVoices: 'Alan Watts, Jordan Peterson, Dostoevsky, Nietzsche, Aristotle',
   },
   'focus': {
-    hookStyle: 'specific_audience',
-    subcategoryPool: ['deep work', 'dopamine detox', 'digital minimalism', 'flow state', 'attention', 'second brain', 'productivity', 'monk mode'],
-    tonality: 'Technical and precise. "If you\'re a student in your 20s, read this." Calls out the user directly.',
-    referenceVoices: 'Cal Newport, James Clear, Sahil Bloom',
+    hookStyle: 'practical_insight',
+    subcategoryPool: ['deep work', 'dopamine detox', 'digital minimalism', 'flow state', 'attention', 'second brain', 'productivity', 'monk mode', 'clarity', 'intention'],
+    tonality: 'Clear and actionable. Speak to focus as a skill that can be trained. Back claims with how attention actually works.',
+    referenceVoices: 'Cal Newport, James Clear, Sahil Bloom, Atomic Habits',
   },
   'resilience': {
-    hookStyle: 'transformation_story',
-    subcategoryPool: ['comeback', 'pain', 'struggle', 'adversity', 'unbreakable', 'anti-fragile', 'survival', 'rock bottom'],
-    tonality: 'Raw and emotional. "I ghosted everyone for 6 months. Here is what happened." Show the ugly work.',
-    referenceVoices: 'David Goggins, Nelson Mandela, Viktor Frankl',
+    hookStyle: 'earned_wisdom',
+    subcategoryPool: ['comeback', 'pain', 'struggle', 'adversity', 'unbreakable', 'anti-fragile', 'survival', 'rock bottom', 'perseverance', 'growth through suffering'],
+    tonality: 'Raw and real. Acknowledge that pain is real but growth through it is possible. Never glorify suffering for its own sake.',
+    referenceVoices: 'David Goggins, Nelson Mandela, Viktor Frankl, Nassim Taleb',
   },
   'shadow-work': {
-    hookStyle: 'secret_frame',
-    subcategoryPool: ['self-awareness', 'inner child', 'emotional regulation', 'trauma', 'healing', 'authenticity', 'vulnerability', 'ego death'],
-    tonality: 'Introspective and haunting. "They don\'t want you to know this about yourself." Deep emotional territory.',
-    referenceVoices: 'Carl Jung, Brené Brown, Eckhart Tolle',
+    hookStyle: 'inner_truth',
+    subcategoryPool: ['self-awareness', 'inner child', 'emotional regulation', 'trauma', 'healing', 'authenticity', 'vulnerability', 'ego death', 'self-honesty', 'integration'],
+    tonality: 'Introspective and honest. Explore the uncomfortable truths about self-knowledge and growth. Be psychologically accurate.',
+    referenceVoices: 'Carl Jung, Brené Brown, Eckhart Tolle, Gabor Maté',
   },
 };
 
 export const MotivationalPromptRefinerService = {
   /**
    * Generate a unique motivational quote with visual prompt
-   * Updated for 2026 Monk Mode strategy: Dark Aesthetics, Raw Authenticity,
-   * Negative Framing hooks, and premium visual architecture.
+   * Prioritizes ACCURACY + IMPACT: quotes must be factually defensible,
+   * logically sound, and hold up under scrutiny while still being powerful.
    */
   async generateUniqueQuote(context: MotivationalGenerationContext): Promise<GeneratedMotivationalContent> {
     try {
@@ -195,16 +195,18 @@ export const MotivationalPromptRefinerService = {
         ? `\n\n💡 QUOTE TEMPLATE (Use as loose inspiration but transform it completely):\n"${context.quoteTemplate}"`
         : '';
 
-      // 2026 Hook-style variation system based on category
+      // Hook-style variation system - balanced between impact and accuracy
       const hookVariations = [
-        'a devastating truth that makes them stop scrolling (negative frame)',
-        'a contrarian take that challenges conventional wisdom',
-        'a forbidden-knowledge reveal that feels "illegal to know"',
-        'a transformation story hook - before vs after mindset shift',
-        'a direct attack on comfort zones - confrontational and raw',
+        'a hard truth that challenges a common misconception (accurate and direct)',
+        'a contrarian take backed by real logic or philosophy',
+        'a deep insight that reframes how people think about the topic',
+        'a transformation insight - the before vs after mindset shift (realistic)',
         'a stoic paradox that rewires their thinking',
-        'a "regret frame" wisdom bomb - "I wish I knew this at 18"',
-        'a quiet, deadly one-liner with maximum density of meaning',
+        'a wisdom nugget that experienced mentors share (practical and true)',
+        'a nuanced truth about success/life that most people oversimplify',
+        'a quiet, powerful one-liner with maximum density of meaning',
+        'an uncomfortable truth about personal responsibility',
+        'a philosophical observation about human nature (timeless wisdom)',
       ];
       const randomVariation = hookVariations[Math.floor(Math.random() * hookVariations.length)];
 
@@ -251,22 +253,22 @@ export const MotivationalPromptRefinerService = {
       // Build the visual prompt section based on style
       const visualPromptSection = this._buildVisualPromptSection(context, palette, langConfig.textInstruction);
 
-      const generationPrompt = `You are an elite "Monk Mode" content strategist for 2026. You create PROFOUND, DARK, RAW wisdom that STOPS THE SCROLL. The era of generic positive motivation is DEAD. You specialize in Stoic philosophy, raw authenticity, and "Quiet Luxury" aesthetics.
+      const generationPrompt = `You are an elite content strategist who creates PROFOUND, ACCURATE, and IMPACTFUL wisdom. You combine Stoic philosophy, raw authenticity, and deep understanding of human nature. Your quotes are not just catchy—they are TRUTHFUL, nuanced, and hold up under scrutiny. You never sacrifice accuracy for shock value.
 
 🎲 GENERATION SEED: ${uniqueSeed}
 🔀 ENERGY: ${randomnessBoost}
 
 ═══════════════════════════════════════════════════════
-  2026 MONK MODE REFERENCE QUOTES (study the TONE):
+  REFERENCE QUOTES (study the TONE + ACCURACY):
 ═══════════════════════════════════════════════════════
 "The obstacle is the way." — Marcus Aurelius
 "He who has a why to live can bear almost any how." — Nietzsche
 "Discipline is choosing between what you want now and what you want most."
-"You are not lazy. You are just not obsessed enough."
-"The graveyard is full of people who had potential."
-"Comfort is the enemy of achievement."
-"Your silence is your superpower. Let them wonder."
-"Pain is the tuition fee for a life of meaning."
+"We suffer more in imagination than in reality." — Seneca
+"The best time to plant a tree was 20 years ago. The second best time is now."
+"Knowing yourself is the beginning of all wisdom." — Aristotle
+"What stands in the way becomes the way." — Marcus Aurelius
+"The unexamined life is not worth living." — Socrates
 
 📊 GENERATION PARAMETERS:
 • LANGUAGE: ${langConfig.quoteLanguage} - ${langConfig.instruction}
@@ -280,23 +282,38 @@ export const MotivationalPromptRefinerService = {
 • REFERENCE VOICES: ${categoryTheme.referenceVoices}${templateText}${avoidanceText}
 
 ═══════════════════════════════════════════════════════
-  🎯 QUOTE GENERATION RULES (2026 MONK MODE)
+  🎯 QUOTE GENERATION RULES
 ═══════════════════════════════════════════════════════
 
+🔬 **TRUTH & ACCURACY (HIGHEST PRIORITY)**:
+   - Every quote MUST be factually defensible and logically sound
+   - Do NOT oversimplify complex topics (finance, psychology, relationships, health)
+   - If a statement has nuance, BUILD THE NUANCE INTO THE QUOTE instead of ignoring it
+   - Ask yourself: "Would a knowledgeable person critique this as misleading?" If yes, FIX IT.
+   - BAD EXAMPLES (too oversimplified):
+     * ❌ "Trading time for money chains you to a desk. Buying assets buys your freedom." (ignores that assets need capital, skill, and risk)
+     * ❌ "Money is the root of all evil." (misquote - original says "love of money")
+     * ❌ "Follow your passion and you'll never work a day." (factually wrong for most people)
+     * ❌ "Sleep is for the weak." (medically dangerous advice)
+   - GOOD EXAMPLES (accurate AND powerful):
+     * ✅ "Discipline is choosing between what you want now and what you want most."
+     * ✅ "The first step to getting what you want is knowing what you are willing to give up."
+     * ✅ "Active income builds the foundation. Passive income builds the freedom. Skip neither."
+     * ✅ "Your habits are your vote for who you are becoming." 
+   - The quote should be something a Stoic philosopher, successful entrepreneur, OR wise mentor would stand behind
+   - Accuracy makes wisdom TIMELESS. Oversimplification makes it forgettable.
+
 ✨ **Quote Requirements**:
-   - Length: 80-200 characters (let the message breathe)
+   - Length: 80-200 characters (concise but complete thought)
    - TONE: ${categoryTheme.tonality}
-   - Use "NEGATIVE FRAMING" - tell people what they're LOSING, not what they'll gain
-   - Transformation examples:
-     * Generic: "Be consistent" → Monk Mode: "Your motivation dies by Day 3 because you negotiate with yourself."
-     * Generic: "Work hard" → Monk Mode: "While you sleep in, someone hungrier is stealing your future."
-     * Generic: "Stay positive" → Monk Mode: "Stop trying to be happy. Start being capable of suffering."
-   - Must feel like a PUNCH TO THE GUT, not a warm hug
+   - Be direct and impactful but NEVER at the cost of truth
    - Prefer CONCRETE IMAGERY over abstract fluff (tree/shadow, sharpening the axe, etc.)
-   - Use paradox, contrast, or devastating simplicity
+   - Use paradox, contrast, or powerful simplicity
    - Should feel timeless like Stoic wisdom, not trendy
    - NO generic clichés like "believe in yourself" or "follow your dreams"
-   - Attribution: Leave blank for original OR use real historical Stoic/philosophical figure ONLY if style genuinely matches
+   - NO oversimplified claims about money, health, relationships, or success
+   - The quote should work BOTH as motivation AND as actual advice someone could follow
+   - Attribution: Leave blank for original OR use real historical figure ONLY if the quote genuinely matches their philosophy
 
 📝 **Title Requirements** (THIS IS YOUR INSTAGRAM HOOK):
    - Create a SCROLL-STOPPING hook title (3-8 words)
@@ -342,14 +359,18 @@ ${visualPromptSection}
    - All lowercase, no spaces
    - Mix reach levels: some 100K-500K, some 500K-2M, some 2M+ post volumes
 
-🔒 SAFETY & BRAND GUIDELINES:
+🔒 SAFETY, ACCURACY & BRAND GUIDELINES:
+✓ Every quote must be FACTUALLY DEFENSIBLE - not just motivationally catchy
 ✓ Family-friendly (intense but not toxic)
-✓ Discipline over motivation - ALWAYS
+✓ Discipline over motivation - balance both
 ✓ Raw and authentic, never preachy or fake
 ✓ Stoic, never whiny or victim-mentality
-✓ Empowering through HARD TRUTHS, not sugar-coating
+✓ Nuanced over oversimplified - embrace complexity when the topic demands it
+✓ If a topic (wealth, health, relationships) has nuance, the quote should reflect that nuance
 ✗ NO toxic masculinity, hate speech, or harmful content
 ✗ NO "I'm better than you" energy - it's about self-improvement
+✗ NO medically or financially dangerous oversimplifications
+✗ NO false dichotomies ("either X or Y" when reality is both)
 
 Return ONLY valid JSON (no markdown, no backticks):
 {
@@ -381,7 +402,7 @@ Return ONLY valid JSON (no markdown, no backticks):
 - For video: Include motion keywords (slow push-in, particles, fog movement)
 - Include "imperfection" keywords: 35mm film grain, subtle noise texture, atmospheric fog
 
-🚀 REMEMBER: In 2026, positive sugary motivation is IGNORED. Raw truth STOPS THE SCROLL. Be the mentor who tells hard truths, not the friend who sugarcoats. Make them SAVE this post.`;
+🚀 REMEMBER: The best quotes are BOTH powerful AND accurate. Be the wise mentor who speaks truth with impact—not the clickbait page that oversimplifies everything. A quote that is factually wrong gets called out in comments and loses credibility. A quote that is TRUE and HARD-HITTING gets saved, shared, and remembered forever. Accuracy IS the competitive advantage.`;
 
       // Note: Using higher randomness through prompt engineering since generationConfig
       // temperature is not supported in this Gemini API version
@@ -518,7 +539,7 @@ Return ONLY valid JSON (no markdown, no backticks):
     const uniqueSeed = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
     const palette = STYLE_PALETTES[context.style] || STYLE_PALETTES['monks-midnight'];
 
-    const simplePrompt = `Generate a unique ${context.category} quote in the 2026 "Monk Mode" style.
+    const simplePrompt = `Generate a unique ${context.category} motivational quote.
 
 SEED: ${uniqueSeed}
 LANGUAGE: ${context.language || 'english'}
@@ -531,17 +552,18 @@ AVOID THESE RECENT QUOTES:
 
 Requirements:
 - 80-200 characters
-- Original and unique
+- Original, unique, and FACTUALLY ACCURATE
 - ${context.language || 'english'} language only
-- DARK, RAW, STOIC wisdom - NOT generic positive motivation
-- Use negative framing or contrarian perspective
-- Should feel like a punch to the gut, not a warm hug
+- Deep, meaningful wisdom - NOT generic or oversimplified
+- The quote must be logically sound and hold up under scrutiny
+- Do NOT oversimplify complex topics (wealth, health, relationships)
+- Should feel timeless and wise, like a Stoic philosopher or experienced mentor
 - Not a cliché
 
 Return ONLY valid JSON:
 {
-  "quoteText": "your devastating monk mode wisdom here",
-  "title": "Hook Title (Negative/Curiosity Frame)",
+  "quoteText": "your accurate, impactful wisdom here",
+  "title": "Hook Title (Curiosity/Wisdom Frame)",
   "author": "",
   "profession": "",
   "subcategories": ["theme1", "theme2"],
