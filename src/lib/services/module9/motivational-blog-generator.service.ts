@@ -58,41 +58,38 @@ Stylistic Rules:
 - Open with a pattern interrupt or negative frame hook
 - Close with a "Protocol" or actionable system, not just inspiration
 
-🎨 **DESIGN SYSTEM - MONK MODE DARK EDITORIAL**
-Think high-quality dark mode editorial. Premium. "Quiet Luxury" aesthetic.
+🎨 **DESIGN SYSTEM — CLEAN WHITE & BLACK EDITORIAL**
+The website uses a white and black theme. ALL blog content MUST blend seamlessly with this theme.
 
 ✅ **DESIGN PRINCIPLES**:
-- **Dark Mode First**: Content designed for nighttime readers (prime Monk Mode demographic)
-- **Typography Focus**: Let the words shine through clean hierarchy
+- **White/Black Theme**: Clean, minimal, high-contrast design on a white background
+- **NO custom backgrounds**: Do NOT add background colors to any container, div, or section. The page background is white — respect it.
+- **Typography Focus**: Let the words shine through clean hierarchy with dark text
 - **Subtle Elegance**: Delicate borders, generous whitespace, refined details
-- **Monk Mode Feel**: Think dimly lit study, not bright office
+- **Theme-native**: Content must look like it belongs to the website, not like an embedded foreign block
 
 🎯 **STRICT STYLING RULES**:
 
-**Color Palette (DARK MODE - MONK'S MIDNIGHT)**:
-- Background: #07162A (Deep Navy) — primary surface
-- Card/Surface: #0B2340 (Midnight Blue) — elevated elements
-- Text (Primary): #FDFDFD (Off-White) — body and headers
-- Text (Muted): #8899AA (Slate Blue) — metadata, captions
-- Accent/Highlight: #E6D3A6 (Champagne Gold) — key terms, borders, emphasis
-- Secondary Accent: #B8A992 (Universal Khaki) — subtle highlights
-- Borders: #1A3355 (Dark Border) — card and section borders
-- Error/Warning: #FF6B6B — for "hard truth" callouts
+**CRITICAL — COLOR RULES**:
+- ALL text MUST be dark: #1a1a1a (headings), #374151 (body), #6b7280 (muted/captions)
+- ALL backgrounds MUST be transparent or white (#ffffff) — NO colored backgrounds on containers
+- Accent color for borders and emphasis ONLY: #1a1a1a (black) or #374151 (dark gray)
+- NO navy, NO gold, NO colored backgrounds whatsoever
+- Borders: use #e5e7eb (light gray) for subtle separation
 
-**Container Styling**:
-- Insight Boxes: background #0B2340, border: 1px solid #1A3355, border-radius: 0.5rem
-- Quote Blocks: border-left: 3px solid #E6D3A6, padding-left: 1.5rem, italic, color: #8899AA
-- "Hard Truth" Callouts: background #1A0A0A, border-left: 3px solid #FF6B6B
-- Key Sections: background #0B2340, border: 1px solid #1A3355, rounded corners
-- Highlighted Text: background: #1A3355 (subtle navy), color: #E6D3A6 (gold)
-- Metadata Sections: uppercase text, letter-spacing: 0.05em, color: #8899AA, font-size: 0.75rem
+**Container Styling** (NO background colors):
+- Insight Boxes: border: 1px solid #e5e7eb, border-left: 4px solid #1a1a1a, padding: 1.5rem, border-radius: 0.5rem — NO background
+- Quote Blocks: border-left: 4px solid #1a1a1a, padding-left: 1.5rem, italic, color: #6b7280
+- "Hard Truth" Callouts: border: 1px solid #e5e7eb, border-left: 4px solid #1a1a1a, padding: 1.5rem — NO background
+- Key Sections: border: 1px solid #e5e7eb, border-radius: 0.5rem, padding: 1.5rem — NO background
+- Metadata Sections: uppercase text, letter-spacing: 0.05em, color: #6b7280, font-size: 0.75rem
 
 **Typography**:
-- Headings: font-weight: 700, letter-spacing: -0.02em, color: #FDFDFD
-- Body: line-height: 1.75, color: #FDFDFD, font-size: 1.125rem (18px)
-- Captions/Meta: text-transform: uppercase, letter-spacing: 0.1em, font-size: 0.75rem, color: #8899AA
+- Headings: font-weight: 700, letter-spacing: -0.02em, color: #1a1a1a
+- Body: line-height: 1.75, color: #374151, font-size: 1.125rem (18px)
+- Captions/Meta: text-transform: uppercase, letter-spacing: 0.1em, font-size: 0.75rem, color: #6b7280
 - Short paragraphs: 2-4 sentences max — the "Digital Stoic" way
-- Bold key terms: <strong style="color: #E6D3A6"> for emphasis (gold highlights)
+- Bold key terms: <strong style="color: #1a1a1a;"> for emphasis
 
 **Spacing & Layout**:
 - Section spacing: margin: 2.5rem 0
@@ -106,7 +103,7 @@ Think high-quality dark mode editorial. Premium. "Quiet Luxury" aesthetic.
 - Start with a PATTERN INTERRUPT or negative frame hook (first line must stop the scroll)
 - Example openings: "You've been lied to." / "Stop reading this if you're comfortable." / "Most people will ignore this."
 - Follow with the centered, prominent quote block (styled as below)
-- Metadata tags (category, themes) in uppercase small gold text
+- Metadata tags (category, themes) in uppercase small muted text
 - Opening analysis: what THIS specific quote means in the context of 2026
 
 **The Core Analysis** (use "Digital Stoic" voice):
@@ -124,7 +121,7 @@ Think high-quality dark mode editorial. Premium. "Quiet Luxury" aesthetic.
 - This section differentiates from generic motivation blogs
 
 **Closing Section**:
-- Key insight in a prominent gold-accented container
+- Key insight in a prominent bordered container
 - A "Hard Truth" final statement
 - Reflection question that haunts the reader
 - NO fluffy "you can do it!" ending - end with a challenge or stoic reflection
@@ -132,7 +129,7 @@ Think high-quality dark mode editorial. Premium. "Quiet Luxury" aesthetic.
 - Final thoughts connecting back to the main quote
 
 **Visual Variety**:
-- Mix plain paragraphs with styled containers (65% plain, 35% styled)
+- Mix plain paragraphs with bordered containers (65% plain, 35% styled)
 - Strategic use of spacing for visual rhythm
 - Clean scannable sections with clear typography hierarchy
 - Balance text-heavy sections with visual breaks
@@ -152,96 +149,96 @@ Think high-quality dark mode editorial. Premium. "Quiet Luxury" aesthetic.
 - Reference real philosophical sources where applicable
 
 🎨 **VISUAL BALANCE**:
-- 65% clean paragraphs, 35% styled containers
+- 65% clean paragraphs, 35% bordered containers
 - Use white space generously (margin: 2.5rem between major sections)
-- Maintain consistent border styling (#1A3355, 1px) with gold accents (#E6D3A6)
-- Dark Mode first - all colors designed for #07162A background
+- Borders only: #e5e7eb (light gray, 1px) with #1a1a1a accents for left-borders
+- NO background colors — white/transparent only
 - Typography does the heavy lifting - let words breathe
 - Scannable sections with clear visual hierarchy
-- Monk Mode editorial aesthetic - premium, timeless, dark
+- Clean editorial aesthetic - premium, timeless, minimal
 
 ⛔ **FORBIDDEN**:
-- NO bright happy colors (yellow, lime green, sky blue, etc.)
+- NO background colors on ANY element (no navy, gold, dark, or colored backgrounds)
 - NO gradient backgrounds
 - NO heavy shadows or effects
+- NO colored text (no gold, no colored highlights) — only #1a1a1a, #374151, #6b7280
 - NO "You can do it!" or "Believe in yourself!" generic motivation
 - NO cluttered layouts
 - NO emoji overload
 - NO preachy or condescending tone
-- Keep it dark, clean, premium, editorial
+- Keep it white, black, clean, minimal, editorial
+- Absolutely NO background property on any div, section, blockquote, or container
 
-**Remember**: The "Digital Stoic" aesthetic is about DARK PREMIUM MINIMALISM. Think *The New Yorker* at midnight, not a colorful motivational blog. Deep Navy backgrounds, Champagne Gold accents, and typography that commands respect.
+⚡ **STYLING EXAMPLES** (Clean White & Black Editorial):
 
-⚡ **STYLING EXAMPLES** (Monk Mode Dark Editorial):
-
-**Main Quote Block** (prominent feature - gold accent):
-<div style="background: #0B2340; border: 1px solid #1A3355; border-radius: 0.5rem; padding: 2rem; margin: 2.5rem 0; text-align: center;">
-  <blockquote style="font-size: 1.5rem; font-style: italic; color: #E6D3A6; line-height: 1.6; margin: 0; font-weight: 600; letter-spacing: -0.02em;">
+**Main Quote Block** (prominent feature - black border):
+<div style="border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 2rem; margin: 2.5rem 0; text-align: center;">
+  <blockquote style="font-size: 1.5rem; font-style: italic; color: #1a1a1a; line-height: 1.6; margin: 0; font-weight: 600; letter-spacing: -0.02em;">
     "${context.quoteText}"
   </blockquote>
-  <p style="margin-top: 1rem; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.1em; color: #8899AA; font-weight: 500;">
+  <p style="margin-top: 1rem; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.1em; color: #6b7280; font-weight: 500;">
     — ${context.author || 'The Digital Stoic'}${context.profession ? `, ${context.profession}` : ''}
   </p>
 </div>
 
 **"Hard Truth" Callout Box** (uncomfortable wisdom):
-<div style="background: #1A0A0A; border: 1px solid #331A1A; border-left: 3px solid #FF6B6B; border-radius: 0.5rem; padding: 1.5rem; margin: 2rem 0;">
-  <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #FF6B6B; margin-bottom: 0.75rem;">
+<div style="border: 1px solid #e5e7eb; border-left: 4px solid #1a1a1a; border-radius: 0.5rem; padding: 1.5rem; margin: 2rem 0;">
+  <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #1a1a1a; margin-bottom: 0.75rem;">
     💀 Hard Truth
   </p>
-  <p style="color: #FDFDFD; line-height: 1.75; margin: 0; font-size: 1.125rem;">
+  <p style="color: #374151; line-height: 1.75; margin: 0; font-size: 1.125rem;">
     Your hard truth text here...
   </p>
 </div>
 
-**Insight/Key Point Box** (clean, dark):
-<div style="background: #0B2340; border: 1px solid #1A3355; border-left: 3px solid #E6D3A6; border-radius: 0.5rem; padding: 1.5rem; margin: 2rem 0;">
-  <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #E6D3A6; margin-bottom: 0.75rem;">
+**Insight/Key Point Box** (clean, bordered):
+<div style="border: 1px solid #e5e7eb; border-left: 4px solid #1a1a1a; border-radius: 0.5rem; padding: 1.5rem; margin: 2rem 0;">
+  <p style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #1a1a1a; margin-bottom: 0.75rem;">
     ⚡ Key Insight
   </p>
-  <p style="color: #FDFDFD; line-height: 1.75; margin: 0; font-size: 1.125rem;">
+  <p style="color: #374151; line-height: 1.75; margin: 0; font-size: 1.125rem;">
     Your insight text here...
   </p>
 </div>
 
-**Story/Example Section** (subtle dark background):
-<div style="background: #0B2340; border: 1px solid #1A3355; border-radius: 0.5rem; padding: 1.5rem; margin: 2rem 0;">
-  <h3 style="font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; color: #E6D3A6; margin-bottom: 1rem;">
+**Story/Example Section** (subtle border):
+<div style="border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1.5rem; margin: 2rem 0;">
+  <h3 style="font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; color: #1a1a1a; margin-bottom: 1rem;">
     📖 The Real Story
   </h3>
-  <p style="color: #FDFDFD; line-height: 1.75; margin: 0; font-size: 1rem;">
+  <p style="color: #374151; line-height: 1.75; margin: 0; font-size: 1rem;">
     Story content here...
   </p>
 </div>
 
-**Section Heading** (dark editorial with gold accent border):
-<h2 style="font-size: 1.875rem; font-weight: 700; letter-spacing: -0.02em; color: #FDFDFD; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid #E6D3A6;">
+**Section Heading** (clean with bottom border):
+<h2 style="font-size: 1.875rem; font-weight: 700; letter-spacing: -0.02em; color: #1a1a1a; margin-top: 3rem; margin-bottom: 1.5rem; padding-bottom: 0.75rem; border-bottom: 1px solid #e5e7eb;">
   Section Title
 </h2>
 
-**Supporting Quote** (side-bordered, gold):
-<blockquote style="border-left: 3px solid #E6D3A6; padding-left: 1.5rem; margin: 2rem 0; font-style: italic; color: #8899AA; font-size: 1.125rem; line-height: 1.75;">
+**Supporting Quote** (side-bordered, muted):
+<blockquote style="border-left: 4px solid #1a1a1a; padding-left: 1.5rem; margin: 2rem 0; font-style: italic; color: #6b7280; font-size: 1.125rem; line-height: 1.75;">
   "Supporting quote text here..."
 </blockquote>
 
-**"The Protocol" Action Steps** (clean, dark, organized):
-<div style="background: #0B2340; border: 1px solid #1A3355; border-radius: 0.5rem; padding: 2rem; margin: 2rem 0;">
-  <h3 style="font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; color: #E6D3A6; margin-bottom: 1.5rem;">
+**"The Protocol" Action Steps** (clean, bordered, organized):
+<div style="border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 2rem; margin: 2rem 0;">
+  <h3 style="font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; color: #1a1a1a; margin-bottom: 1.5rem;">
     ⚔️ The Protocol
   </h3>
-  <ol style="color: #FDFDFD; line-height: 2; margin: 0; padding-left: 1.5rem; font-size: 1.125rem;">
+  <ol style="color: #374151; line-height: 2; margin: 0; padding-left: 1.5rem; font-size: 1.125rem;">
     <li style="margin-bottom: 1rem;">First action step...</li>
     <li style="margin-bottom: 1rem;">Second action step...</li>
   </ol>
 </div>
 
 **Metadata/Caption Style**:
-<p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #8899AA; margin: 1rem 0; font-weight: 500;">
+<p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #6b7280; margin: 1rem 0; font-weight: 500;">
   Discipline • Stoicism • Monk Mode
 </p>
 
-**Highlighted Text** (inline gold emphasis):
-<strong style="color: #E6D3A6;">important term</strong>
+**Highlighted Text** (inline bold emphasis):
+<strong style="color: #1a1a1a;">important term</strong>
 
 Return ONLY valid JSON with properly escaped HTML:
 {
