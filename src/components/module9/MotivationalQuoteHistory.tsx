@@ -177,7 +177,7 @@ export function MotivationalQuoteHistory() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-8 sm:h-9 text-xs w-full sm:w-auto"
+                          className="h-10 sm:h-9 text-xs w-full sm:w-auto"
                           asChild
                         >
                           <a
