@@ -10,7 +10,11 @@ import {getFirestore} from "firebase-admin/firestore";
 
 const db = getFirestore();
 const AUTH_TOKEN = "autogram-auto-post-secret-2024";
-const API_BASE_URL = "https://autogram-orpin.vercel.app";
+const projectId = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT;
+const IS_PROD = projectId === "autogram-14ddc";
+const API_BASE_URL = IS_PROD 
+  ? "https://www.autograminsta.online" 
+  : "https://autogram-orpin.vercel.app";
 
 export const scheduledFamilyAutoPost = onSchedule(
   {
