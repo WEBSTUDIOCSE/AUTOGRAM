@@ -29,7 +29,9 @@ const AUTH_TOKEN = "autogram-auto-post-secret-2024";
 // Detect environment based on Firebase project ID
 const projectId = process.env.GCLOUD_PROJECT || process.env.GCP_PROJECT;
 const IS_PROD = projectId === "autogram-14ddc";
-const API_BASE_URL = "https://autogram-orpin.vercel.app";
+const API_BASE_URL = IS_PROD 
+  ? "https://www.autograminsta.online" 
+  : "https://autogram-orpin.vercel.app";
 
 logger.info(`🌍 Environment: ${IS_PROD ? 'PRODUCTION' : 'UAT'}`);
 logger.info(`📡 API Base URL: ${API_BASE_URL}`);
