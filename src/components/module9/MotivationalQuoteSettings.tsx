@@ -594,11 +594,11 @@ export function MotivationalQuoteSettings() {
                   {/* Posting Schedule */}
                   <div className="space-y-2">
                     <Label className="text-sm sm:text-base font-semibold">Posting Schedule (IST)</Label>
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                       <div className="flex items-center gap-1 w-full sm:flex-1">
                         <Label className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">Hour:</Label>
                         <Select value={selectedHour} onValueChange={setSelectedHour}>
-                          <SelectTrigger className="w-20 sm:w-24 h-9 sm:h-10">
+                          <SelectTrigger className="w-20 sm:w-24 h-10 sm:h-10">
                             <SelectValue placeholder="HH" />
                           </SelectTrigger>
                           <SelectContent className="max-h-[200px]">
@@ -615,7 +615,7 @@ export function MotivationalQuoteSettings() {
                         <span className="text-base sm:text-lg font-medium">:</span>
                         <Label className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">Min:</Label>
                         <Select value={selectedMinute} onValueChange={setSelectedMinute}>
-                          <SelectTrigger className="w-20 sm:w-24 h-9 sm:h-10">
+                          <SelectTrigger className="w-20 sm:w-24 h-10 sm:h-10">
                             <SelectValue placeholder="MM" />
                           </SelectTrigger>
                           <SelectContent className="max-h-[200px]">
@@ -635,10 +635,10 @@ export function MotivationalQuoteSettings() {
                         variant="outline"
                         onClick={handleAddPostingTime}
                         disabled={!selectedHour || !selectedMinute}
-                        className="h-9 sm:h-10 px-3 sm:px-4 w-full sm:w-auto"
+                        className="h-10 sm:h-10 px-3 sm:px-4 w-full sm:w-auto"
                         size="sm"
                       >
-                        <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                        <Plus className="h-4 w-4 mr-1 sm:mr-2" />
                         <span className="text-xs sm:text-sm">Add Time</span>
                       </Button>
                     </div>
@@ -662,11 +662,11 @@ export function MotivationalQuoteSettings() {
                   </div>
                 </div>
 
-                <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
-                  <Button variant="outline" onClick={() => setDialogOpen(false)} className="w-full sm:w-auto">
+                <DialogFooter className="flex-col sm:flex-row gap-3 sm:gap-2">
+                  <Button variant="outline" onClick={() => setDialogOpen(false)} className="w-full sm:w-auto h-10 sm:h-9">
                     Cancel
                   </Button>
-                  <Button onClick={handleSaveAccountConfig} disabled={saving} className="w-full sm:w-auto">
+                  <Button onClick={handleSaveAccountConfig} disabled={saving} className="w-full sm:w-auto h-10 sm:h-9">
                     {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                     {editingConfigIndex !== null ? 'Update' : 'Add'}
                   </Button>
@@ -761,24 +761,24 @@ export function MotivationalQuoteSettings() {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex sm:flex-col items-center sm:items-start gap-1 sm:gap-2 shrink-0">
+                      <div className="flex sm:flex-col items-center sm:items-start gap-2 sm:gap-2 shrink-0">
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleOpenDialog(index)}
                           title="Edit configuration"
-                          className="h-8 w-8 sm:h-9 sm:w-9"
+                          className="h-9 w-9 sm:h-9 sm:w-9"
                         >
-                          <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <Edit className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDeleteConfig(index)}
                           title="Delete configuration"
-                          className="h-8 w-8 sm:h-9 sm:w-9"
+                          className="h-9 w-9 sm:h-9 sm:w-9"
                         >
-                          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
