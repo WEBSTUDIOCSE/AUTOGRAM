@@ -55,11 +55,16 @@ export class GeminiProvider implements ImageGenerationProvider {
       throw new Error('No image generated in response. The model may have returned text instead.');
     }
     
+    // Add data URL prefix if not present
+    const imageWithPrefix = imageBase64.startsWith('data:') 
+      ? imageBase64 
+      : `data:image/jpeg;base64,${imageBase64}`;
+    
     // Generate caption and hashtags
     const { caption, hashtags } = await this.generateCaptionAndHashtags(prompt);
     
     return {
-      imageBase64,
+      imageBase64: imageWithPrefix,
       prompt,
       model: modelName,
       provider: 'gemini',
@@ -108,10 +113,15 @@ export class GeminiProvider implements ImageGenerationProvider {
       throw new Error('No image generated with reference');
     }
 
+    // Add data URL prefix if not present
+    const imageWithPrefix = imageBase64.startsWith('data:') 
+      ? imageBase64 
+      : `data:image/jpeg;base64,${imageBase64}`;
+
     const { caption, hashtags } = await this.generateCaptionAndHashtags(prompt);
 
     return {
-      imageBase64,
+      imageBase64: imageWithPrefix,
       prompt,
       model: modelName,
       provider: 'gemini',
