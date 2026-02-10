@@ -59,8 +59,33 @@ export async function POST(request: NextRequest) {
     const results = [];
     const startTime = Date.now();
 
+    // When called from Firebase scheduler, only process the specific account
+    // that was scheduled (identified by accountId + category in the payload).
+    // Without this filter, ALL account configs get processed on every trigger,
+    // causing multiple posts at a single scheduled time.
+    let accountConfigsToProcess = config.accountConfigs;
+    if (authToken && accountId) {
+      const targetConfig = config.accountConfigs.find(
+        (ac: any) => {
+          // Match by accountId first
+          if (ac.accountId !== accountId) return false;
+          // If category was sent, also match by category (same account can have multiple categories)
+          if (category && ac.category !== category) return false;
+          return true;
+        }
+      );
+      if (targetConfig) {
+        accountConfigsToProcess = [targetConfig];
+      } else {
+        return NextResponse.json({
+          success: false,
+          error: `Account config not found for accountId: ${accountId}${category ? `, category: ${category}` : ''}`,
+        }, { status: 404 });
+      }
+    }
+
     // Process each configured account
-    for (const accountConfig of config.accountConfigs) {
+    for (const accountConfig of accountConfigsToProcess) {
       let logId: string = '';
       let quoteData: any = null;
       let firebaseMediaUrl: string | undefined = undefined;
