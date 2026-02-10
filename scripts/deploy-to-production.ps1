@@ -1,54 +1,31 @@
-# Deploy UAT to Production
-# This script merges uat into production and deploys to production
+# Deploy UAT to Production (Vercel)
+# This script merges uat into main and pushes (Vercel auto-deploys)
 
 Write-Host "=== Deploy UAT to Production ===" -ForegroundColor Cyan
 
-# Confirmation
-Write-Host "`nThis will deploy UAT changes to PRODUCTION!" -ForegroundColor Yellow
-$confirm = Read-Host "Have you tested everything in UAT? (yes/no)"
-
-if ($confirm -ne "yes") {
-    Write-Host "Deployment cancelled" -ForegroundColor Yellow
-    exit 0
-}
-
-# Switch to production
-Write-Host "`nSwitching to production branch..." -ForegroundColor Cyan
-git checkout production
+# Switch to main
+Write-Host "`nSwitching to main branch..." -ForegroundColor Cyan
+git checkout main
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Error switching to production" -ForegroundColor Red
+    Write-Host "❌ Error switching to main" -ForegroundColor Red
     exit 1
 }
 
-# Update production
-Write-Host "Updating production branch..." -ForegroundColor Cyan
-git pull origin production
+# Update main
+Write-Host "Updating main branch..." -ForegroundColor Cyan
+git pull origin main
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Error pulling production" -ForegroundColor Red
+    Write-Host "❌ Error pulling main" -ForegroundColor Red
     exit 1
 }
 
-# Merge uat into production
-Write-Host "`nMerging uat into production..." -ForegroundColor Cyan
-git merge uat --no-ff -m "Merge uat into production for production release"
+# Merge uat into main
+Write-Host "`nMerging uat into main..." -ForegroundColor Cyan
+git merge uat --no-ff -m "Merge uat into main for production release"
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "`nMerge conflict detected!" -ForegroundColor Red
+    Write-Host "`n❌ Merge conflict detected!" -ForegroundColor Red
     Write-Host "Please resolve conflicts and try again" -ForegroundColor Yellow
-    exit 1
-}
-
-# Check IS_PRODUCTION flag
-Write-Host "`nIMPORTANT: Check IS_PRODUCTION flag..." -ForegroundColor Yellow
-Write-Host "Opening environments.ts..." -ForegroundColor Cyan
-code "src\lib\firebase\config\environments.ts"
-
-$flagCheck = Read-Host "`nIs IS_PRODUCTION set to true? (yes/no)"
-
-if ($flagCheck -ne "yes") {
-    Write-Host "`nPlease set IS_PRODUCTION = true in environments.ts" -ForegroundColor Red
-    Write-Host "Then run: git add . && git commit -m 'Set production flag'" -ForegroundColor Yellow
-    Write-Host "And run this script again" -ForegroundColor Yellow
     exit 1
 }
 
@@ -64,12 +41,12 @@ git config user.email "saurabhjadhav.webstudio@gmail.com"
 # Amend last commit with new author
 git commit --amend --reset-author --no-edit
 
-# Push to production
-Write-Host "`nDeploying to production..." -ForegroundColor Cyan
-git push origin production --force
+# Push to main (Vercel auto-deploys)
+Write-Host "`nPushing to main..." -ForegroundColor Cyan
+git push origin main --force
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Error pushing to production" -ForegroundColor Red
+    Write-Host "❌ Error pushing to main" -ForegroundColor Red
     git config user.name $originalName
     git config user.email $originalEmail
     exit 1
@@ -80,6 +57,6 @@ git config user.name $originalName
 git config user.email $originalEmail
 
 Write-Host "`n=== Complete! ===" -ForegroundColor Green
-Write-Host "Successfully deployed to PRODUCTION! 🚀" -ForegroundColor Green
-Write-Host "`nProduction URL: https://www.elitemindsetforge.com" -ForegroundColor Cyan
-Write-Host "GitHub Actions will complete the deployment" -ForegroundColor Gray
+Write-Host "✅ Successfully pushed to main branch! 🚀" -ForegroundColor Green
+Write-Host "`nProduction URL: https://www.autograminsta.online" -ForegroundColor Cyan
+Write-Host "Vercel is now deploying... Check Vercel dashboard for status" -ForegroundColor Gray
