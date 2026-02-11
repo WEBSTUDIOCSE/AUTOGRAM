@@ -454,9 +454,12 @@ export function MotivationalQuoteSettings() {
                 Configure the theme and style for automatic quote generation
               </CardDescription>
             </div>
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <Dialog open={dialogOpen} onOpenChange={(open) => {
+              setDialogOpen(open);
+              if (open) handleOpenDialog();
+            }}>
               <DialogTrigger asChild>
-                <Button onClick={() => handleOpenDialog()} className="w-full sm:w-auto" size="sm">
+                <Button className="w-full sm:w-auto min-h-[44px] sm:h-auto" size="sm">
                   <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                   <span className="text-xs sm:text-sm">Add Account</span>
                 </Button>
@@ -663,10 +666,20 @@ export function MotivationalQuoteSettings() {
                 </div>
 
                 <DialogFooter className="flex-col sm:flex-row gap-3 sm:gap-2">
-                  <Button variant="outline" onClick={() => setDialogOpen(false)} className="w-full sm:w-auto h-10 sm:h-9">
+                  <Button 
+                    type="button"
+                    variant="outline" 
+                    onClick={() => setDialogOpen(false)} 
+                    className="w-full sm:w-auto min-h-[44px] sm:h-9"
+                  >
                     Cancel
                   </Button>
-                  <Button onClick={handleSaveAccountConfig} disabled={saving} className="w-full sm:w-auto h-10 sm:h-9">
+                  <Button 
+                    type="button"
+                    onClick={handleSaveAccountConfig} 
+                    disabled={saving} 
+                    className="w-full sm:w-auto min-h-[44px] sm:h-9"
+                  >
                     {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                     {editingConfigIndex !== null ? 'Update' : 'Add'}
                   </Button>
